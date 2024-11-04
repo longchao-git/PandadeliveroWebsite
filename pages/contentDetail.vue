@@ -3,7 +3,7 @@
 		<sales-good-util :list='goodsArr' ref='child' :topInfo='topInfo' :shop_id='shop_id' @addCilck='addCilck' />
 		<div class='flex flex-a-c butoonView' style='cursor: pointer;justify-content: flex-end;margin: 0 auto;'>
 			<span class='color-242424 font14 ' v-if='addCartAary.length>0'>{{ $t('contentDetail.title') }}
-				{{ addCartAary.length }} <span style='color: #ee8080'>{{ $t(`importetotal`) }}：€{{ (min_amount).toFixed(2)
+				{{ addCartAary.length }} <span style='color: #f9c13e'>{{ $t(`importetotal`) }}：€{{ (min_amount).toFixed(2)
           }}</span> </span>
 			<div @click='handleCloseLoginDialog(1)' class='button_info' style='margin-left: 32px'>{{ $t('contentDetail.name')
         }}€{{ topInfo.min_amount }}{{ $t(`partir`) }}
@@ -630,7 +630,7 @@
 	.button_info {
 		width: 200px;
 		height: 53px;
-		background: #ee8080;
+		background: #f9c13e;
 		border-radius: 4px 4px 4px 4px;
 		text-align: center;
 		line-height: 53px;

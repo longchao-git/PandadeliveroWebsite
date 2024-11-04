@@ -2,11 +2,11 @@
   <div class='content_tab'>
     <div class='flex flex-bw flex-a-c title'>
       <h3 class='module_title'>{{ topInfo.title }} <span v-if="topInfo.yy_status != '1'||topInfo.yysj_status != '1'"
-                                                         style='color: #ee8080'>({{ $t('creation.cerrado') }})</span>
+                                                         style='color: #f9c13e'>({{ $t('creation.cerrado') }})</span>
       </h3>
     </div>
     <div v-for='(item,index) in list' :key='index'>
-      <div style='color: #ee8080;margin-bottom: 12px' class=' font14'>{{ item.title }}</div>
+      <div style='color: #f9c13e;margin-bottom: 12px' class=' font14'>{{ item.title }}</div>
       <div class='card_container'>
         <div class='card_item' v-for='(items,indexs) in item.products' :key='indexs' @click='loginbindTap(items,index,indexs)' >
           <div class='card_img_container'>
@@ -15,7 +15,7 @@
           <div class='flex flex-column'>
             <span class='font18 fontb beyond'>{{ items.title }} </span>
             <div style='display: flex;flex-direction: row; justify-content: space-between;'>
-              <span class=' line22 classNameView' style='color: #ee8080;'>
+              <span class=' line22 classNameView' style='color: #f9c13e;'>
                 	<span>€</span>
 								{{ items.price }}
 								<span>/ {{ items.unit }}</span>
@@ -265,7 +265,7 @@ export default {
       display: inline-block;
       width: 5px;
       height: 28px;
-      background-color: #ee8080;
+      background-color: #f9c13e;
       margin-right: 16px;
       flex-shrink: 0;
     }
@@ -311,7 +311,7 @@ export default {
     .buttonView {
       width: 20px;
       height: 20px;
-      background: #ee8080;
+      background: #f9c13e;
       border-radius: 20px;
       text-align: center;
       color: white;

@@ -11,7 +11,7 @@
           <div class=' '>
             <div class='font20 beyond' style='width: 200px;text-align: left'>{{ productInfo.title }}</div>
             <div class='color-4B4B4B font14 line22' style='text-align: left'>
-              <span class=' line22 classNameView' style='color: #ee8080;'>
+              <span class=' line22 classNameView' style='color: #f9c13e;'>
                 	<span>€</span>
                 {{specs.length>0?specs[specsIndex].price:productInfo.price}}
 								<span>/ {{productInfo.unit}}</span>
@@ -157,7 +157,7 @@ export default {
 .buttonView {
   width: 20px;
   height: 20px;
-  background: #ee8080;
+  background: #f9c13e;
   border-radius: 20px;
   text-align: center;
   color: white;
@@ -233,7 +233,7 @@ export default {
         display: inline-block;
         width: 2px;
         height: 10px;
-        background-color: #ee8080;
+        background-color: #f9c13e;
         margin-right: 8px;
         flex-shrink: 0;
 
@@ -270,7 +270,7 @@ export default {
     .button_info {
       width: 304px;
       height: 53px;
-      background: #ee8080;
+      background: #f9c13e;
       border-radius: 4px 4px 4px 4px;
       text-align: center;
       line-height: 53px;

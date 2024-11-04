@@ -3,41 +3,49 @@
     <div class='disflex p-relative contact-box'>
       <div class='asy-box'>
         <div class='f-title '>
-          <img class='footer_icon' src='~/assets/images/cloudSales/header2-logo.svg' alt='' />
-          <span class='service_title'> {{ $t('footer.footerItem.title') }}</span>
+          <img class='footer_icon' src='~/assets/images/footIConLogin.png' alt='' />
+          <div class="footer_buttom">成为快递员</div>
         </div>
 
       </div>
-<!--      <div class='asy-box'>-->
-<!--        <div class='f-title'>-->
-<!--          <div class='isViewTxet'>{{ $t('footer.Company.name') }}</div>-->
-<!--        </div>-->
+      <div class='asy-box'>
+        <div class='f-title'>
+          <div class='isViewTxet'>业务解决方案</div>
+        </div>
 
-<!--        <div class='asy-phone'>-->
-<!--          <div class='service_title'>{{ $t('footer.Company.content') }}</div>-->
+        <div class='asy-phone'>
+          <div class='service_title'>商家</div>
 <!--          <div class='service_title'>{{ $t('footer.Company.desc') }}</div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--      <div class='asy-box'>-->
-<!--        <div class='f-title '>-->
-<!--          <div class='isViewTxet'>{{ $t('footer.UsefulLinks.name') }}</div>-->
-<!--        </div>-->
+        </div>
+      </div>
+      <div class='asy-box'>
+        <div class='f-title '>
+          <div class='isViewTxet'>新闻</div>
+        </div>
 
-<!--        <div class='asy-phone'>-->
-<!--          <div class='service_title'>{{ $t('footer.UsefulLinks.content') }}</div>-->
-<!--          <div class='service_title'>{{ $t('footer.UsefulLinks.desc') }}</div>-->
-<!--          <div class='service_title'>{{ $t('footer.UsefulLinks.contentOne') }}</div>-->
-<!--          <div class='service_title'>{{ $t('footer.UsefulLinks.descOne') }}</div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--      <div class='asy-box'>-->
-<!--        <div class='f-title '>-->
-<!--          <div class='isViewTxet'>{{ $t('footer.SubscribeToOurNewsletter.name') }}</div>-->
-<!--        </div>-->
-<!--        <div class='asy-phone'>-->
-<!--          <div class='service_title'>{{ $t('footer.SubscribeToOurNewsletter.content') }}</div>-->
-<!--        </div>-->
-<!--      </div>-->
+        <div class='asy-phone'>
+          <div class='service_title'>本月精选</div>
+          <div class='service_title'>全部新闻</div>
+
+        </div>
+      </div>
+      <div class='asy-box'>
+        <div class='f-title '>
+          <div class='isViewTxet'>关于我们</div>
+        </div>
+        <div class='asy-phone'>
+          <div class='service_title'>联系我们</div>
+          <div class='service_title'>人才招牌</div>
+        </div>
+      </div>
+      <div class='asy-box'>
+        <img class='footer_app' src='~/assets/images/app_store.png' alt='' style="cursor: pointer" />
+        <img class='footer_app' src='~/assets/images/google_play.png' alt='' style="cursor: pointer" />
+        <div class='f-title '>
+          <div class='isViewTxet'  style="border: none">下载我们的应用程序</div>
+        </div>
+
+      </div>
     </div>
     <div class='disflex al-center copyright-box ju-center font12'>
       <div><a target='_blank' :href="'//' ">{{ $t('footer.footerBottom.desc') }}</a>&nbsp;</div>
@@ -78,13 +86,19 @@ export default {
 
 <style scoped lang='scss'>
 .footer-box {
-  background: #FFFFFF;
+  background-color: #222;
+  background-image: url("@/assets/images/footICon.png");
+  background-size: cover;
+  background-position: center;
   padding: 32px 0 0;
 
   a {
     color: inherit;
   }
-
+  .footer_app{
+    width: 190px;
+    height: 60px;
+  }
   .f-title {
     @extend .tran-300ms;
     font-size: 18px;
@@ -94,16 +108,34 @@ export default {
     flex-direction: column;
 
     .footer_icon {
-      width: 150px;
-      height: 49px;
-      margin-bottom: 8px;
+      width: 239px;
+      height: 70px;
+      margin-bottom: 20px;
     }
 
+    .footer_buttom{
+      cursor: pointer;
+      border-radius: 30px;
+      background:  #F9C13E;
+      width: 164px;
+      height: 48px;
+      padding: 0px 16px;
+      justify-content: center;
+      align-items: center;
+      color: #FFF;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 58px;
+      text-align: center;
+    }
     .isViewTxet {
-      font-size: 24px;
+      font-size: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.22);
       font-style: normal;
       font-weight: 500;
-      color: #03163B;
+      color: #FFFFFF;
+      padding-bottom: 10px;
     }
   }
 
@@ -115,22 +147,22 @@ export default {
   }
 
   .asy-box {
-    width: 250px;
+    width: 174px;
     height: 141px;
     margin: 0 72px 8px 72px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    //display: flex;
+    //flex-direction: column;
+    //align-items: center;
 
     .asy-phone {
-      color: #616976;
+      color: rgba(255, 255, 255, 0.70);
       font-weight: 400;
       margin-bottom: 20px;
       position: relative;
       top: -5px;
 
       > div {
-        font-size: 16px;
+        font-size: 14px;
       }
 
 
@@ -229,7 +261,6 @@ export default {
       flex-wrap: wrap;
 
       .asy-box {
-
         padding-bottom: 8px;
         margin: 0;
         width: 50%;

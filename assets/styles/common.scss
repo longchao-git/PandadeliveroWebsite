@@ -50,13 +50,13 @@ a {
 }
 
 .el-button.el-button--text {
-  color: #ee8080 !important;
+  color: #f9c13e !important;
   padding: 0;
 }
 
 .el-button--primary {
-  background-color: #ee8080 !important;
-  border-color: #ee8080 !important;
+  background-color: #f9c13e !important;
+  border-color: #f9c13e !important;
 }
 
 .el-breadcrumb__inner.is-link:hover {
@@ -632,11 +632,11 @@ a {
 .base-bg {
   @extend .tran-300ms;
   border-radius: 25px;
-  background: #ee8080 !important;
+  background: #f9c13e !important;
 
-  &:hover {
-    background: #365775 !important;
-  }
+  //&:hover {
+  //  background: #365775 !important;
+  //}
 }
 
 /*--------------------------------动画------------------------------------*/

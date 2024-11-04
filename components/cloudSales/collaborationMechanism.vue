@@ -85,7 +85,7 @@
                             transition: .3s;
                             &:hover {
                                 transition: .3s;
-                                border-color: #ee8080;
+                                border-color: #f9c13e;
                                 background: linear-gradient(90deg, #e1ecfc, #f6f9ff, #ffffff);
                             }
                             > div {
@@ -100,7 +100,7 @@
                                 }
                             }
                             &::before {
-                                background: #ee8080;
+                                background: #f9c13e;
                                 color: #fff;
                                 width: 40px;
                                 height: 40px;
@@ -121,11 +121,11 @@
                     }
                     .selected {
                         > div {
-                            border-color: #ee8080 !important;
-                            background: linear-gradient(90deg, #ee8080, #ecf3ff, #ffffff) !important;
+                            border-color: #f9c13e !important;
+                            background: linear-gradient(90deg, #f9c13e, #ecf3ff, #ffffff) !important;
                             &::before {
                                 background: #fff !important;
-                                color: #ee8080 !important;
+                                color: #f9c13e !important;
                             }
                         }
                     }

@@ -68,7 +68,7 @@ export default {
   .text_amount {
     min-width: 44px;
     padding: 0 6px;
-    background: #ee8080;
+    background: #f9c13e;
     box-shadow: 0px 0px 20px 0px rgba(163, 163, 164, 0.1);
     border-radius: 4px;
     font-size: 12px;

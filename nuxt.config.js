@@ -12,8 +12,8 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: 'KUAIZI',
-    title: 'KUAIZI',
+    titleTemplate: 'Pandadelivero',
+    title: 'Pandadelivero',
     htmlAttrs: {
       lang: 'es'
     },
@@ -63,7 +63,7 @@ export default {
     ],
     script: [
       // { src: 'https://js.stripe.com/v3/', ssr: false },
-      { src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDWG-HwH8F2CLS5aqYS12Me0qyxi9vkuig&libraries=places&v=weekly', ssr: false }
+      // { src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDWG-HwH8F2CLS5aqYS12Me0qyxi9vkuig&libraries=places&v=weekly', ssr: false }
     ]
   },
 

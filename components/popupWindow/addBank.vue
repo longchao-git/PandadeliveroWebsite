@@ -376,7 +376,7 @@ export default {
         margin-top: 12px;
 
         .button {
-          color: #ee8080;
+          color: #f9c13e;
           font-size: 14px;
           position: absolute;
           right: 24px;
@@ -421,7 +421,7 @@ export default {
           width: 100%;
 
           > span {
-            color: #ee8080;
+            color: #f9c13e;
           }
         }
       }
@@ -550,7 +550,7 @@ export default {
 
             > span {
               font-size: 12px;
-              color: #ee8080;
+              color: #f9c13e;
             }
           }
         }

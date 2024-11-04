@@ -134,10 +134,10 @@ export default {
       cursor: pointer;
 
       .setView {
-        border: 1px solid #ee8080 !important;
+        border: 1px solid #f9c13e !important;
 
         > div {
-          color: #ee8080 !important;
+          color: #f9c13e !important;
         }
       }
 
@@ -179,7 +179,7 @@ export default {
   .button_info {
     width: 304px;
     height: 53px;
-    background: #ee8080;
+    background: #f9c13e;
     border-radius: 4px 4px 4px 4px;
     text-align: center;
     line-height: 53px;

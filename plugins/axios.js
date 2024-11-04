@@ -18,9 +18,9 @@ export default ({redirect, $axios,$cookies}) => {
     config.timeout = 1000 * 60
     config.data = objToFormData(config.data)
 
-    // config.headers['Access-Control-Allow-Origin'] =  '*';
-    config.headers['System'] = 'wxapp';
-    config.headers['token'] =  localStorage.getItem('token') || '';
+    config.headers['Access-Control-Allow-Origin'] =  '*';
+    // config.headers['System'] = 'wxapp';
+    // config.headers['token'] =  localStorage.getItem('token') || '';
     config.headers['content-type'] =  'application/x-www-form-urlencoded';
     return config
   }, error => {

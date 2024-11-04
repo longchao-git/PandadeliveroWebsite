@@ -92,7 +92,7 @@
 
                         &:hover {
                             p, div {
-                                color: #ee8080;
+                                color: #f9c13e;
                             }
                         }
                         p {
