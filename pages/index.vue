@@ -50,57 +50,36 @@
         </div>
       </div>
     </div>
-    <div class="detail_container">
-      <expansion-market :lists='lists'/>
-      <div class="flex flex-a-c flex-j-c mt3" style="cursor: pointer" @click='bindTapCilck'>
-        <span class=" font18" style='font-weight: 500;color: #ee8080'>{{morehidden? $t('creation.title') : $t('creation.oneTitle')}}</span>
-      </div>
-    </div>
+
     <collaborationMechanism></collaborationMechanism>
     <believeCooperation></believeCooperation>
-    <!--全球合作商组件-->
-    <!--    <global-partners style='margin-bottom: 16px' />-->
-    <!-- 云销售首页组件集合 -->
 
-    <!-- 登录弹窗 type - 0: 个人  1: 企业 -->
-    <login-window :type='loginType' @handleCloseLoginDialog='handleCloseLoginDialog' />
+    <addAddr :type='loginType'></addAddr>
   </div>
 </template>
 
 <script>
-import GlobalPartners from '../components/common/global-partners';
 
-import LoginWindow from '../components/popupWindow/loginWindow.vue';
 import collaborationMechanism from '../components/cloudSales/collaborationMechanism.vue';
 import believeCooperation from '../components/cloudSales/believeCooperation.vue';
-import config from '../config';
-import { mapMutations } from 'vuex';
-import error from '@/layouts/error';
-import ExpansionMarket from '@/components/cloudSales/expansionMarket';
+import addAddr from '../components/popupWindow/addAddr.vue';
+
 export default {
 
   components: {
-    GlobalPartners,
-    LoginWindow,
     believeCooperation,
     collaborationMechanism,
-    ExpansionMarket
+    addAddr
   },
   data() {
     return {
-      filterParams: {
-        dictionaryType: 1
-      },
-      // 登录的选项类型
-      loginType: -1,
+      loginType: 1,
+
       // 是否显示底部内容
       isShowFooterContent: 0,
       context: '',
-      dictionaryContent: {},
       contentData: [],
-      lists:[],
-      page:1,
-      morehidden:false,
+      page: 1
     };
   },
 
@@ -115,11 +94,6 @@ export default {
       }
     },
 
-    /** 处理登录弹框的关闭操作 */
-    handleCloseLoginDialog(value) {
-      this.loginType = value;
-    },
-
     handleClick(type) {
       if (type === 1) {
         window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share';
@@ -132,52 +106,13 @@ export default {
         }
         window.location.href = '/creation?keywords=' + this.context;
       }
-      // window.location.href = '/addressIndex';
     },
-    //
-    showPosition(position) {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-    },
-    waimaiIndex() {
-      const params = {
-        data: {}
-      };
-      ;
-      this.$axios.post('/client/waimai/index/index', params).then(res => {
-        for (let i in res.theme) {
-          if (res.theme[i].module === 'module2') {
-            this.contentData = res.theme[i].content;
-          }
-        }
-        console.log(this.contentData);
-      }).catch(err => {
-        this.$message.info(err.message);
-      });
-    },
-    bindTapCilck(){
-      this.page++
-      this.shoplist()
-    },
+
+
     shoplist() {
-      const params = {
-        data: {
-          'page': this.page, 'cate_id': 0, 'pei_filter': '', 'youhui_filter': '', 'feature_filter': '', 'order': '', 'index': 1
-        }
-      };
-      ;
-      this.$axios.post('/client/waimai/shop/shoplist', params).then(res => {
-        if(res.items.length==0){
-          this.morehidden = false
-        }else {
-          this.morehidden = true
-        }
-        console.log(res.items)
-        if(this.page == 1 ){
-          this.lists = res.items
-        }else {
-          this.lists = this.lists.concat(res.items)
-        }
+      const params = {};
+      this.$axios.post('/client/adv/paotuiadv', params).then(res => {
+
       }).catch(err => {
         this.$message.info(err.message);
       });
@@ -199,7 +134,9 @@ export default {
       console.log('Geolocation is not supported by this browser.');
     }
     window.addEventListener('scroll', this.scrollEvent.bind(this));
-    this.waimaiIndex();
+    this.$nextTick(()=>{
+      this.loginType = 4
+    })
     this.shoplist();
   }
 };
@@ -237,12 +174,14 @@ export default {
   width: 24px;
   height: 24px;
 }
+
 .detail_container {
   width: 90%;
   margin: 0 auto;
   padding: 24px 0;
 
 }
+
 .head-bg {
   @extend .tran-300ms;
   padding: 120px 0;

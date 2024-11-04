@@ -1,3 +1,4 @@
+
 <template>
   <div v-if='loginType === 1' class='login-window'>
     <div class='login-window-card'>
@@ -5,35 +6,32 @@
         <div class='loginView'>
           <img @click='handleChangeType(1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
-        <p>欢迎使用pandadelivero熊猫配送</p>
+        <p>申请成为快递员</p>
         <div class='loginClass'>
-          <div class='login_input p-relative'>
+          <div class='login_input'>
+            <div>姓名</div>
+            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="uname">
+            </el-input>
+          </div>
+          <div class='login_input'>
             <div>手机号</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]" @mousewheel.native.prevent type='number' style='width: 350px;height: 48px' v-model="mobile">
-              <template slot="prepend" v-if='!isHaTrue'>+34</template>
-            </el-input>
-            <span class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue'>{{
-                isGetCode ? $t('loginOrRegister.btnText')[1] : `${countdown}s${$t('loginOrRegister.btnText')[2]}`
-              }}</span>
-          </div>
-
-          <div class='login_input' v-if='!isHaTrue'>
-            <div>验证码</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="passwd">
+            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="mobile">
             </el-input>
           </div>
-
-          <div class='login_input' v-if='isHaTrue'>
+          <div class='login_input'>
             <div>密码</div>
             <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="passwd">
             </el-input>
           </div>
-
+          <div class='login_input'>
+            <div>身份证号码</div>
+            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="id_number">
+            </el-input>
+          </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
             立即申请
           </v-btn>
-          <div class='mt2' @click='isHaTrue=!isHaTrue' style='cursor: pointer'>{{isHaTrue?'验证码登录':'密码登录'}}</div>
         </div>
       </div>
     </div>
@@ -56,10 +54,7 @@ export default {
       mobile: '',
       passwd: '',
       uname: '',
-      id_number: '',
-      isHaTrue:false,
-      countdown:60,
-      isGetCode: true,
+      id_number: ''
     };
   },
 
@@ -210,7 +205,7 @@ export default {
           color: #2c2c2c;
           font-size: 16px;
           padding-right: 12px;
-          //padding-top: 8px;
+          padding-top: 8px;
         }
       }
 
@@ -389,5 +384,3 @@ export default {
   }
 }
 </style>
-
-

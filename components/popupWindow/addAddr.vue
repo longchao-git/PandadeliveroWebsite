@@ -10,51 +10,39 @@
         <div class='loginClass'>
           <div class='login_input'>
             <div>{{ $t('searchaddress') }}</div>
-            <input
-              v-model='addr'
-              :placeholder="$t('addAddr.ingrese')"
-              class='c-input' />
-            <el-button type='primary' @click='handClickSerch()'>{{$t('search')}}</el-button>
+
+            <el-autocomplete
+              class='inline-input'
+              v-model='addr'   :trigger-on-focus="false"
+              :fetch-suggestions='querySearch'
+              placeholder='请输入内容'
+              style='width: 330px'
+              @select='handleSelect'
+            ></el-autocomplete>
           </div>
           <div class='mapContainer' ref='mapContainer'></div>
-          <div class='login_input'>
-            <div>{{ $t('loginPopup.fromOne') }}</div>
-            <el-select clearable v-model='nameId' filterable :placeholder="list.length<=0?$t('PleaseSearchFirst'): $t('loginOrRegister.placeholder')[1] "
-                       style='flex: 1' @change='bindtapChange'>
-              <el-option v-for='(item, index) in list' :key='index' :label='item.name'
-                         :value='item.id'></el-option>
-            </el-select>
 
-          </div>
           <div class='login_input'>
-            <div>{{$t(`city`)}}</div>
-            <el-select clearable v-model='city_id' filterable :placeholder="$t('loginOrRegister.placeholder')[1]"
-                       style='flex: 1' >
-              <el-option v-for='(item, index) in cityList' :key='index' :label='item.city_name'
-                         :value='item.city_id'></el-option>
-            </el-select>
-
-          </div>
-          <div class='login_input'>
-            <div>{{ $t('loginPopup.fromTwo') }}</div>
+            <div>门牌号</div>
             <input
               v-model='house'
               :placeholder="$t('addAddr.ingrese')"
               class='c-input' />
           </div>
           <div class='login_input'>
-            <div>{{ $t('loginPopup.fromTree') }}</div>
+            <div>联系人</div>
             <input
               v-model='contact'
               :placeholder="$t('addAddr.ingrese')"
               class='c-input' />
+
           </div>
           <div class='login_input'>
-            <div>{{ $t('loginPopup.fromFour') }}</div>
+            <div>电话号码</div>
             <el-input @mousewheel.native.prevent
-              v-model='mobile' type='number' style='width: 330px'
-              :placeholder="$t('addAddr.ingrese')"
-             >
+                      v-model='mobile' type='number' style='width: 330px'
+                      :placeholder="$t('addAddr.ingrese')"
+            >
             </el-input>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>{{ $t(`asentar`) }}
@@ -78,16 +66,15 @@ export default {
       service: '',
       list: '',
       nameId: '',
-      marker:null,
-      cityList:[],
-      city_id:''
+      marker: null,
+
+      city_id: ''
     };
   },
   watch: {
     type(newVal, oldVal) {
       if (newVal === 4) {
         this.elements();
-        this.waimaiIndex()
       }
     }
   },
@@ -97,119 +84,95 @@ export default {
       this.$nextTick(() => {
         this.googleMap = new window.google.maps.Map(this.$refs.mapContainer, {
           center: location,
-          zoom: 16
+          zoom: 10
         });
-        let warehouseGpsPosition = new window.google.maps.LatLng(40.4202472, -3.7160397);
 
-        // 在地图上生成仓库的标记，仓库图标自定义
-        this.marker = new window.google.maps.Marker({
-          position: warehouseGpsPosition,
-          // title: '标记'
-        });
         this.service = new window.google.maps.places.PlacesService(this.googleMap);
       });
 
     },
-    waimaiIndex() {
+    handleSelect(item) {
 
-      const params = {
-        data: {
-
-        }
-      };
-
-      this.$axios.post('/client/data/all_cities', params).then(res => {
-        this.cityList = res.items
-      }).catch(err => {
-        this.$message.info(err.message);
+      this.addr = item.value;
+      // 在地图上生成仓库的标记，仓库图标自定义
+      this.marker = new window.google.maps.Marker({
+        position: { lat: Number(item.lat) , lng: Number(item.lng) },
+        map:this.googleMap,
+        title: item.value,
       });
+
     },
-    handClickSerch() {
-      let that = this;
+    querySearch(queryString, cb) {
       let request = {};
+      let list = [];
       let pyrmont = new window.google.maps.LatLng(40.4202472, -3.7160397);
-      // if (that.acceptValue) {
-      request = {
-        query: this.addr,
-        location: pyrmont,
-        radius: '500'
-      };
-      this.service.textSearch(request, async (results, status)=> {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-
-          let list = [];
-          for (let i in results) {
-            let code = await this.nnewsa(results[i].geometry.location)
-            if(code){
-              list.push({
-                id: 'id' + i,
-                name: results[i].name +' ' +code,
-                lat: results[i].geometry.location.lat(),
-                log: results[i].geometry.location.lng(),
-
-              });
+      if (queryString) {
+        request = {
+          query: queryString,
+          location: pyrmont,
+          radius: '500'
+        };
+        this.service.textSearch(request, async (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            for (let i in results) {
+              let code = await this.nnewsa(results[i].geometry.location);
+              if (code) {
+                list.push({
+                  id: 'id' + i,
+                  value: results[i].name + ' ' + code,
+                  lat: results[i].geometry.location.lat(),
+                  lng: results[i].geometry.location.lng()
+                });
+              }
             }
+            cb(list);
+          } else {
+            cb(list);
           }
-          that.nameId = '';
-          that.list = list;
-
-        }
-      });
+        });
+      } else {
+        cb(list);
+      }
     },
 
     nnewsa(data) {
-      let gcode = new window.google.maps.Geocoder()
+      let gcode = new window.google.maps.Geocoder();
       return new Promise((resove, reject) => {
         gcode.geocode({
           'latLng': data
         }, function(results, status) {
-          console.log(results)
           if (results && results.length > 0 && results[0]
               .address_components.length >= 8 &&
             results[0].address_components[7].long_name) {
-            resove(results[0].address_components[7].long_name)
+            resove(results[0].address_components[7].long_name);
           } else {
-            resove('')
+            resove('');
           }
         });
-      })
+      });
     },
-    bindtapChange(){
-      for (let i in this.list) {
 
-        if (this.list[i].id == this.nameId) {
-          let warehouseGpsPosition = new window.google.maps.LatLng(this.list[i].lat,this.list[i].log);
-
-          // 在地图上生成仓库的标记，仓库图标自定义
-          this.marker = new window.google.maps.Marker({
-            position: warehouseGpsPosition,
-            // title: '标记'
-          });
-
-        }
-      }
-    },
     /** 处理呼叫父级 - 设置type状态 */
     handleChangeType(value) {
       if (value === 2) {
-        if (!this.contact ) {
-          this.$message.info(this.$t(`home.ingrese`) +this.$t(`loginPopup.fromTree`));
+        if (!this.contact) {
+          this.$message.info(this.$t(`home.ingrese`) + this.$t(`loginPopup.fromTree`));
           return;
         }
-        if ( !this.mobile) {
-          this.$message.info(this.$t(`home.ingrese`)+this.$t(`loginPopup.fromFour`));
+        if (!this.mobile) {
+          this.$message.info(this.$t(`home.ingrese`) + this.$t(`loginPopup.fromFour`));
           return;
         }
-        if (!this.house ) {
-          this.$message.info(this.$t(`home.ingrese`)+this.$t(`loginPopup.fromTwo`));
+        if (!this.house) {
+          this.$message.info(this.$t(`home.ingrese`) + this.$t(`loginPopup.fromTwo`));
           return;
         }
         if (!this.nameId) {
-          this.$message.info(this.$t('loginOrRegister.placeholder')[1]+this.$t(`loginPopup.fromOne`));
+          this.$message.info(this.$t('loginOrRegister.placeholder')[1] + this.$t(`loginPopup.fromOne`));
           return;
         }
         if (!this.city_id) {
-          this.$message.info(this.$t('loginOrRegister.placeholder')[1]+this.$t(`city`));
+          this.$message.info(this.$t('loginOrRegister.placeholder')[1] + this.$t(`city`));
           return;
         }
         const params = {
@@ -217,7 +180,7 @@ export default {
             'contact': this.contact,
             'mobile': this.mobile,
             'house': this.house,
-            'city_id':this.city_id,
+            'city_id': this.city_id,
             'addr': '',
             'lng': '',
             'lat': '',
@@ -226,12 +189,11 @@ export default {
           }
         };
         for (let i in this.list) {
-          console.log(this.list[i].id);
-          console.log(this.nameId);
+
           if (this.list[i].id == this.nameId) {
             params.data.addr = this.list[i].name;
             params.data.lat = this.list[i].lat;
-            params.data.lng = this.list[i].log;
+            params.data.lng = this.list[i].lng;
           }
         }
         this.$axios.post('/client/member/addr/create', params).then(res => {

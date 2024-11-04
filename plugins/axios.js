@@ -16,24 +16,11 @@ export default ({redirect, $axios,$cookies}) => {
 
     /* 如果是上传，则设置超时为 1小时， 请求超时10分钟 */
     config.timeout = 1000 * 60
-    // 不同请求方式不同处理
-    config.data.CLIENT_OS = 'ANDROID'
-    config.data.CLIENT_API = 'CUSTOM'
-    config.data.LANG = localStorage.getItem('locale')?localStorage.getItem('locale'):'es'
-    if(localStorage.getItem('token')){
-      config.data.TOKEN =  localStorage.getItem('token') || '';
-    }
-
-    config.data.LNG =  localStorage.getItem('LNG') || -3.7160397;
-    config.data.LAT =  localStorage.getItem('LAT') || 40.4202472;
-    if(config.data.data){
-      config.data.data = JSON.stringify(config.data.data)
-    }
-
     config.data = objToFormData(config.data)
 
-    config.headers['Access-Control-Allow-Origin'] =  '*';
-
+    // config.headers['Access-Control-Allow-Origin'] =  '*';
+    config.headers['System'] = 'wxapp';
+    config.headers['token'] =  localStorage.getItem('token') || '';
     config.headers['content-type'] =  'application/x-www-form-urlencoded';
     return config
   }, error => {
