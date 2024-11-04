@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'baloo2';
+  font-display: swap;
+  src: url("../fonts/baloo2.ttf");
+}
+body {
+  font-family: 'baloo2' !important;
+}
+.v-application{
+  font-family: 'baloo2' !important;
+}
+.v-application .title{
+  font-family: 'baloo2' !important;
+}
+//local("Great Vibes")
+//,
+
+/*
+
+@font-face {
+  font-family: '思源黑体 CN Regular';
+  font-display: swap;
+  src: local("思源黑体 CN Regular")
+  , url("../fonts/SourceHanSansCN-Regular.otf");
+}
+@font-face {
+  font-family: '思源黑体 CN Medium';
+  font-display: swap;
+  src:  local("思源黑体 CN Medium")
+  , url("../fonts/SourceHanSansCN-Medium.otf");
+}
+
+@font-face {
+  font-family: '优设标题黑';
+  font-display: swap;
+  src:  local("优设标题黑")
+  , url("../fonts/YouSheBiaoTiHei.ttf");
+}
+*/

@@ -1,0 +1,8 @@
+version: '3.3'
+services:
+  nuxt:
+    restart: always
+    image: dqsite1 #对应自己构建的image，名称自定义
+    container_name: dqsite1 #对应自己构建的image，名称自定义
+    ports:
+      - 3003:3003

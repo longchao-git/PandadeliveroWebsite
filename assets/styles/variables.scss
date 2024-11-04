@@ -1,0 +1,35 @@
+/*----------------------覆盖UI库 样式--------------------------*/
+$tab-font-size: 14px;  // >1440px
+$small-tab-font-size: 14px;  // <1440px
+
+$plate-title-font-size: 30px;  // 板块主标题
+$content-title-font-size: 18px; // 内容字体大小
+
+/*----------------------END--------------------------*/
+$phone-max-width: 600px; // 手机最大宽度
+$pad-max-width: 992px; // 平板最大宽度
+$pc-min-width: $pad-max-width; // pc 最小宽度
+$big-pc-width: 1440px; // 大PC屏幕
+
+/*----------------------PC端变量--------------------------*/
+$app-bar-height: 56px; // 导航栏高度
+
+/*---------------------手机端变量---------------------------*/
+$small-app-bar-height: 52px; // 手机导航栏高度
+
+/*---------------------全局公共样式---------------------------*/
+
+._base-title {
+  font-size: $plate-title-font-size;
+  color: #171B20;
+}
+
+._base-vw-bg {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.tran-300ms {
+  transition: all 300ms ease-in-out;
+}

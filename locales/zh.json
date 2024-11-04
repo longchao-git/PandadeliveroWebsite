@@ -1,0 +1,150 @@
+{
+  "header": {
+    "lang": "语言切换",
+    "information": "下载app",
+    "placeholder": "请输入查看下单商家",
+    "login": "登录",
+    "register": "注册"
+  },
+  "userPopup": {
+    "name": "登录"
+  },
+  "home": {
+    "moduleTitle": "所有饭店",
+    "lengua": "语言",
+    "tasa": "规格",
+    "ingrese": "请输入",
+    "partir": "起送",
+    "Gastos": "配送",
+    "postageandpackingfee": "配送费"
+  },
+  "index": {
+    "oneTitle": "欢迎来到商务筷子",
+    "oneName": "通过我们的服务添加您的业务",
+    "oneContent": "释放您的潜力并推动增长。我们通过定制解决方案帮助企业做出业务决策，从而提高业绩。",
+    "oneButtonLeft": "谷歌下载",
+    "oneButtonRight": "苹果下载",
+    "twoName": "立即与我们值得信赖的平台合作。",
+    "twoTop": "体验世界风味，送货上门！通过我们便捷的食品配送平台，探索来自世界各地的美食。只需轻点几下，即可享受各种令人垂涎欲滴的菜肴，满足您的味蕾。",
+    "twoBoot": "无论您想吃咸味、辣味还是甜味的美食，我们都能满足您的需求。快速、新鲜、无忧无虑——我们将您最喜欢的餐厅带到您身边。立即订购，让您的味蕾足不出户即可踏上全球美食之旅！",
+    "threeName": "我们提供的外卖服务",
+    "threeTitle": "在 KUAIZI，我们拥有一支充满热情和经验丰富的团队，致力于为您带来最佳的用餐体验。我们的团队由热爱美食、科技和客户满意度的人组成。在 KUAIZI，我们拥有一支充满热情和经验丰富的团队，致力于为您带来最佳的用餐体验。我们的团队由热爱美食、科技和客户满意度的人组成。",
+    "threeLeftTopName": "无限美食选择",
+    "threeLeftTopTitle": "探索众多餐厅和美食，尽在指尖。从当地美食到国际美食，总有一款能满足您的各种需求。",
+    "threeLeftBootName": "快速送货",
+    "threeLeftBootTitle": "我们以快速、可靠地为您送餐而自豪。我们高效的配送系统可确保您的餐食在短时间内热腾腾、新鲜的送到您家门口。",
+    "threeRightTopName": "订购方便",
+    "threeRightTopTitle": "只需在我们用户友好的应用程序或网站上点击几下即可订购您喜欢的菜肴。我们直观的界面让订购变得轻而易举，您可以根据自己的喜好定制餐点。\n\n",
+    "threeRightBootName": "质量保证",
+    "threeRightBootTitle": "从合作餐厅到食品包装，我们始终将质量和安全放在首位。您可以放心，我们的餐食都是精心准备和配送的。\n\n"
+  },
+  "footer": {
+    "footerItem": {
+      "title": "祝您旅途愉快，胃口大开"
+    },
+    "Company": {
+      "name": "公司",
+      "content": "家",
+      "desc": "接触"
+    },
+    "UsefulLinks": {
+      "name": "有用的链接",
+      "content": "无限美食选择",
+      "desc": "订购方便",
+      "contentOne": "快速送货",
+      "descOne": "质量保证"
+    },
+    "SubscribeToOurNewsletter": {
+      "name": "订阅我们的新闻",
+      "content": "希望我们的服务能够继续简化您的生活并增强您的用餐体验。"
+    },
+    "footerBottom": {
+      "desc": "版权所有 © 2024.KUAIZI 保留所有权利。"
+    }
+  },
+  "creation": {
+    "oneTitle": "暂无更多",
+    "title": "点击加载更多",
+    "cerrado": "打烊了",
+    "gastos": "免配送费",
+    "Agotado": "已售罄",
+    "disponibles": "可选规格"
+  },
+  "contentDetail": {
+    "title": "已选择",
+    "name": "下单"
+  },
+  "loginPopup": {
+    "name": "支付/地址",
+    "fromOne": "地址",
+    "fromTwo": "门牌号",
+    "fromTree": "收货人",
+    "fromFour": "手机号",
+    "fromFive": "卡号"
+  },
+  "loginOrRegister": {
+    "title": "登录或注册",
+    "formLabel": [
+      "国家/地区",
+      "手机号码",
+      "手机验证码",
+      "图形验证"
+    ],
+    "btnText": [
+      "登录或注册",
+      "获取验证码",
+      "后重新获取"
+    ],
+    "placeholder": [
+      "请输入",
+      "请选择"
+    ]
+  },
+  "addAddr": {
+    "name": "添加地址",
+    "ingrese": "请输入"
+  },
+  "asentar": "确定",
+  "Guardar": "保存成功",
+  "save": "保存",
+  "bank": {
+   "bank": "银行卡",
+    "name": "绑定银行卡",
+    "type": "卡类型",
+    "bankName": "卡名称",
+    "cardNumber": "卡号",
+    "year": "年份",
+    "month":"月",
+    "cvc": "安全码",
+    "but": "确认绑定"
+  },
+  "importetotal":"总金额",
+  "partir": "起送",
+  "productos": "商品库存不足",
+  "salida": "总金额小于起送价格",
+  "online_pay": "在线支付",
+  "is_daofu": "餐到付款现金",
+  "is_pos": "餐到付款刷卡",
+  "addView":"下单成功",
+  "enviado": "订单已提交",
+  "all": "全部",
+  "depago": "支付方式",
+  "comprador": "买家留言",
+  "searchaddress": "搜索地址",
+  "search": "搜索",
+  "PleaseSearchFirst": "请先搜索",
+  "PleaseNumber":"请输入卡号",
+  "Thebankcard":"已绑定银行卡了 如还需绑定请删除之前银行卡",
+  "failtoadd": "添加失败",
+  "Commodityamount": "商品金额",
+  "postagefee": "配送费",
+  "packingexpense": "包装费",
+  "Deletethiscard": "删除此卡",
+  "confirm": {
+    "one": "确认删除吗, 是否继续",
+    "two": "提示",
+    "tree": "取消",
+    "five": "删除成功"
+  },
+  "city": "城市"
+}
