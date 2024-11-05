@@ -3,37 +3,42 @@
     <div class='login-window-card'>
       <div>
         <div class='loginView'>
-          <img @click='handleChangeType(1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
+          <img @click='handleChangeType(1)' src='@/assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
-        <p>欢迎使用pandadelivero熊猫配送</p>
+        <div class='flex' style='justify-content: center;margin-top: 36px'>
+          <img src='@/static/favicon.png' alt='' style='width: 70px;height: 70px'/>
+          <p>pandadelivero</p>
+        </div>
+        <div class='center choneChone'>欢迎回来!</div>
         <div class='loginClass'>
           <div class='login_input p-relative'>
             <div>手机号</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]" @mousewheel.native.prevent type='number' style='width: 350px;height: 48px' v-model="mobile">
-              <template slot="prepend" v-if='!isHaTrue'>+34</template>
+            <el-input placeholder='请输入' @mousewheel.native.prevent type='number' style='width: 380px;margin-top: 8px; height: 48px'
+                      v-model='mobile'>
+              <template slot='prepend' v-if='!isHaTrue'>+34</template>
             </el-input>
             <span class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue'>{{
-                isGetCode ? $t('loginOrRegister.btnText')[1] : `${countdown}s${$t('loginOrRegister.btnText')[2]}`
+                isGetCode ? '获取验证码' : `${countdown}s重新获取`
               }}</span>
           </div>
 
           <div class='login_input' v-if='!isHaTrue'>
             <div>验证码</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="passwd">
+            <el-input placeholder='请输入' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
 
           <div class='login_input' v-if='isHaTrue'>
             <div>密码</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="passwd">
+            <el-input placeholder='请输入' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
 
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
-            立即申请
+            登录
           </v-btn>
-          <div class='mt2' @click='isHaTrue=!isHaTrue' style='cursor: pointer'>{{isHaTrue?'验证码登录':'密码登录'}}</div>
+          <div class='mt2' @click='isHaTrue=!isHaTrue' style='cursor: pointer;color: #F9C13E;'>{{ isHaTrue ? '验证码登录' : '密码登录' }}</div>
         </div>
       </div>
     </div>
@@ -57,16 +62,12 @@ export default {
       passwd: '',
       uname: '',
       id_number: '',
-      isHaTrue:false,
-      countdown:60,
-      isGetCode: true,
+      isHaTrue: false,
+      countdown: 60,
+      isGetCode: true
     };
   },
-
-
   methods: {
-
-
     handleChangeType(type) {
       if (type === 1) {
         this.$emit('handleCloseLoginDialog', -1);
@@ -120,12 +121,18 @@ export default {
   z-index: 100;
   display: flex;
 }
-
+.choneChone{
+  color: #ECAC00;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
 
 /** 登录卡片样式 */
 .login-window-card {
   border-radius: 8px;
-  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(238, 128, 128, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
+  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 196, 70, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
   height: 500px;
@@ -156,7 +163,7 @@ export default {
 
     p {
       font-size: 24px;
-      padding: 24px 0;
+
     }
 
     .loginClass {
@@ -165,7 +172,7 @@ export default {
       align-items: center;
       justify-content: center;
       margin-top: 8px;
-      padding: 0 48px;
+      padding: 0 80px;
 
       .logoCard {
         width: 72px;
@@ -184,16 +191,17 @@ export default {
 
       .login_input {
         width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+
+
+
         margin-top: 12px;
 
         .button {
           color: #0a98fe;
           font-size: 14px;
           position: absolute;
-          right: 24px;
+          top: 32px;
+          right: 16px;
           line-height: 48px;
         }
 
@@ -204,12 +212,12 @@ export default {
         }
 
         > div {
-          width: 100px;
+          width: 100%;
           flex-shrink: 0;
-          text-align: right;
-          color: #2c2c2c;
+          text-align: left;
+          color: #4B4B4B;
           font-size: 16px;
-          padding-right: 12px;
+
           //padding-top: 8px;
         }
       }

@@ -1,45 +1,24 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
     <div class='content'>
-      <p>成为骑手，最大化您的收入</p>
-      <div>诚聘精英  薪动你就来</div>
+      <p>今天就注册并开始赚钱吧!</p>
+
     </div>
 
     <div class='_bottom'>
-      <div class='_left'>
-        <dl>
-          <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt='' style='width: 60px;height: 60px'>
-          <dd>
-            <p>有竞争力的收益</p>
-            <div>通过 PandaDelivero获得每日收入</div>
-          </dd>
-
-        </dl>
-      </div>
-      <div class='_right'>
-        <dl>
-          <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt='' style='width: 60px;height: 60px'>
-          <dd>
-            <p>灵活的时间表</p>
-            <div>随时随地交付赚取所需</div>
-          </dd>
-        </dl>
-      </div>
-      <div class='_right'>
-        <dl>
-          <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt='' style='width: 60px;height: 60px'>
-          <dd>
-            <p>保险和福利</p>
-            <div>使用 PandaDelivero 安全骑行享受独家优惠</div>
-          </dd>
-        </dl>
-      </div>
+      <img src='@/assets/images/viewAddBUtton.png' alt='' @click='bingTapClick' style='cursor: pointer'>
     </div>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  methods:{
+    bingTapClick(){
+      window.location.href = '/creation'
+    }
+  }
+};
 </script>
 
 <style lang='scss' scoped>
@@ -47,7 +26,7 @@ export default {};
   position: relative;
   display: flex;
   //background: #254969;
-  background-image: url("@/assets/images/cloudSales/home/iconVIewView.png");
+  background-image: url("@/assets/images/cloudSales/home/iconBackONe.png");
   background-size: cover;
   background-position: center;
 
@@ -61,22 +40,13 @@ export default {};
 
     p {
       font-size: 54px;
-      color: #000;
+      color: #FFF;
       font-weight: bold;
       margin: 0 auto 10px;
       letter-spacing: 1px;
       max-width: 800px;
     }
 
-    div {
-      color:#777;
-      font-size: 20px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 26px;
-      margin: 0 auto 10px;
-      max-width: 800px;
-    }
   }
 
   > ._bottom {
@@ -84,50 +54,12 @@ export default {};
     align-items: center;
     justify-content: center;
     margin: 300px auto 120px;
-    height: 120px;
-
-
-    ._left, ._right {
-      height: 100%;
-      background: #FFFFFF;
-      padding: 24px 20px;
-      border-radius: 16px;
-      margin: 0 12px;
-      width: 424px;
-      dl {
-        height: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        //justify-content: space-between;
-
-        dd {
-          margin-left: 12px;
-
-          &:hover {
-            p, div {
-              color: #f9c13e;
-            }
-          }
-
-          p {
-            font-size: 24px;
-            font-weight: bold;
-            color:#181818;
-            margin-bottom: 6px;
-          }
-
-          div {
-            font-size: 16px;
-            color:#8B8B8B;
-            max-width: 600px;
-            font-weight: 500;
-            display: flex;
-
-          }
-        }
-      }
+    height: 54px;
+    img{
+      width: 176px;
+      height: 54px;
     }
+
   }
 }
 

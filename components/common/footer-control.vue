@@ -2,7 +2,7 @@
   <div class='footer-box disflex al-center max-width f-column'>
     <div class='disflex p-relative contact-box'>
       <div class='asy-box'>
-        <div class='f-title '>
+        <div class='f-title ' @click='bingtapCilck(1)'>
           <img class='footer_icon' src='~/assets/images/footIConLogin.png' alt='' />
           <div class="footer_buttom">成为快递员</div>
         </div>
@@ -39,8 +39,8 @@
         </div>
       </div>
       <div class='asy-box'>
-        <img class='footer_app' src='~/assets/images/app_store.png' alt='' style="cursor: pointer" />
-        <img class='footer_app' src='~/assets/images/google_play.png' alt='' style="cursor: pointer" />
+        <img class='footer_app' @click='bingtapCilck(2)' src='~/assets/images/app_store.png' alt='' style="cursor: pointer" />
+        <img class='footer_app' @click='bingtapCilck(3)' src='~/assets/images/google_play.png' alt='' style="cursor: pointer" />
         <div class='f-title '>
           <div class='isViewTxet'  style="border: none">下载我们的应用程序</div>
         </div>
@@ -65,21 +65,18 @@ export default {
   },
   computed: {},
   methods: {
-    // 在线咨询
-    onlineAdvisory() {
-      window.open(
-        'http://wpa.qq.com/msgrd?v=3&uin=1220517902&site=qq&menu=yes',
-        '_blank',
-        'height=600, width=800, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no'
-      );
-      return false;
+
+    bingtapCilck(type){
+      if(type === 1){
+        window.location.href = '/creation'
+      }else  if (type === 2) {
+        window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share';
+      } else if (type === 3) {
+        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841';
+      }
+
     },
 
-    // 展示微信弹窗
-    showWechatDialog() {
-      this.isShowDialog = true;
-      return false;
-    }
   }
 };
 </script>
@@ -118,7 +115,7 @@ export default {
       border-radius: 30px;
       background:  #F9C13E;
       width: 164px;
-      height: 48px;
+      height: 58px;
       padding: 0px 16px;
       justify-content: center;
       align-items: center;

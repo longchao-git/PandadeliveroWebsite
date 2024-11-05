@@ -5,50 +5,36 @@
       <div class='h-content'>
         <div class='h-conte'>
           <div class='_left'>
-
-<!--            <div class='Business'>pandadelivero</div>-->
             <div class='Services'>pandadelivero</div>
-<!--            <div class='login-input'>-->
-<!--              <el-input v-model='context' @keyup.enter.native='handleClick(3)' :placeholder="$t('header.placeholder')"-->
-<!--                        class='c-input' style='color: #FFFFFF' />-->
-<!--              &lt;!&ndash;          el-icon-search&ndash;&gt;-->
-<!--              <i class='el-icon-search ' @click='handleClick(3)' style='font-size: 24px'></i>-->
-<!--              &lt;!&ndash;          <img style='width: 32px; height: 32px' src='~/assets/images/cloudSales/icon_sousuo.png' alt='' @click='handleClick(2)'/>&ndash;&gt;-->
-<!--            </div>-->
-            <div class='Potential'>PANDA DELIVERO es su socio de confianza para entregas rápidas y seguras dentro de su ciudad</div>
+
+            <div class='Potential'>PANDA DELIVERO es su socio de confianza para entregas rápidas y seguras dentro de su
+              ciudad
+            </div>
             <div class='button-view' style='display: flex; width: 100%'>
 
-
-                <img src='../assets/images/jiaRuIcon.png' @click='handleClick(1)'
-                     style='width: 168px;height: 54px;'
-                     alt='' />
-              <img src='../assets/images/addVCiewIcon.png' @click='handleClick(1)'
-                   style='width: 72px;height: 54px;margin-left: 40px'
+              <img src='../assets/images/jiaRuIcon.png' @click='handleClick(3)'
+                   style='width: 168px;height: 54px;cursor: pointer'
                    alt='' />
-
-
+              <img src='../assets/images/addVCiewIcon.png' @click='handleClick(3)'
+                   style='width: 72px;height: 54px;margin-left: 40px;cursor: pointer'
+                   alt='' />
             </div>
           </div>
           <div class='_right ml32'>
 
           </div>
-
         </div>
       </div>
     </div>
-
-<!--    <collaborationMechanism></collaborationMechanism>-->
-<!--    <believeCooperation></believeCooperation>-->
-
     <addAddr :type='loginType'></addAddr>
   </div>
 </template>
 
 <script>
 
-import collaborationMechanism from '../components/cloudSales/collaborationMechanism.vue'
-import believeCooperation from '../components/cloudSales/believeCooperation.vue'
-import addAddr from '../components/popupWindow/addAddr.vue'
+import collaborationMechanism from '../components/cloudSales/collaborationMechanism.vue';
+import believeCooperation from '../components/cloudSales/believeCooperation.vue';
+import addAddr from '../components/popupWindow/addAddr.vue';
 
 export default {
 
@@ -57,73 +43,57 @@ export default {
     collaborationMechanism,
     addAddr
   },
-  data () {
+  data() {
     return {
       loginType: 1,
-
       // 是否显示底部内容
-      isShowFooterContent: 0,
-      context: '',
+
       page: 1
-    }
+    };
   },
 
   methods: {
-    // 滚动事件
-    scrollEvent () {
-      const oTop = document.body.scrollTop || document.documentElement.scrollTop
-      if (oTop + 50 >= window.screen.height && this.isShowFooterContent === 0) {
-        this.isShowFooterContent = 1
-      } else if (oTop + 50 < window.screen.height) {
-        this.isShowFooterContent = 0
-      }
-    },
-
-    handleClick (type) {
+    handleClick(type) {
       if (type === 1) {
-        window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share'
+        window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share';
       } else if (type === 2) {
-        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841'
+        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841';
       } else {
-        if (!this.context) {
-          this.$message.warning(this.$t('header.placeholder'))
-          return
-        }
-        window.location.href = '/creation?keywords=' + this.context
+        window.location.href = '/creation'
       }
     },
 
-    shoplist () {
-      const params = {}
+    shoplist() {
+      const params = {};
       this.$axios.post('/client/adv/paotuiadv', params).then(res => {
 
       }).catch(err => {
-        this.$message.info(err.message)
-      })
+        this.$message.info(err.message);
+      });
     }
   },
 
-  mounted () {
+  mounted() {
     //获取用户经纬度
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         res => {
-          console.log(res)
+          console.log(res);
         },
         error => {
-          console.log(error)
+          console.log(error);
         }
-      )
+      );
     } else {
-      console.log('Geolocation is not supported by this browser.')
+      console.log('Geolocation is not supported by this browser.');
     }
-    window.addEventListener('scroll', this.scrollEvent.bind(this))
+
     // this.$nextTick(() => {
     //   this.loginType = 4
     // })
-    this.shoplist()
+    // this.shoplist();
   }
-}
+};
 </script>
 <style lang='scss'>
 .login-input {

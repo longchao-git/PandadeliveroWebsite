@@ -8,7 +8,7 @@
                  alt='' />
           </div>
           <div class='info-window_view'>
-            <p class='pone'>{{ $t('home.lengua')}}</p>
+            <p class='pone'>切换语言</p>
             <div class='languageView'>
               <div @click='handleSelectLang(item)' v-for='(item, index) in languageList' :key='item.value'
                    :class='{ setView: setIndex === item.value }'>
@@ -17,7 +17,7 @@
               </div>
             </div>
             <div class='flex_center'>
-              <div @click='handleConfirmSubbit' class='button_info'>{{ $t(`save`) }}</div>
+              <div @click='handleConfirmSubbit' class='button_info'>保存</div>
             </div>
           </div>
         </v-card>
@@ -85,7 +85,7 @@ export default {
   position: relative;
   text-align: center;
   border-radius: 8px;
-  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(238, 128, 128, 0.2) 0%, rgba(10, 218, 254, 0) 100%), #fff;
+  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.2) 0%, rgba(10, 218, 254, 0) 100%), #fff;
 
   .info-window_close-icon {
     position: absolute;

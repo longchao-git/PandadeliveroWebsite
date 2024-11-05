@@ -1,32 +1,38 @@
 
 <template>
-  <div v-if='loginType === 1' class='login-window'>
+  <div v-if='loginType === 1' :class='type === 0?"login-window":""'>
     <div class='login-window-card'>
       <div>
-        <div class='loginView'>
+        <div class='loginView' v-if='type === 0'>
           <img @click='handleChangeType(1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
         <p>申请成为快递员</p>
+        <div class='divContent'>填写下面的表格以开始使用</div>
         <div class='loginClass'>
           <div class='login_input'>
             <div>姓名</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="uname">
+            <el-input  placeholder="请输入"  style='height: 48px;margin-top: 8px' v-model="uname">
             </el-input>
           </div>
           <div class='login_input'>
             <div>手机号</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="mobile">
+            <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="mobile">
             </el-input>
           </div>
           <div class='login_input'>
             <div>密码</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="passwd">
+            <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="passwd">
             </el-input>
           </div>
           <div class='login_input'>
             <div>身份证号码</div>
-            <el-input  :placeholder="$t('loginOrRegister.placeholder')[0]"  style='width: 350px;height: 48px' v-model="id_number">
+            <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="id_number">
             </el-input>
+          </div>
+          <div class='flex flex-a-c' style='margin-top: 16px'>
+            <img v-if='checked' src='../../assets/images/cloudSales/home/checked.png' alt='' class='icon24' @click='checked=!checked'>
+            <img v-if='!checked' src='../../assets/images/cloudSales/home/default.png' alt='' class='icon24'  @click='checked=!checked'>
+            <div style='color: #1D2129;text-align: left' class='font14'>我们收集这些数据是为了处理您成为快递员的申请。点击此框，即表示您确认已阅读并理解 <span  style='color: #4787F0'>隐私政策</span> </div>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
@@ -47,6 +53,11 @@ export default {
     loginType: {
       type: Number,
       default: -1
+    },
+    //0 弹窗样式 1 不是弹窗
+    type:{
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -54,7 +65,8 @@ export default {
       mobile: '',
       passwd: '',
       uname: '',
-      id_number: ''
+      id_number: '',
+      checked:false,
     };
   },
 
@@ -66,6 +78,10 @@ export default {
       if (type === 1) {
         this.$emit('handleCloseLoginDialog', -1);
       } else if (type === 2) {
+        if(!this.checked){
+          this.$message.error('请阅读并理解隐私政策');
+          return;
+        }
         if (!this.mobile) {
           this.$message.error('请输入手机号');
           return;
@@ -115,15 +131,18 @@ export default {
   z-index: 100;
   display: flex;
 }
-
+.icon24{
+  width: 24px;
+  height: 24px;
+}
 
 /** 登录卡片样式 */
 .login-window-card {
   border-radius: 8px;
-  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(238, 128, 128, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
+  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 500px;
+  height: 680px;
   position: relative;
 
   > div {
@@ -150,17 +169,23 @@ export default {
     }
 
     p {
-      font-size: 24px;
-      padding: 24px 0;
+      margin-top: 28px;
+      margin-bottom: 0;
+      color: #181818;
+      font-size: 30px;
+      font-weight: 500;
     }
-
+    .divContent{
+      color:#777;
+      font-size: 14px;
+    }
     .loginClass {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       margin-top: 8px;
-      padding: 0 48px;
+      padding: 0 28px;
 
       .logoCard {
         width: 72px;
@@ -179,9 +204,6 @@ export default {
 
       .login_input {
         width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
         margin-top: 12px;
 
         .button {
@@ -199,13 +221,14 @@ export default {
         }
 
         > div {
-          width: 100px;
+          width: 100%;
+          text-align: left;
           flex-shrink: 0;
-          text-align: right;
+
           color: #2c2c2c;
           font-size: 16px;
           padding-right: 12px;
-          padding-top: 8px;
+
         }
       }
 
@@ -297,7 +320,7 @@ export default {
   /** 登录卡片样式 */
   .login-window-card {
     width: 300px;
-    height: 540px;
+    height: 480px;
 
     > div {
       p {

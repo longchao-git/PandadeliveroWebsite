@@ -3,109 +3,73 @@
     <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>
 
     <v-app-bar fixed :flat='true' class='header-app-bar top-app-bar' color='transparent'>
-      <!--手机端-->
-      <div class='phone-menu-box max-width'>
-        <div class='disflex al-center phone-menu-bar max-width'>
-
-          <img @click="handleHome" :src="require('~/assets/images/cloudSales/header2-logo.png')"
-               style="width: 8%; max-height: 100px; margin-right: 14px; cursor: pointer; object-fit: cover"
-               alt="" />
-          <v-spacer />
-          <div class='login-input' v-if='getActiveMenuInx>0'>
-            <el-input @keyup.enter.native="handleClick(2)" v-model='context' :placeholder="$t('header.placeholder')"
-                      class='c-input'
-                      style='color: #f9c13e' />
-            <!--          el-icon-search-->
-            <i class="el-icon-search " @click='handleClick(2)' style='font-size: 24px;color: #f9c13e'></i>
-            <!--          <img style='width: 32px; height: 32px' src='~/assets/images/cloudSales/icon_sousuo.png' alt='' @click='handleClick(2)'/>-->
-          </div>
-          <div style='display: flex'>
-            <v-btn @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'> {{ $t('header.lang')
-              }}
-            </v-btn>
-            <v-btn @click='handleClick(1)' class='login-bt try-out-bt'
-                   height='50px'>{{ $t('header.information') }}
-            </v-btn>
-          </div>
-        </div>
-      </div>
-
       <!--PC端-->
       <div class='disflex ju-center max-width al-center col-f pc-menu-box'>
-
-        <img @click="handleHome" :src="require('~/assets/images/cloudSales/header2-logo.png')"
-             style="width: 8%; max-height: 100px; margin-right: 14px; cursor: pointer; object-fit: cover"
-             alt="" />
-
+        <img @click='handleHome' :src="require('~/assets/images/cloudSales/header2-logo.png')"
+             style='width: 8%; max-height: 100px; margin-right: 14px; cursor: pointer; object-fit: cover'
+             alt='' />
         <!-- 登录样式 -->
-
         <div style='display: flex;align-items: center'>
-          <div>成为一名快递员</div>
-          <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
-                 style='margin-right: 20px;'> {{ $t('header.lang')
-            }}
-          </el-button>
+          <v-tab
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 2,
+                            inactive: getActiveMenuInx !== 2,
+                        }"
+            link
+            href='/creation'
+          >成为一名快递员
+          </v-tab>
+          <v-menu eager bottom offset-y left open-on-hover>
+            <template #activator='{ attrs, on }'>
+              <v-tab v-bind='attrs' v-on='on' class='inactive'>
+                关于我们
+              </v-tab>
+            </template>
+            <v-list flat>
+                <v-list-item href='/personalCenter?type=3'>
+                  <v-list-item-title>公司</v-list-item-title>
+                </v-list-item>
+                <v-list-item href='/personalCenter?type=2'>
+                  <v-list-item-title>详情</v-list-item-title>
+                </v-list-item>
+                <v-list-item link href='/message'>
+                  <v-list-item-title style='color: #292e35 !important'>内容</v-list-item-title>
+                </v-list-item>
+            </v-list>
+          </v-menu>
+<!--          <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'-->
+<!--                     style='margin-right: 20px;margin-left: 16px'> 语言切换-->
+<!--          </el-button>-->
           <el-button @click='handleClick(1)' class='login-bt try-out-bt'
-                 height='50px'>{{ $t('header.information') }}
+                     height='50px'>登录
           </el-button>
-<!--          <v-btn @click='handleClick(1)' class='login-bt try-out-bt' height='50px'>{{ $t('header.information') }}-->
-<!--          </v-btn>-->
-<!--          <v-menu eager bottom offset-y left open-on-hover>-->
-<!--            <template #activator="{ attrs, on }">-->
-<!--              <v-tab v-bind="attrs" v-on="on" class="v-tab&#45;&#45;active">-->
-<!--                <v-btn class='login-bt try-out-bt' height='50px'>{{ $t('header.login') }}</v-btn>-->
-<!--              </v-tab>-->
-<!--            </template>-->
-<!--            <v-list flat>-->
-<!--              <template v-if='true'>-->
-<!--                <v-list-item link>-->
-<!--                  <v-list-item-title @click="handleCloseLoginDialog(1)">{{ $t('header.login')-->
-<!--                    }}/{{ $t('header.register') }}-->
-<!--                  </v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--              </template>-->
-<!--              <template v-else>-->
-<!--                <v-list-item href="/personalCenter?type=3">-->
-<!--                  <v-list-item-title>{{ $t('header.navList')[0] }}</v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--                <v-list-item href="/personalCenter?type=2">-->
-<!--                  <v-list-item-title>{{ $t('header.navList')[1] }}</v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--                <v-list-item link href="/message">-->
-<!--                  <v-list-item-title style="color: #292e35 !important">{{ $t('header.navList')[2] }}</v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--              </template>-->
-<!--            </v-list>-->
-<!--          </v-menu>-->
         </div>
       </div>
     </v-app-bar>
-    <!-- 登录弹窗 -  -->
-    <login-user :type='loginType' @handleCloseLoginDialog='handleCloseLoginDialog' />
+
     <!-- 语言切换 -->
     <info-window :isShow='isShowContactInfoDialog' @handleClose='handleInfoWindowState' />
+    <login :loginType='loginType' @handleCloseLoginDialog='handleCloseLoginDialog'></login>
   </div>
 </template>
 
 <script>
-import LoginWindow from '@/components/popupWindow/loginWindow'
-import LoginUser from '@/components/popupWindow/loginLogin'
-import InfoWindow from '@/components/popupWindow/infoWindow'
+import InfoWindow from '@/components/popupWindow/infoWindow';
+import login from '@/components/popupWindow/login';
 import {
   mapGetters,
   mapMutations,
   mapState,
   mapActions
-} from 'vuex'
+} from 'vuex';
 
 export default {
   name: 'header-control',
   components: {
-    LoginWindow,
     InfoWindow,
-    LoginUser
+    login
   },
-  data () {
+  data() {
     return {
       currentMenuInx: 1, // 当前选择菜单下标
       isShowPhoneMenu: false, // 是否展示手机端菜单
@@ -114,28 +78,28 @@ export default {
       context: '',
       // 是否显示联系方式弹框
       isShowContactInfoDialog: false
-    }
+    };
   },
   watch: {
-    $route () {
-      this.isShowPhoneMenu = false
+    $route() {
+      this.isShowPhoneMenu = false;
     },
-    searchKeywords () {
-      this.context = this.searchKeywords
+    searchKeywords() {
+      this.context = this.searchKeywords;
     }
   },
-  created () {
-    console.log(this.searchKeywords)
-    this.context = this.searchKeywords
+  created() {
+    console.log(this.searchKeywords);
+    this.context = this.searchKeywords;
   },
   computed: {
     ...mapState(['searchKeywords']),
     // 获取url 路径
-    getUrlPath () {
-      return this.$route.path
+    getUrlPath() {
+      return this.$route.path;
     },
     // 是否展示黑底背景
-    getHeadClass () {
+    getHeadClass() {
       const notPath = [
         '/message',
         '/headlines-detail',
@@ -150,49 +114,44 @@ export default {
         '/individualPrivacy',
         '/AgreementsAndArticles',
         '/creation'
-      ]
+      ];
 
-      return notPath.includes(this.getUrlPath) ? 'cover-bg' : ''
+      return notPath.includes(this.getUrlPath) ? 'cover-bg' : '';
     },
     // 获取菜单选中下标
-    getActiveMenuInx () {
+    getActiveMenuInx() {
       const activeMenus = [
         [],
         ['/', ''],
         ['/creation']
-      ]
+      ];
       // console.log(this.getUrlPath)
-      // console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)))
-      return activeMenus.findIndex(item => item.includes(this.getUrlPath))
+      console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)));
+      return activeMenus.findIndex(item => item.includes(this.getUrlPath));
     }
   },
   methods: {
-    handleHome () {
-      window.location.href = '/'
+    handleHome() {
+      window.location.href = '/';
     },
-    handleClick (type) {
+    handleClick(type) {
       if (type === 1) {
-        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841'
+          this.handleCloseLoginDialog(1)
       } else {
-        if (!this.context) {
-          this.$message.warning(this.$t('header.placeholder'))
-          return
-        }
-        window.location.href = '/creation?keywords=' + this.context
+
       }
     },
 
     /** 处理联系方式弹框的状态 */
-    handleInfoWindowState (value) {
-      this.isShowContactInfoDialog = value
+    handleInfoWindowState(value) {
+      this.isShowContactInfoDialog = value;
     },
     /** 处理登录弹框的关闭操作 */
-    handleCloseLoginDialog (value) {
-      console.log(value)
-      this.loginType = value
+    handleCloseLoginDialog(value) {
+      this.loginType = value;
     }
   }
-}
+};
 </script>
 
 <style lang='scss'>
@@ -200,6 +159,20 @@ export default {
   height: 100px !important;
   box-shadow: none !important;
   background-color: #fff8e2 !important;
+}
+
+.el-button {
+  border: none !important;
+}
+
+.v-tab {
+  color: #5E5E5E !important;
+  font-size: 16px;
+
+}
+
+.v-tab--active {
+  color: #0F0E0E !important;
 }
 
 .v-application {
@@ -266,6 +239,7 @@ export default {
     .v-toolbar__content {
       padding: 0;
       height: 100px !important;
+      background-color: #fff8e2 !important;
     }
 
     .v-toolbar__content {

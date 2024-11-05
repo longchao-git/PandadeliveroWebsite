@@ -6,10 +6,10 @@
           <img @click='handleChangeType(-1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png'
                alt='' />
         </div>
-        <p>{{ $t('addAddr.name') }}</p>
+        <p>地址</p>
         <div class='loginClass'>
           <div class='login_input'>
-            <div>{{ $t('searchaddress') }}</div>
+            <div>详情地址</div>
 
             <el-autocomplete
               class='inline-input'
@@ -26,14 +26,14 @@
             <div>门牌号</div>
             <input
               v-model='house'
-              :placeholder="$t('addAddr.ingrese')"
+              placeholder="请输入"
               class='c-input' />
           </div>
           <div class='login_input'>
             <div>联系人</div>
             <input
               v-model='contact'
-              :placeholder="$t('addAddr.ingrese')"
+              placeholder="请输入"
               class='c-input' />
 
           </div>
@@ -41,11 +41,11 @@
             <div>电话号码</div>
             <el-input @mousewheel.native.prevent
                       v-model='mobile' type='number' style='width: 330px'
-                      :placeholder="$t('addAddr.ingrese')"
+                      placeholder="请输入"
             >
             </el-input>
           </div>
-          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>{{ $t(`asentar`) }}
+          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>保存
           </v-btn>
         </div>
       </div>
@@ -156,23 +156,23 @@ export default {
     handleChangeType(value) {
       if (value === 2) {
         if (!this.contact) {
-          this.$message.info(this.$t(`home.ingrese`) + this.$t(`loginPopup.fromTree`));
+          this.$message.info('');
           return;
         }
         if (!this.mobile) {
-          this.$message.info(this.$t(`home.ingrese`) + this.$t(`loginPopup.fromFour`));
+          this.$message.info('');
           return;
         }
         if (!this.house) {
-          this.$message.info(this.$t(`home.ingrese`) + this.$t(`loginPopup.fromTwo`));
+          this.$message.info('');
           return;
         }
         if (!this.nameId) {
-          this.$message.info(this.$t('loginOrRegister.placeholder')[1] + this.$t(`loginPopup.fromOne`));
+          this.$message.info('');
           return;
         }
         if (!this.city_id) {
-          this.$message.info(this.$t('loginOrRegister.placeholder')[1] + this.$t(`city`));
+          this.$message.info('');
           return;
         }
         const params = {
@@ -197,7 +197,7 @@ export default {
           }
         }
         this.$axios.post('/client/member/addr/create', params).then(res => {
-          this.$message.success(this.$t(`Guardar`));
+          this.$message.success('保存成功');
           this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
           this.$message.info(err.message);

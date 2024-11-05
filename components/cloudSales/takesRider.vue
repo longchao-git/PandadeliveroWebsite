@@ -1,36 +1,36 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
     <div class='content'>
-      <p>成为骑手，最大化您的收入</p>
-      <div>诚聘精英  薪动你就来</div>
+      <p>成为骑手的条件</p>
     </div>
 
     <div class='_bottom'>
       <div class='_left'>
         <dl>
-          <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt='' style='width: 60px;height: 60px'>
+          <img src='@/assets/images/cloudSales/home/header2-img1.png' class='icon60' alt='' style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>有竞争力的收益</p>
-            <div>通过 PandaDelivero获得每日收入</div>
-          </dd>
-
-        </dl>
-      </div>
-      <div class='_right'>
-        <dl>
-          <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt='' style='width: 60px;height: 60px'>
-          <dd>
-            <p>灵活的时间表</p>
-            <div>随时随地交付赚取所需</div>
+            <p>18+ & 工作许可证</p>
+            <div>您必须年满 18 岁或以上<br>
+              并有权在西班牙工作</div>
           </dd>
         </dl>
       </div>
       <div class='_right'>
         <dl>
-          <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt='' style='width: 60px;height: 60px'>
+          <img src='@/assets/images/cloudSales/home/header2-img2.png' class='icon60' alt='' style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>保险和福利</p>
-            <div>使用 PandaDelivero 安全骑行享受独家优惠</div>
+            <p>智能手机</p>
+            <div>一台装有 iOS 10+ 或 Android 5+ 的<br> iPhone，可供使用 </div>
+          </dd>
+        </dl>
+      </div>
+      <div class='_right'>
+        <dl>
+          <img src='@/assets/images/cloudSales/home/header2-img3.png' class='icon60' alt='' style='width: 280px;height: 174px;border-radius: 12px'>
+          <dd>
+            <p>自行车、轻便摩托车或电动汽车</p>
+            <div>选择您喜欢的交通工具，<br>
+              并开始在你所在的城市周边提供派送<br>服务</div>
           </dd>
         </dl>
       </div>
@@ -46,10 +46,10 @@ export default {};
 .cloud_sales_believe-cooperation {
   position: relative;
   display: flex;
-  //background: #254969;
-  background-image: url("@/assets/images/cloudSales/home/iconVIewView.png");
-  background-size: cover;
-  background-position: center;
+  background: #FFFFFF;
+  //background-image: url("@/assets/images/cloudSales/home/iconVIewView.png");
+  //background-size: cover;
+  //background-position: center;
 
   > .content {
     position: absolute;
@@ -83,26 +83,23 @@ export default {};
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 300px auto 120px;
-    height: 120px;
+    margin: 260px auto 120px;
+    height: 358px;
 
 
     ._left, ._right {
       height: 100%;
-      background: #FFFFFF;
-      padding: 24px 20px;
-      border-radius: 16px;
-      margin: 0 12px;
-      width: 424px;
+      background: #fefbfb;
+      border-radius: 12px;
+      margin: 0 40px;
+      width: 280px;
       dl {
         height: 100%;
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
-        //justify-content: space-between;
-
         dd {
-          margin-left: 12px;
+
 
           &:hover {
             p, div {
@@ -111,19 +108,20 @@ export default {};
           }
 
           p {
-            font-size: 24px;
-            font-weight: bold;
-            color:#181818;
-            margin-bottom: 6px;
+            font-size: 18px;
+            font-weight: 500;
+            color:#000;
+            margin-top: 24px;
+            margin-bottom: 24px;
+            text-align: center;
           }
 
           div {
-            font-size: 16px;
-            color:#8B8B8B;
-            max-width: 600px;
-            font-weight: 500;
-            display: flex;
-
+            font-size: 14px;
+            color:#2C2C2C;
+            line-height: 22px;
+            width: 232px;
+            text-align: center;
           }
         }
       }
