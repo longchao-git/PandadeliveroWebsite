@@ -12,23 +12,32 @@
         <div class='center choneChone'>欢迎回来!</div>
         <div class='loginClass'>
           <div class='login_input p-relative'>
+            <div style="margin-bottom: 8px">您将如何使用我们的服务？</div>
+            <el-radio-group v-model="isType">
+<!--              <el-radio :label="1">个人使用</el-radio>-->
+              <el-radio :label="2">我是快递员</el-radio>
+            </el-radio-group>
+
+          </div>
+
+          <div class='login_input p-relative'>
             <div>手机号</div>
             <el-input placeholder='请输入' @mousewheel.native.prevent type='number' style='width: 380px;margin-top: 8px; height: 48px'
                       v-model='mobile'>
-              <template slot='prepend' v-if='!isHaTrue'>+34</template>
+              <template slot='prepend' >+34</template>
             </el-input>
-            <span class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue'>{{
+            <span class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue&&isType===1'>{{
                 isGetCode ? '获取验证码' : `${countdown}s重新获取`
               }}</span>
           </div>
 
-          <div class='login_input' v-if='!isHaTrue'>
+          <div class='login_input' v-if='!isHaTrue&&isType===1'>
             <div>验证码</div>
             <el-input placeholder='请输入' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
 
-          <div class='login_input' v-if='isHaTrue'>
+          <div class='login_input' v-if='isHaTrue||isType===2'>
             <div>密码</div>
             <el-input placeholder='请输入' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
@@ -38,7 +47,7 @@
                  style='font-weight: bold'>
             登录
           </v-btn>
-          <div class='mt2' @click='isHaTrue=!isHaTrue' style='cursor: pointer;color: #F9C13E;'>{{ isHaTrue ? '验证码登录' : '密码登录' }}</div>
+          <div class='mt2' @click='isHaTrue=!isHaTrue' style='cursor: pointer;color: #F9C13E;' v-if="isType===1">{{ isHaTrue ? '验证码登录' : '密码登录' }}</div>
         </div>
       </div>
     </div>
@@ -60,11 +69,10 @@ export default {
     return {
       mobile: '',
       passwd: '',
-      uname: '',
-      id_number: '',
       isHaTrue: false,
       countdown: 60,
-      isGetCode: true
+      isGetCode: true,
+      isType:2,
     };
   },
   methods: {
@@ -72,30 +80,24 @@ export default {
       if (type === 1) {
         this.$emit('handleCloseLoginDialog', -1);
       } else if (type === 2) {
-        if (!this.mobile) {
-          this.$message.error('请输入手机号');
-          return;
-        }
-        if (!this.passwd) {
-          this.$message.error('请输入密码');
-          return;
-        }
-        if (!this.uname) {
-          this.$message.error('请输入姓名');
-          return;
-        }
-        if (!this.id_number) {
-          this.$message.error('请输入身份证号');
-          return;
+        if(this.isType === 1){
+
+        }else {
+          if (!this.mobile) {
+            this.$message.error('请输入手机号');
+            return;
+          }
+          if (!this.passwd) {
+            this.$message.error('请输入密码');
+            return;
+          }
         }
         let params = {
-          uname: this.uname,
-          id_number: this.id_number,
-          mobile: this.phmobileone,
+          mobile: this.mobile,
           passwd: this.passwd
         };
 
-        this.$axios.post('/staff/entry/register', params).then(res => {
+        this.$axios.post('/staff/entry/login', params).then(res => {
           localStorage.setItem('token', res.token);
           this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
@@ -135,7 +137,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 196, 70, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 500px;
+  height: 560px;
   position: relative;
 
   > div {

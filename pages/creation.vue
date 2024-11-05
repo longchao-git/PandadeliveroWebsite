@@ -8,7 +8,7 @@
 
           </div>
           <div class='_left'>
-              <register :loginType='1' :type='1'></register>
+              <register :loginType='1' :type='1' @handleCloseLoginDialog="handleCloseLoginDialog"></register>
           </div>
         </div>
       </div>
@@ -17,7 +17,7 @@
     <collaborationMechanism></collaborationMechanism>
     <believeCooperation></believeCooperation>
     <takesRider></takesRider>
-    <startEarning></startEarning>
+    <startEarning :type="0"></startEarning>
   </div>
 </template>
 
@@ -58,29 +58,12 @@ export default {
         this.isShowFooterContent = 0;
       }
     },
-
-    handleClick(type) {
-      if (type === 1) {
-        window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share';
-      } else if (type === 2) {
-        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841';
-      } else {
-        if (!this.context) {
-          this.$message.warning(this.$t('header.placeholder'));
-          return;
-        }
-        window.location.href = '/creation'
-      }
+    handleCloseLoginDialog(){
+      // window.location.href = '/';
     },
 
-    shoplist() {
-      const params = {};
-      this.$axios.post('/client/adv/paotuiadv', params).then(res => {
 
-      }).catch(err => {
-        this.$message.info(err.message);
-      });
-    }
+
   },
 
   mounted() {
@@ -101,7 +84,7 @@ export default {
     // this.$nextTick(() => {
     //   this.loginType = 4
     // })
-    this.shoplist();
+
   }
 };
 </script>

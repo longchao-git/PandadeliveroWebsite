@@ -70,9 +70,9 @@ export default {
       if(type === 1){
         window.location.href = '/creation'
       }else  if (type === 2) {
-        window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share';
+        window.location.href = 'https://apps.apple.com/es/app/pandadelivero-rapartidor/id6505077190';
       } else if (type === 3) {
-        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841';
+        window.location.href = 'https://play.google.com/store/apps/details?id=net.pandadelivero.staff&pcampaignid=web_share';
       }
 
     },

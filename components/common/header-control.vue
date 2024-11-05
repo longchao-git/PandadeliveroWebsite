@@ -19,24 +19,33 @@
             href='/creation'
           >成为一名快递员
           </v-tab>
-          <v-menu eager bottom offset-y left open-on-hover>
-            <template #activator='{ attrs, on }'>
-              <v-tab v-bind='attrs' v-on='on' class='inactive'>
-                关于我们
-              </v-tab>
-            </template>
-            <v-list flat>
-                <v-list-item href='/personalCenter?type=3'>
-                  <v-list-item-title>公司</v-list-item-title>
-                </v-list-item>
-                <v-list-item href='/personalCenter?type=2'>
-                  <v-list-item-title>详情</v-list-item-title>
-                </v-list-item>
-                <v-list-item link href='/message'>
-                  <v-list-item-title style='color: #292e35 !important'>内容</v-list-item-title>
-                </v-list-item>
-            </v-list>
-          </v-menu>
+          <v-tab
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 3,
+                            inactive: getActiveMenuInx !== 3,
+                        }"
+            link
+            href='/about'
+          >关于我们
+          </v-tab>
+<!--          <v-menu eager bottom offset-y left open-on-hover>-->
+<!--            <template #activator='{ attrs, on }'>-->
+<!--              <v-tab v-bind='attrs' v-on='on' class='inactive'>-->
+<!--                关于我们-->
+<!--              </v-tab>-->
+<!--            </template>-->
+<!--            <v-list flat>-->
+<!--                <v-list-item href='/personalCenter?type=3'>-->
+<!--                  <v-list-item-title>公司</v-list-item-title>-->
+<!--                </v-list-item>-->
+<!--                <v-list-item href='/personalCenter?type=2'>-->
+<!--                  <v-list-item-title>详情</v-list-item-title>-->
+<!--                </v-list-item>-->
+<!--                <v-list-item link href='/message'>-->
+<!--                  <v-list-item-title style='color: #292e35 !important'>内容</v-list-item-title>-->
+<!--                </v-list-item>-->
+<!--            </v-list>-->
+<!--          </v-menu>-->
 <!--          <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'-->
 <!--                     style='margin-right: 20px;margin-left: 16px'> 语言切换-->
 <!--          </el-button>-->
@@ -123,7 +132,8 @@ export default {
       const activeMenus = [
         [],
         ['/', ''],
-        ['/creation']
+        ['/creation'],
+        ['/about']
       ];
       // console.log(this.getUrlPath)
       console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)));

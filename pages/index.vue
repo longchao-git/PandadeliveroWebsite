@@ -54,11 +54,7 @@ export default {
 
   methods: {
     handleClick(type) {
-      if (type === 1) {
-        window.location.href = 'https://play.google.com/store/apps/details?id=com.kuaizi.waimai&pcampaignid=web_share';
-      } else if (type === 2) {
-        window.location.href = 'https://apps.apple.com/es/app/kuaizi/id6447261841';
-      } else {
+      if (type === 3) {
         window.location.href = '/creation'
       }
     },

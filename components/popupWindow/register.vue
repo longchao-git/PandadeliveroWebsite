@@ -17,6 +17,16 @@
           <div class='login_input'>
             <div>手机号</div>
             <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="mobile">
+              <template slot='prepend' >+34
+<!--                <el-select v-model="value" placeholder="请选择" style="width: 80px">-->
+<!--                  <el-option-->
+<!--                    v-for="item in options"-->
+<!--                    :key="item.value"-->
+<!--                    :label="item.label"-->
+<!--                    :value="item.value">-->
+<!--                  </el-option>-->
+<!--                </el-select>-->
+              </template>
             </el-input>
           </div>
           <div class='login_input'>
@@ -67,6 +77,32 @@ export default {
       uname: '',
       id_number: '',
       checked:false,
+      value:34,
+      options:[{
+        label : '+1',
+        value: 1
+      }, {
+        label: '+44',
+        value: 44
+      }, {
+        label: '+33',
+        value: 33
+      }, {
+        label: '+61',
+        value: 61
+      },  {
+        label: '+34',
+        value: 34
+      }, {
+        label: '+86',
+        value: 86
+      }, {
+        label: '+81',
+        value: 81
+      }, {
+        label: '+39',
+        value: 39
+      }]
     };
   },
 
@@ -82,6 +118,10 @@ export default {
           this.$message.error('请阅读并理解隐私政策');
           return;
         }
+        if (!this.uname) {
+          this.$message.error('请输入姓名');
+          return;
+        }
         if (!this.mobile) {
           this.$message.error('请输入手机号');
           return;
@@ -90,10 +130,7 @@ export default {
           this.$message.error('请输入密码');
           return;
         }
-        if (!this.uname) {
-          this.$message.error('请输入姓名');
-          return;
-        }
+
         if (!this.id_number) {
           this.$message.error('请输入身份证号');
           return;
@@ -101,12 +138,13 @@ export default {
         let params = {
           uname: this.uname,
           id_number: this.id_number,
-          mobile: this.phmobileone,
+          mobile:  this.mobile,
           passwd: this.passwd
         };
 
         this.$axios.post('/staff/entry/register', params).then(res => {
-          localStorage.setItem('token', res.token);
+
+          this.$message.success('已提交成功，资料正在审核中，等待管理员联系');
           this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
           this.$message.info(err.message);
