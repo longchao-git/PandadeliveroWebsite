@@ -1,6 +1,6 @@
 <template>
-  <div :class='getHeadClass'>
-    <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>
+  <div>
+    <!--    <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>-->
 
     <v-app-bar fixed :flat='true' class='header-app-bar top-app-bar' color='transparent'>
       <!--PC端-->
@@ -30,6 +30,16 @@
           >{{ $t(`关于我们`) }}
           </v-tab>
 
+          <v-tab v-if='getUserInfo.uid'
+                 :class="{
+                            'v-tab--active': getActiveMenuInx === 4,
+                            inactive: getActiveMenuInx !== 4,
+                        }"
+                 link
+                 href='/information'
+          >{{ $t(`个人信息`) }}
+          </v-tab>
+
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
                      style='margin-right: 20px;margin-left: 16px'>{{ $t(`语言切换`) }}
           </el-button>
@@ -39,38 +49,26 @@
                      height='50px'>{{ $t(`登录`) }}
           </el-button>
 
-          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='getUserInfo.staff_id'
-                     style='margin-left: 16px;'
-                     height='50px'>{{ $t(`邀请码兑换`) }}
-          </el-button>
+          <!--          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='getUserInfo.staff_id'-->
+          <!--                     style='margin-left: 16px;'-->
+          <!--                     height='50px'>{{ $t(`邀请码兑换`) }}-->
+          <!--          </el-button>-->
 
           <div v-if='getUserInfo.staff_id||getUserInfo.uid' style='margin-left: 32px'>
-            <v-menu eager bottom offset-y left open-on-hover>
-              <template #activator='{ attrs, on }'>
-                <div class='flex flex-a-c' v-bind='attrs' v-on='on'>
-                  <el-image
-                    style='width: 60px; height: 60px;border-radius: 60px'
-                    :src='getUserInfo.face'
-                    fit='cover'></el-image>
-                  <div class='ml2'>
-                    <div class='font14' style='color: #f9c13e'>
-                      {{ getUserInfo.name ? getUserInfo.name : getUserInfo.nickname ? getUserInfo.nickname : '' }}
-                    </div>
-                    <div class='font12' style='color: #909090'>{{ getUserInfo.mobile }}</div>
-                  </div>
+            <div class='flex flex-a-c' style="cursor: pointer" @click='bingOutLogin'>
+              <el-image
+                style='width: 60px; height: 60px;border-radius: 60px'
+                :src='getUserInfo.face'
+                fit='cover'></el-image>
+              <div class='ml2'>
+                <div class='font14' style='color: #f9c13e'>
+                  {{ getUserInfo.name ? getUserInfo.name : getUserInfo.nickname ? getUserInfo.nickname : '' }}
                 </div>
-              </template>
-              <v-list flat>
-                <v-list-item href='/information' v-if='getUserInfo.uid'>
-                  <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
-                </v-list-item>
-                <v-list-item @click='bingOutLogin'>
-                  <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </div>
+                <div class='font12' style='color: #909090'>{{ getUserInfo.mobile }}</div>
+              </div>
+            </div>
 
+          </div>
         </div>
       </div>
     </v-app-bar>
@@ -84,15 +82,15 @@
 </template>
 
 <script>
-import InfoWindow from '@/components/popupWindow/infoWindow';
-import login from '@/components/popupWindow/login';
-import InvitationRedemption from '@/components/popupWindow/InvitationRedemption';
+import InfoWindow from '@/components/popupWindow/infoWindow'
+import login from '@/components/popupWindow/login'
+import InvitationRedemption from '@/components/popupWindow/InvitationRedemption'
 import {
   mapGetters,
   mapMutations,
   mapState,
   mapActions
-} from 'vuex';
+} from 'vuex'
 
 export default {
   name: 'header-control',
@@ -101,7 +99,7 @@ export default {
     login,
     InvitationRedemption
   },
-  data() {
+  data () {
     return {
       currentMenuInx: 1, // 当前选择菜单下标
       isShowPhoneMenu: false, // 是否展示手机端菜单
@@ -110,15 +108,15 @@ export default {
 
       // 是否显示联系方式弹框
       isShowContactInfoDialog: false
-    };
+    }
   },
   watch: {
-    $route() {
-      this.isShowPhoneMenu = false;
+    $route () {
+      this.isShowPhoneMenu = false
     }
 
   },
-  created() {
+  created () {
 
   },
   computed: {
@@ -127,83 +125,65 @@ export default {
     }),
 
     // 获取url 路径
-    getUrlPath() {
-      return this.$route.path;
+    getUrlPath () {
+      return this.$route.path
     },
-    // 是否展示黑底背景
-    getHeadClass() {
-      const notPath = [
-        '/message',
-        '/headlines-detail',
-        '/popular-tags',
-        '/contentDetail',
-        '/authorIndex',
-        '/personalCenter',
-        '/accountManagement',
-        '/loginSafety',
-        '/globalPreferences',
-        '/styleRecommend',
-        '/individualPrivacy',
-        '/AgreementsAndArticles',
-        '/creation'
-      ];
 
-      return notPath.includes(this.getUrlPath) ? 'cover-bg' : '';
-    },
     // 获取菜单选中下标
-    getActiveMenuInx() {
+    getActiveMenuInx () {
       const activeMenus = [
         [],
         ['/', ''],
         ['/creation'],
-        ['/about']
-      ];
+        ['/about'],
+        ['/information']
+      ]
       // console.log(this.getUrlPath)
-      console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)));
-      return activeMenus.findIndex(item => item.includes(this.getUrlPath));
+      console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)))
+      return activeMenus.findIndex(item => item.includes(this.getUrlPath))
     }
   },
   methods: {
-    bingOutLogin() {
+    bingOutLogin () {
       this.$confirm('确认退出吗, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
-        this.$store.commit('SET_USERINFO', {});
-      });
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        this.$store.commit('SET_USERINFO', {})
+      })
     },
-    handleHome() {
-      window.location.href = '/';
+    handleHome () {
+      window.location.href = '/'
     },
-    handleClick(type) {
+    handleClick (type) {
       if (type === 1) {
-        this.handleCloseLoginDialog(1);
+        this.handleCloseLoginDialog(1)
       } else {
-        this.handleCloseLoginDialog(2);
+        this.handleCloseLoginDialog(2)
       }
     },
 
     /** 处理联系方式弹框的状态 */
-    handleInfoWindowState(value) {
-      this.isShowContactInfoDialog = value;
+    handleInfoWindowState (value) {
+      this.isShowContactInfoDialog = value
     },
     /** 处理登录弹框的关闭操作 */
-    handleCloseLoginDialog(value) {
-      this.loginType = value;
+    handleCloseLoginDialog (value) {
+      this.loginType = value
     }
   }
-};
+}
 </script>
 
 <style lang='scss'>
-.cover-bg {
-  height: 100px !important;
-  box-shadow: none !important;
-  background-color: #fff8e2 !important;
-}
+//.cover-bg {
+//  height: 100px !important;
+//  box-shadow: none !important;
+//  background-color: #fff8e2 !important;
+//}
 
 .el-button {
   border: none !important;
