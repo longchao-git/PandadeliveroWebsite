@@ -6,34 +6,34 @@
           <img @click='handleChangeType(5)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png'
                alt='' />
         </div>
-        <p>添加银行卡</p>
+        <p>{{ $t(`添加银行卡`) }}</p>
         <div class='loginClass'>
 
           <div class='login_input'>
-            <div>银行卡名称</div>
+            <div>{{ $t(`银行卡名称`) }}</div>
             <input
               v-model='card_name'
-              placeholder="请输入"
+              placeholder='请输入'
               class='c-input' />
           </div>
 
           <div id='card' class=''>
             <div class='login_input'>
-              <div>银行卡卡号</div>
+              <div>{{ $t(`银行卡卡号`) }}</div>
               <div class='card-input gotham' id='card-number-element'></div>
             </div>
             <div class='login_input'>
-              <div>银行卡到期时间</div>
+              <div>{{ $t(`银行卡到期时间`) }}</div>
               <div class='card-input gotham' id='card-expiry-element'></div>
             </div>
             <div class='login_input'>
-              <div>银行卡安全码</div>
+              <div>{{ $t(`银行卡安全码`) }}</div>
               <div class='card-input gotham' id='card-cvc-element'></div>
             </div>
 
             <!--            <div class="card-input gotham" id="card-cvc-element"></div>-->
           </div>
-          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='createPaymentMethod()'>保存
+          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='createPaymentMethod()'>{{ $t(`保存`) }}
           </v-btn>
         </div>
       </div>
@@ -95,19 +95,19 @@ export default {
       const element = elements.create('cardNumber', {
         style: style,
         showIcon: true,
-        placeholder:'请输入'
+        placeholder: this.$t(`请输入`)
       });
 
       const cardExpiryElement = elements.create('cardExpiry', {
         style: style,
         showIcon: true,
-        placeholder: '请输入'
+        placeholder: this.$t(`请输入`)
       });
 
       const cardCvcElement = elements.create('cardCvc', {
         style: style,
         showIcon: true,
-        placeholder: '请输入'
+        placeholder: this.$t(`请输入`)
       });
 
       this.$nextTick(() => {
@@ -133,7 +133,7 @@ export default {
     async createPaymentMethod() {
 
       if (!this.card_name) {
-        this.$message.info('请输入');
+        this.$message.info(this.$t(`请输入`));
         return;
       }
       const params = {
@@ -158,12 +158,12 @@ export default {
             params.data.payment_method_id = result.setupIntent.payment_method;
             this.$axios.post('/client/member/card/bind', params).then(async res => {
               this.loading = false;
-              this.$message.success('保存成功');
+              this.$message.success(this.$t(`保存成功`));
               this.handleChangeType(-9);
             }).catch(err => {
               this.loading = false;
               if (err.error == 210) {
-                this.$message.info('保存失败');
+                this.$message.info(this.$t(`保存失败`));
               } else {
                 this.$message.info(err.message);
               }
@@ -171,7 +171,7 @@ export default {
             });
           } else {
             this.loading = false;
-            this.$message.info(result.error && result.error.message ? result.error.message : '保存失败');
+            this.$message.info(result.error && result.error.message ? result.error.message : this.$t(`保存失败`));
           }
         }).catch(err => {
           this.loading = false;

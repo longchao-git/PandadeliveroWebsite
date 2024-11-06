@@ -17,8 +17,9 @@
                         }"
             link
             href='/creation'
-          >成为一名快递员
+          >{{ $t(`成为一名快递员`) }}
           </v-tab>
+
           <v-tab
             :class="{
                             'v-tab--active': getActiveMenuInx === 3,
@@ -26,32 +27,50 @@
                         }"
             link
             href='/about'
-          >关于我们
+          >{{ $t(`关于我们`) }}
           </v-tab>
-<!--          <v-menu eager bottom offset-y left open-on-hover>-->
-<!--            <template #activator='{ attrs, on }'>-->
-<!--              <v-tab v-bind='attrs' v-on='on' class='inactive'>-->
-<!--                关于我们-->
-<!--              </v-tab>-->
-<!--            </template>-->
-<!--            <v-list flat>-->
-<!--                <v-list-item href='/personalCenter?type=3'>-->
-<!--                  <v-list-item-title>公司</v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--                <v-list-item href='/personalCenter?type=2'>-->
-<!--                  <v-list-item-title>详情</v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--                <v-list-item link href='/message'>-->
-<!--                  <v-list-item-title style='color: #292e35 !important'>内容</v-list-item-title>-->
-<!--                </v-list-item>-->
-<!--            </v-list>-->
-<!--          </v-menu>-->
-<!--          <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'-->
-<!--                     style='margin-right: 20px;margin-left: 16px'> 语言切换-->
-<!--          </el-button>-->
-          <el-button @click='handleClick(1)' class='login-bt try-out-bt' style='margin-left: 16px;width: 80px'
-                     height='50px' >登录
+
+          <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
+                     style='margin-right: 20px;margin-left: 16px'>{{ $t(`语言切换`) }}
           </el-button>
+
+          <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!getUserInfo.staff_id&&!getUserInfo.uid'
+                     style='margin-left: 16px;width: 80px'
+                     height='50px'>{{ $t(`登录`) }}
+          </el-button>
+
+          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='getUserInfo.staff_id'
+                     style='margin-left: 16px;'
+                     height='50px'>{{ $t(`邀请码兑换`) }}
+          </el-button>
+
+          <div v-if='getUserInfo.staff_id||getUserInfo.uid' style='margin-left: 32px'>
+            <v-menu eager bottom offset-y left open-on-hover>
+              <template #activator='{ attrs, on }'>
+                <div class='flex flex-a-c' v-bind='attrs' v-on='on'>
+                  <el-image
+                    style='width: 60px; height: 60px;border-radius: 60px'
+                    :src='getUserInfo.face'
+                    fit='cover'></el-image>
+                  <div class='ml2'>
+                    <div class='font14' style='color: #f9c13e'>
+                      {{ getUserInfo.name ? getUserInfo.name : getUserInfo.nickname ? getUserInfo.nickname : '' }}
+                    </div>
+                    <div class='font12' style='color: #909090'>{{ getUserInfo.mobile }}</div>
+                  </div>
+                </div>
+              </template>
+              <v-list flat>
+                <v-list-item href='/information' v-if='getUserInfo.uid'>
+                  <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click='bingOutLogin'>
+                  <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+
         </div>
       </div>
     </v-app-bar>
@@ -59,12 +78,15 @@
     <!-- 语言切换 -->
     <info-window :isShow='isShowContactInfoDialog' @handleClose='handleInfoWindowState' />
     <login :loginType='loginType' @handleCloseLoginDialog='handleCloseLoginDialog'></login>
+    <invitation-redemption :loginType='loginType'
+                           @handleCloseLoginDialog='handleCloseLoginDialog'></invitation-redemption>
   </div>
 </template>
 
 <script>
 import InfoWindow from '@/components/popupWindow/infoWindow';
 import login from '@/components/popupWindow/login';
+import InvitationRedemption from '@/components/popupWindow/InvitationRedemption';
 import {
   mapGetters,
   mapMutations,
@@ -76,7 +98,8 @@ export default {
   name: 'header-control',
   components: {
     InfoWindow,
-    login
+    login,
+    InvitationRedemption
   },
   data() {
     return {
@@ -84,7 +107,7 @@ export default {
       isShowPhoneMenu: false, // 是否展示手机端菜单
       // 登录的选项类型
       loginType: -1,
-      context: '',
+
       // 是否显示联系方式弹框
       isShowContactInfoDialog: false
     };
@@ -92,17 +115,17 @@ export default {
   watch: {
     $route() {
       this.isShowPhoneMenu = false;
-    },
-    searchKeywords() {
-      this.context = this.searchKeywords;
     }
+
   },
   created() {
-    console.log(this.searchKeywords);
-    this.context = this.searchKeywords;
+
   },
   computed: {
-    ...mapState(['searchKeywords']),
+    ...mapGetters({
+      getUserInfo: 'getUserInfo'
+    }),
+
     // 获取url 路径
     getUrlPath() {
       return this.$route.path;
@@ -141,14 +164,25 @@ export default {
     }
   },
   methods: {
+    bingOutLogin() {
+      this.$confirm('确认退出吗, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        this.$store.commit('SET_USERINFO', {});
+      });
+    },
     handleHome() {
       window.location.href = '/';
     },
     handleClick(type) {
       if (type === 1) {
-          this.handleCloseLoginDialog(1)
+        this.handleCloseLoginDialog(1);
       } else {
-
+        this.handleCloseLoginDialog(2);
       }
     },
 

@@ -6,16 +6,16 @@
           <img @click='handleChangeType(-1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png'
                alt='' />
         </div>
-        <p>地址</p>
+        <p>{{ $t(`地址`) }}</p>
         <div class='loginClass'>
           <div class='login_input'>
-            <div>详情地址</div>
+            <div>{{ $t(`详情地址`) }}</div>
 
             <el-autocomplete
               class='inline-input'
-              v-model='addr'   :trigger-on-focus="false"
+              v-model='addr' :trigger-on-focus='false'
               :fetch-suggestions='querySearch'
-              placeholder='请输入内容'
+              :placeholder='$t(`请输入`)'
               style='width: 330px'
               @select='handleSelect'
             ></el-autocomplete>
@@ -23,29 +23,29 @@
           <div class='mapContainer' ref='mapContainer'></div>
 
           <div class='login_input'>
-            <div>门牌号</div>
+            <div>{{ $t(`门牌号`) }}</div>
             <input
               v-model='house'
-              placeholder="请输入"
+              :placeholder='$t(`请输入`)'
               class='c-input' />
           </div>
           <div class='login_input'>
-            <div>联系人</div>
+            <div>{{ $t(`联系人`) }}</div>
             <input
               v-model='contact'
-              placeholder="请输入"
+              :placeholder='$t(`请输入`)'
               class='c-input' />
 
           </div>
           <div class='login_input'>
-            <div>电话号码</div>
+            <div>{{ $t(`电话号码`) }}</div>
             <el-input @mousewheel.native.prevent
                       v-model='mobile' type='number' style='width: 330px'
-                      placeholder="请输入"
+                      :placeholder='$t(`请输入`)'
             >
             </el-input>
           </div>
-          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>保存
+          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>{{ $t(`保存`) }}
           </v-btn>
         </div>
       </div>
@@ -96,9 +96,9 @@ export default {
       this.addr = item.value;
       // 在地图上生成仓库的标记，仓库图标自定义
       this.marker = new window.google.maps.Marker({
-        position: { lat: Number(item.lat) , lng: Number(item.lng) },
-        map:this.googleMap,
-        title: item.value,
+        position: { lat: Number(item.lat), lng: Number(item.lng) },
+        map: this.googleMap,
+        title: item.value
       });
 
     },
@@ -156,25 +156,25 @@ export default {
     handleChangeType(value) {
       if (value === 2) {
         if (!this.contact) {
-          this.$message.info('');
+          this.$message.info(this.$t(`请输入`) + this.$t(`联系人`));
           return;
         }
         if (!this.mobile) {
-          this.$message.info('');
+          this.$message.info(this.$t(`请输入`) + this.$t(`电话号码`));
           return;
         }
         if (!this.house) {
-          this.$message.info('');
+          this.$message.info(this.$t(`请输入`) + this.$t(`门牌号`));
           return;
         }
-        if (!this.nameId) {
-          this.$message.info('');
-          return;
-        }
-        if (!this.city_id) {
-          this.$message.info('');
-          return;
-        }
+        // if (!this.nameId) {
+        //   this.$message.info(this.$t(`请输入`) + this.$t(`请输入`));
+        //   return;
+        // }
+        // if (!this.city_id) {
+        //   this.$message.info(this.$t(`请输入`) + this.$t(`请输入`));
+        //   return;
+        // }
         const params = {
           data: {
             'contact': this.contact,
@@ -189,7 +189,6 @@ export default {
           }
         };
         for (let i in this.list) {
-
           if (this.list[i].id == this.nameId) {
             params.data.addr = this.list[i].name;
             params.data.lat = this.list[i].lat;
@@ -197,7 +196,7 @@ export default {
           }
         }
         this.$axios.post('/client/member/addr/create', params).then(res => {
-          this.$message.success('保存成功');
+          this.$message.success(this.$t('保存成功'));
           this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
           this.$message.info(err.message);

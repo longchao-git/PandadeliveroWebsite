@@ -6,17 +6,17 @@
         <div class='loginView' v-if='type === 0'>
           <img @click='handleChangeType(1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
-        <p>申请成为快递员</p>
-        <div class='divContent'>填写下面的表格以开始使用</div>
+        <p>{{$t(`申请成为快递员`)}}</p>
+        <div class='divContent'>{{$t(`填写下面的表格以开始使用`)}}</div>
         <div class='loginClass'>
           <div class='login_input'>
-            <div>姓名</div>
-            <el-input  placeholder="请输入"  style='height: 48px;margin-top: 8px' v-model="uname">
+            <div>{{$t(`姓名`)}}</div>
+            <el-input :placeholder="$t(`请输入`)"  style='height: 48px;margin-top: 8px' v-model="uname">
             </el-input>
           </div>
           <div class='login_input'>
-            <div>手机号</div>
-            <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="mobile">
+            <div>{{$t(`手机号`)}}</div>
+            <el-input  :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="mobile">
               <template slot='prepend' >+34
 <!--                <el-select v-model="value" placeholder="请选择" style="width: 80px">-->
 <!--                  <el-option-->
@@ -30,23 +30,23 @@
             </el-input>
           </div>
           <div class='login_input'>
-            <div>密码</div>
-            <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="passwd">
+            <div>{{$t(`密码`)}}</div>
+            <el-input  :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="passwd">
             </el-input>
           </div>
           <div class='login_input'>
-            <div>身份证号码</div>
-            <el-input  placeholder="请输入"  style='margin-top: 8px;height: 48px' v-model="id_number">
+            <div>{{$t(`身份证号码`)}}</div>
+            <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="id_number">
             </el-input>
           </div>
           <div class='flex flex-a-c' style='margin-top: 16px'>
             <img v-if='checked' src='../../assets/images/cloudSales/home/checked.png' alt='' class='icon24' @click='checked=!checked'>
             <img v-if='!checked' src='../../assets/images/cloudSales/home/default.png' alt='' class='icon24'  @click='checked=!checked'>
-            <div style='color: #1D2129;text-align: left' class='font14'>我们收集这些数据是为了处理您成为快递员的申请。点击此框，即表示您确认已阅读并理解 <span  style='color: #4787F0'>隐私政策</span> </div>
+            <div style='color: #1D2129;text-align: left' class='font14'>{{$t(`我们收集这些数据是为了处理您成为快递员的申请。点击此框，即表示您确认已阅读并理解`)}} <span  style='color: #4787F0'>{{$t(`隐私政策`)}}</span> </div>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
-            立即申请
+            {{$t(`立即申请`)}}
           </v-btn>
         </div>
       </div>
@@ -115,24 +115,24 @@ export default {
         this.$emit('handleCloseLoginDialog', -1);
       } else if (type === 2) {
         if(!this.checked){
-          this.$message.error('请阅读并理解隐私政策');
+          this.$message.error(this.$t(`请阅读并理解隐私政策`));
           return;
         }
         if (!this.uname) {
-          this.$message.error('请输入姓名');
+          this.$message.error(this.$t(`请输入姓名`));
           return;
         }
         if (!this.mobile) {
-          this.$message.error('请输入手机号');
+          this.$message.error(this.$t(`请输入手机号`));
           return;
         }
         if (!this.passwd) {
-          this.$message.error('请输入密码');
+          this.$message.error(this.$t(`请输入密码`));
           return;
         }
 
         if (!this.id_number) {
-          this.$message.error('请输入身份证号');
+          this.$message.error(this.$t(`请输入身份证号`));
           return;
         }
         let params = {
@@ -144,8 +144,11 @@ export default {
 
         this.$axios.post('/staff/entry/register', params).then(res => {
 
-          this.$message.success('已提交成功，资料正在审核中，等待管理员联系');
-          this.$emit('handleCloseLoginDialog', -2);
+          this.$message.success(this.$t(`已提交成功，资料正在审核中，等待管理员联系`));
+          setTimeout(()=>{
+            window.location.href = '/';
+          },1500)
+          // this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
           this.$message.info(err.message);
         });

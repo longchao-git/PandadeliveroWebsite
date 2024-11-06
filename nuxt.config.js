@@ -32,33 +32,13 @@ export default {
         content: 'IE=edge'
       }
     ],
+
+
     link: [
       {
         rel: 'icon',
         type: 'image/x-icon',
         href: '/favicon.ico'
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://cdn.jsdelivr.net/npm/font-awesome@4.x/css/font-awesome.min.css'
-      },
-      /* -------------DNS start -------------- */
-      {
-        rel: 'dns-prefetch',
-        href: '//keke.aikkcard.com'
-      },
-      {
-        rel: 'dns-prefetch',
-        href: '//api.aikkcard.cn'
-      },
-      {
-        rel: 'dns-prefetch',
-        href: '//img.aikkcard.cn'
-      },
-      /* -------------End-------------- */
-      {
-        rel: 'preload',
-        href: '//cdn.jsdelivr.net/npm/font-awesome@4.x/fonts/fontawesome-webfont.woff2?v=4.7.0'
       }
     ],
     script: [
@@ -137,18 +117,9 @@ export default {
   axios: {
     withCredentials: true,
     credentials: true,
-    proxy:true,
+    proxy: true
   },
-  proxy: {
-    // 配置/api代理到http://localhost:3002
-    '/api/': { // 匹配代理的URL前缀
-      target: 'https://www.cuai-zi.net', // 目标服务器地址
-      changeOrigin: true, // 是否改变源地址
-      pathRewrite: {
-        '^/api/': '' // 重写路径
-      }
-    }
-  },
+
 
   render: {
     resourceHints: false

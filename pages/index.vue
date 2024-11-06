@@ -7,17 +7,18 @@
           <div class='_left'>
             <div class='Services'>pandadelivero</div>
 
-            <div class='Potential'>PANDA DELIVERO es su socio de confianza para entregas rápidas y seguras dentro de su
-              ciudad
+            <div class='Potential'>
+              pandadelivero{{$t(`是您值得信赖的合作伙伴，在您的城市快速和安全的快递`)}}
             </div>
-            <div class='button-view' style='display: flex; width: 100%'>
+            <div class='button-view flex-a-c' style='display: flex; width: 100%'>
+              <div class=' indexBob' style='cursor: pointer' @click='handleClick(3)'>
+                <div>{{$t(`加入我们`)}}</div>
+                <img src='../assets/images/icon_iconVIew.png'
+                     style='width: 24px;height: 24px;margin-left:8px '
+                     alt='' />
+              </div>
+              <div style='margin-left: 40px;color: #FFFFFF;cursor: pointer' class='font18'  @click='handleClick(3)'>{{$t(`立即申请`)}}</div>
 
-              <img src='../assets/images/jiaRuIcon.png' @click='handleClick(3)'
-                   style='width: 168px;height: 54px;cursor: pointer'
-                   alt='' />
-              <img src='../assets/images/addVCiewIcon.png' @click='handleClick(3)'
-                   style='width: 72px;height: 54px;margin-left: 40px;cursor: pointer'
-                   alt='' />
             </div>
           </div>
           <div class='_right ml32'>
@@ -71,18 +72,18 @@ export default {
 
   mounted() {
     //获取用户经纬度
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        res => {
-          console.log(res);
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    } else {
-      console.log('Geolocation is not supported by this browser.');
-    }
+    // if (navigator.geolocation) {
+    //   navigator.geolocation.getCurrentPosition(
+    //     res => {
+    //       console.log(res);
+    //     },
+    //     error => {
+    //       console.log(error);
+    //     }
+    //   );
+    // } else {
+    //   console.log('Geolocation is not supported by this browser.');
+    // }
 
     // this.$nextTick(() => {
     //   this.loginType = 4
@@ -116,6 +117,24 @@ export default {
 }
 </style>
 <style scoped lang='scss'>
+.indexBob{
+  border-radius: 39px;
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  background: #FFF;
+  width: 168px;
+  height: 54px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  display: flex;
+
+  div{
+    color:  #FABE1D;
+    font-size: 18px;
+    line-height: 54px;
+    font-weight: 500;
+  }
+}
 .customer-collection_footer-close {
   position: fixed;
   right: 5px;

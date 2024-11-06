@@ -1,36 +1,41 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
     <div class='content'>
-      <p>成为骑手的条件</p>
+      <p>{{ $t(`成为骑手的条件`) }}</p>
     </div>
 
     <div class='_bottom'>
       <div class='_left'>
         <dl>
-          <img src='@/assets/images/cloudSales/home/header2-img1.png' class='icon60' alt='' style='width: 280px;height: 174px;border-radius: 12px'>
+          <img src='@/assets/images/cloudSales/home/header2-img1.png' class='icon60' alt=''
+               style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>18+ & 工作许可证</p>
-            <div>您必须年满 18 岁或以上<br>
-              并有权在西班牙工作</div>
+            <p>18+ & {{ $t(`工作许可证`) }}</p>
+            <div>{{ $t(`您必须年满18岁或以上`) }}<br>
+              {{ $t(`并有权在西班牙工作`) }}
+            </div>
           </dd>
         </dl>
       </div>
       <div class='_right'>
         <dl>
-          <img src='@/assets/images/cloudSales/home/header2-img2.png' class='icon60' alt='' style='width: 280px;height: 174px;border-radius: 12px'>
+          <img src='@/assets/images/cloudSales/home/header2-img2.png' class='icon60' alt=''
+               style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>智能手机</p>
-            <div>一台装有 iOS 10+ 或 Android 5+ 的<br> iPhone，可供使用 </div>
+            <p> {{ $t(`智能手机`) }} </p>
+            <div> {{ $t(`一台装有 iOS 10+ 或 Android 5+ 的`) }}<br> {{ $t(`iPhone，可供使用`) }}</div>
           </dd>
         </dl>
       </div>
       <div class='_right'>
         <dl>
-          <img src='@/assets/images/cloudSales/home/header2-img3.png' class='icon60' alt='' style='width: 280px;height: 174px;border-radius: 12px'>
+          <img src='@/assets/images/cloudSales/home/header2-img3.png' class='icon60' alt=''
+               style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>自行车、轻便摩托车或电动汽车</p>
-            <div>选择您喜欢的交通工具，<br>
-              并开始在你所在的城市周边提供派送<br>服务</div>
+            <p>{{ $t(`自行车、轻便摩托车或电动汽车`) }} </p>
+            <div>{{ $t(`选择您喜欢的交通工具`) }}，<br>
+              {{ $t(`智能并开始在你所在的城市周边提供派送服务`) }} <br>
+            </div>
           </dd>
         </dl>
       </div>
@@ -69,7 +74,7 @@ export default {};
     }
 
     div {
-      color:#777;
+      color: #777;
       font-size: 20px;
       font-style: normal;
       font-weight: 400;
@@ -93,11 +98,13 @@ export default {};
       border-radius: 12px;
       margin: 0 40px;
       width: 280px;
+
       dl {
         height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
+
         dd {
 
 
@@ -110,7 +117,7 @@ export default {};
           p {
             font-size: 18px;
             font-weight: 500;
-            color:#000;
+            color: #000;
             margin-top: 24px;
             margin-bottom: 24px;
             text-align: center;
@@ -118,7 +125,7 @@ export default {};
 
           div {
             font-size: 14px;
-            color:#2C2C2C;
+            color: #2C2C2C;
             line-height: 22px;
             width: 232px;
             text-align: center;

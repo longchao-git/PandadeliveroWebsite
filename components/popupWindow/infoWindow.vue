@@ -8,7 +8,7 @@
                  alt='' />
           </div>
           <div class='info-window_view'>
-            <p class='pone'>切换语言</p>
+            <p class='pone'>{{ $t(`切换语言`) }}</p>
             <div class='languageView'>
               <div @click='handleSelectLang(item)' v-for='(item, index) in languageList' :key='item.value'
                    :class='{ setView: setIndex === item.value }'>
@@ -17,7 +17,7 @@
               </div>
             </div>
             <div class='flex_center'>
-              <div @click='handleConfirmSubbit' class='button_info'>保存</div>
+              <div @click='handleConfirmSubbit' class='button_info'>{{ $t(`保存`) }}</div>
             </div>
           </div>
         </v-card>
@@ -28,7 +28,7 @@
 
 <script>
 import CollectionMixin from '../../mixins/collection-mixin.vue';
-import { mapGetters } from 'vuex'
+import { mapGetters } from 'vuex';
 
 export default {
   props: ['isShow'],
@@ -36,7 +36,6 @@ export default {
   data() {
     return {
       languageList: [
-
         {
           label: '简体中文',
           value: 'zh',
@@ -46,6 +45,11 @@ export default {
           label: 'spanish',
           value: 'es',
           description: 'Spain'
+        },
+        {
+          label: 'English',
+          value: 'en',
+          description: 'Britain'
         }
       ],
       setIndex: 'es'

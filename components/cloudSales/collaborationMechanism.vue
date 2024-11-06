@@ -4,15 +4,15 @@
 
       <div class='_right'>
         <div class='content'>
-          <p>成为骑手，最大化您的收入</p>
-          <div>诚聘精英 薪动你就来</div>
+          <p>{{ $t(`成为骑手，最大化您的收入`) }}</p>
+          <div>{{ $t(`诚聘精英`) }} {{ $t(`薪动你就来`) }}</div>
         </div>
         <dl>
           <dd @mouseover='currentStepsIndex = 0' @click='currentStepsIndex = 0'
               :class="[currentStepsIndex === 0 ? 'selected' : '']">
             <div>
               <div>
-                <span>快速简便的申请流程</span>
+                <span>{{ $t(`快速简便的申请流程`) }}</span>
               </div>
             </div>
           </dd>
@@ -20,7 +20,7 @@
               :class="[currentStepsIndex === 1 ? 'selected' : '']">
             <div>
               <div>
-                <span>在适合您的时候交付</span>
+                <span>{{ $t(`在适合您的时候交付`) }}</span>
               </div>
             </div>
           </dd>
@@ -28,15 +28,15 @@
               :class="[currentStepsIndex === 2 ? 'selected' : '']">
             <div>
               <div>
-                <span>享受每周收入</span>
+                <span>{{ $t(`享受每周收入`) }}</span>
               </div>
             </div>
           </dd>
-          <dd @mouseover='currentStepsIndex = 3' @click='currentStepsIndex = 3'
+          <dd @mouseover='currentStepsIndex = 3' @click='curraentStepsIndex = 3'
               :class="[currentStepsIndex === 3 ? 'selected' : '']">
             <div>
               <div>
-                <span>PandaDelivero快递员的独家优惠</span>
+                <span>{{ $t(`PandaDelivero快递员的独家优惠`) }}</span>
               </div>
             </div>
           </dd>

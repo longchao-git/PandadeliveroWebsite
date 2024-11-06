@@ -4,51 +4,53 @@
       <div class='asy-box'>
         <div class='f-title ' @click='bingtapCilck(1)'>
           <img class='footer_icon' src='~/assets/images/footIConLogin.png' alt='' />
-          <div class="footer_buttom">成为快递员</div>
+          <div class='footer_buttom'>{{ $t(`成为快递员`) }}</div>
         </div>
 
       </div>
       <div class='asy-box'>
         <div class='f-title'>
-          <div class='isViewTxet'>业务解决方案</div>
+          <div class='isViewTxet'>{{ $t(`业务解决方案`) }}</div>
         </div>
 
         <div class='asy-phone'>
-          <div class='service_title'>商家</div>
-<!--          <div class='service_title'>{{ $t('footer.Company.desc') }}</div>-->
+          <div class='service_title'>{{ $t(`商家`) }}</div>
+          <!--          <div class='service_title'>{{ $t('footer.Company.desc') }}</div>-->
         </div>
       </div>
       <div class='asy-box'>
         <div class='f-title '>
-          <div class='isViewTxet'>新闻</div>
+          <div class='isViewTxet'>{{ $t(`新闻`) }}</div>
         </div>
 
         <div class='asy-phone'>
-          <div class='service_title'>本月精选</div>
-          <div class='service_title'>全部新闻</div>
+          <div class='service_title'>{{ $t(`本月精选`) }}</div>
+          <div class='service_title'>{{ $t(`全部新闻`) }}</div>
 
         </div>
       </div>
       <div class='asy-box'>
         <div class='f-title '>
-          <div class='isViewTxet'>关于我们</div>
+          <div class='isViewTxet'>{{ $t(`关于我们`) }}</div>
         </div>
         <div class='asy-phone'>
-          <div class='service_title'>联系我们</div>
-          <div class='service_title'>人才招牌</div>
+          <div class='service_title'>{{ $t(`联系我们`) }}</div>
+          <div class='service_title'>{{ $t(`人才招牌`) }}</div>
         </div>
       </div>
       <div class='asy-box'>
-        <img class='footer_app' @click='bingtapCilck(2)' src='~/assets/images/app_store.png' alt='' style="cursor: pointer" />
-        <img class='footer_app' @click='bingtapCilck(3)' src='~/assets/images/google_play.png' alt='' style="cursor: pointer" />
+        <img class='footer_app' @click='bingtapCilck(2)' src='~/assets/images/app_store.png' alt=''
+             style='cursor: pointer' />
+        <img class='footer_app' @click='bingtapCilck(3)' src='~/assets/images/google_play.png' alt=''
+             style='cursor: pointer' />
         <div class='f-title '>
-          <div class='isViewTxet'  style="border: none">下载我们的应用程序</div>
+          <div class='isViewTxet' style='border: none'>{{ $t(`下载我们的应用程序`) }}</div>
         </div>
 
       </div>
     </div>
     <div class='disflex al-center copyright-box ju-center font12'>
-      <div><a target='_blank' :href="'//' ">{{ $t('footer.footerBottom.desc') }}</a>&nbsp;</div>
+      <div><a target='_blank' :href="'//' ">Copyright © 2024.Pandadelivero All rights reserved. </a>&nbsp;</div>
     </div>
   </div>
 </template>
@@ -66,16 +68,16 @@ export default {
   computed: {},
   methods: {
 
-    bingtapCilck(type){
-      if(type === 1){
-        window.location.href = '/creation'
-      }else  if (type === 2) {
+    bingtapCilck(type) {
+      if (type === 1) {
+        window.location.href = '/creation';
+      } else if (type === 2) {
         window.location.href = 'https://apps.apple.com/es/app/pandadelivero-rapartidor/id6505077190';
       } else if (type === 3) {
         window.location.href = 'https://play.google.com/store/apps/details?id=net.pandadelivero.staff&pcampaignid=web_share';
       }
 
-    },
+    }
 
   }
 };
@@ -92,10 +94,12 @@ export default {
   a {
     color: inherit;
   }
-  .footer_app{
+
+  .footer_app {
     width: 190px;
     height: 60px;
   }
+
   .f-title {
     @extend .tran-300ms;
     font-size: 18px;
@@ -110,10 +114,10 @@ export default {
       margin-bottom: 20px;
     }
 
-    .footer_buttom{
+    .footer_buttom {
       cursor: pointer;
       border-radius: 30px;
-      background:  #F9C13E;
+      background: #F9C13E;
       width: 164px;
       height: 58px;
       padding: 0px 16px;
@@ -126,6 +130,7 @@ export default {
       line-height: 58px;
       text-align: center;
     }
+
     .isViewTxet {
       font-size: 18px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.22);

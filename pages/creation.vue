@@ -5,7 +5,6 @@
       <div class='h-content'>
         <div class='h-conte'>
           <div class='_right ml32'>
-
           </div>
           <div class='_left'>
               <register :loginType='1' :type='1' @handleCloseLoginDialog="handleCloseLoginDialog"></register>
@@ -68,18 +67,18 @@ export default {
 
   mounted() {
     //获取用户经纬度
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        res => {
-          console.log(res);
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    } else {
-      console.log('Geolocation is not supported by this browser.');
-    }
+    // if (navigator.geolocation) {
+    //   navigator.geolocation.getCurrentPosition(
+    //     res => {
+    //       console.log(res);
+    //     },
+    //     error => {
+    //       console.log(error);
+    //     }
+    //   );
+    // } else {
+    //   console.log('Geolocation is not supported by this browser.');
+    // }
     window.addEventListener('scroll', this.scrollEvent.bind(this));
     // this.$nextTick(() => {
     //   this.loginType = 4

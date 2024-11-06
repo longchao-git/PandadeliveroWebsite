@@ -23,10 +23,6 @@ export const mutations = {
       state.locale = locale;
     }
   },
-  SET_KEYWORDS(state, keywords) {
-    console.log(keywords)
-    state.searchKeywords = keywords;
-  },
   SET_USERINFO(state, userInfo) {
     state.userInfo = userInfo
   },

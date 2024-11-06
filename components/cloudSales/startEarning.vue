@@ -1,22 +1,26 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
-    <div class='content' v-if="type===0">
-      <p>今天就注册并开始赚钱吧!</p>
+    <div class='content' v-if='type===0'>
+      <p>{{ $t(`今天就注册并开始赚钱吧`) }}!</p>
     </div>
 
-    <div class='_bottom' v-if="type===0">
-      <img src='@/assets/images/viewAddBUtton.png' alt='' @click='bingTapClick' style='cursor: pointer'>
-    </div>
-    <div class='content' v-if="type===1">
-      <p>关于我们</p>
-    </div>
-    <div class='aboutView' v-if="type===1">
-      <p>Pandadelivero 是西班牙本地值得信赖的同城快递与外卖配送服务公司。我们致力于为客户提供快速、高效和可靠的配送体验。无论是餐馆外卖、文件递送，还是包裹运输，我们的服务都覆盖整个城市，确保您的每一件物品能够以最快的速度、安全地到达目的地。!</p>
-      <p>我们的配送团队经验丰富，利用先进的物流技术进行实时追踪，让您随时掌控配送动态。Pandadelivero 不仅仅是配送，我们关注每一个细节，力求为客户提供卓越的用户体验。</p>
-      <p>无论您身在何处，Pandadelivero 始终在您身边，为您传递美味和便利。</p>
-    </div>
+    <div class='_bottom' v-if='type===0'>
+      <div class=' indexBob' style='cursor: pointer' @click='bingTapClick'>
+        <div>{{ $t(`立即注册`) }}</div>
+        <img src='@/assets/images/icon_iconVIew.png'
+             style='width: 24px;height: 24px;margin-left:8px '
+             alt='' />
+      </div>
 
-
+    </div>
+    <div class='content' v-if='type===1'>
+      <p>{{ $t(`关于我们`) }}</p>
+    </div>
+    <div class='aboutView' v-if='type===1'>
+      <p>Pandadelivero{{ $t(`是西班牙本地值得信赖的同城快递与外卖配送服务公司`) }}!</p>
+      <p>{{ $t(`我们的配送团队经验丰富`) }}。</p>
+      <p>{{ $t(`无论您身在何处`) }}。</p>
+    </div>
   </div>
 </template>
 
@@ -24,15 +28,34 @@
 
 export default {
   props: ['type'],
-  methods:{
-    bingTapClick(){
-      window.location.href = '/creation'
+  methods: {
+    bingTapClick() {
+      window.location.href = '/creation';
     }
   }
 };
 </script>
 
 <style lang='scss' scoped>
+.indexBob {
+  border-radius: 39px;
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  background: #FFF;
+  width: 168px;
+  height: 54px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  display: flex;
+
+  div {
+    color: #FABE1D;
+    font-size: 18px;
+    line-height: 54px;
+    font-weight: 500;
+  }
+}
+
 .cloud_sales_believe-cooperation {
   position: relative;
   display: flex;
@@ -66,13 +89,15 @@ export default {
     justify-content: center;
     margin: 300px auto 120px;
     height: 54px;
-    img{
+
+    img {
       width: 176px;
       height: 54px;
     }
 
   }
-  .aboutView{
+
+  .aboutView {
     margin: 300px auto 120px;
 
     p {
