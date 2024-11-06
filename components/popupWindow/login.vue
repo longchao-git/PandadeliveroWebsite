@@ -14,7 +14,7 @@
           <div class='login_input p-relative'>
             <div style='margin-bottom: 8px'>{{ $t(`您将如何使用我们的服务`) }}？</div>
             <el-radio-group v-model='isType'>
-              <el-radio :label='1'>个人使用</el-radio>
+              <el-radio :label='1'>{{ $t(`个人使用`) }}</el-radio>
               <el-radio :label='2'>{{ $t(`我是快递员`) }}</el-radio>
             </el-radio-group>
           </div>
@@ -34,18 +34,18 @@
                 </el-select>
               </template>
             </el-input>
-            <span class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue&&isType===1'>{{
+            <div class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue&&isType===1'>{{
                 isGetCode ? $t(`获取验证码`) : `${countdown}s` + $t(`重新获取`)
-              }}</span>
+              }}</div>
           </div>
           <div class='login_input' v-if='!isHaTrue&&isType===1'>
             <div>{{ $t(`验证码`) }}</div>
-            <el-input placeholder='请输入' style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
+            <el-input :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
             </el-input>
           </div>
           <div class='login_input' v-if='isHaTrue||isType===2'>
             <div>{{ $t(`密码`) }}</div>
-            <el-input placeholder='请输入' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
+            <el-input  :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
@@ -233,7 +233,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 196, 70, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 560px;
+  height: 580px;
   position: relative;
 
   > div {
@@ -294,12 +294,15 @@ export default {
         margin-top: 12px;
 
         .button {
+          width: 100%;
+          text-align: right;
           color: #0a98fe;
           font-size: 14px;
-          position: absolute;
-          top: 32px;
-          right: 16px;
-          line-height: 48px;
+          height: 24px;
+          //position: absolute;
+          //top: 32px;
+          //right: 16px;
+          line-height: 24px;
         }
 
         .v-input__slot {

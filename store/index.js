@@ -1,7 +1,7 @@
 import config from '../config';
 
 export const state = () => ({
-  locales: ['zh', 'es'],
+  locales: ['zh', 'es','en'],
   locale: 'es',
   userInfo: {},
   searchKeywords: '',

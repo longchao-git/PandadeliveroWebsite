@@ -121,7 +121,7 @@ export default {
   border-radius: 39px;
   border: 1px solid rgba(255, 255, 255, 0.30);
   background: #FFF;
-  width: 168px;
+  padding: 0 20px;
   height: 54px;
   justify-content: center;
   align-items: center;

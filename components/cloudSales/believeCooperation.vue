@@ -86,7 +86,7 @@ export default {};
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 300px auto 120px;
+    margin: 360px auto 120px;
     height: 120px;
 
 

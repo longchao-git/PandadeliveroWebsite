@@ -23,7 +23,7 @@
                style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
             <p> {{ $t(`智能手机`) }} </p>
-            <div> {{ $t(`一台装有 iOS 10+ 或 Android 5+ 的`) }}<br> {{ $t(`iPhone，可供使用`) }}</div>
+            <div> {{ $t(`一台装有 iOS 10+ 或 Android 5+ 的iPhone，可供使用`) }}</div>
           </dd>
         </dl>
       </div>
@@ -33,8 +33,7 @@
                style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
             <p>{{ $t(`自行车、轻便摩托车或电动汽车`) }} </p>
-            <div>{{ $t(`选择您喜欢的交通工具`) }}，<br>
-              {{ $t(`智能并开始在你所在的城市周边提供派送服务`) }} <br>
+            <div>{{ $t(`选择您喜欢的交通工具并开始在你所在的城市周边提供派送服务`) }}
             </div>
           </dd>
         </dl>

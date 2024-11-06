@@ -28,7 +28,7 @@
       <div class='form_item flex-a-c'>
         <div class='form_label'>{{ $t(`手机号码`) }}</div>
         <div class='form_content'>
-          <el-input placeholder='请输入' v-model='getUserInfo.mobile' disabled></el-input>
+          <el-input :placeholder='$t(`请输入`)' v-model='getUserInfo.mobile' disabled></el-input>
         </div>
       </div>
       <div class='form_item flex-a-c'>

@@ -35,7 +35,7 @@
           </el-button>
 
           <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!getUserInfo.staff_id&&!getUserInfo.uid'
-                     style='margin-left: 16px;width: 80px'
+                     style='margin-left: 16px;'
                      height='50px'>{{ $t(`登录`) }}
           </el-button>
 

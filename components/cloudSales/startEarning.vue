@@ -17,7 +17,7 @@
       <p>{{ $t(`关于我们`) }}</p>
     </div>
     <div class='aboutView' v-if='type===1'>
-      <p>Pandadelivero{{ $t(`是西班牙本地值得信赖的同城快递与外卖配送服务公司`) }}!</p>
+      <p>Pandadelivero {{ $t(`是西班牙本地值得信赖的同城快递与外卖配送服务公司`) }}!</p>
       <p>{{ $t(`我们的配送团队经验丰富`) }}。</p>
       <p>{{ $t(`无论您身在何处`) }}。</p>
     </div>
@@ -41,7 +41,7 @@ export default {
   border-radius: 39px;
   border: 1px solid rgba(255, 255, 255, 0.30);
   background: #FFF;
-  width: 168px;
+  padding: 0 20px;
   height: 54px;
   justify-content: center;
   align-items: center;
