@@ -49,8 +49,8 @@
 <!--          <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'-->
 <!--                     style='margin-right: 20px;margin-left: 16px'> 语言切换-->
 <!--          </el-button>-->
-          <el-button @click='handleClick(1)' class='login-bt try-out-bt'
-                     height='50px'>登录
+          <el-button @click='handleClick(1)' class='login-bt try-out-bt' style='margin-left: 16px;width: 80px'
+                     height='50px' >登录
           </el-button>
         </div>
       </div>
@@ -178,7 +178,7 @@ export default {
 .v-tab {
   color: #5E5E5E !important;
   font-size: 16px;
-
+  padding: 0 16px !important;
 }
 
 .v-tab--active {
