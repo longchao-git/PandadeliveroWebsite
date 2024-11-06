@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <!--    <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>-->
+  <div :class='getHeadClass'>
+    <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>
 
     <v-app-bar fixed :flat='true' class='header-app-bar top-app-bar' color='transparent'>
       <!--PC端-->
@@ -30,45 +30,47 @@
           >{{ $t(`关于我们`) }}
           </v-tab>
 
-          <v-tab v-if='getUserInfo.uid'
-                 :class="{
-                            'v-tab--active': getActiveMenuInx === 4,
-                            inactive: getActiveMenuInx !== 4,
-                        }"
-                 link
-                 href='/information'
-          >{{ $t(`个人信息`) }}
-          </v-tab>
-
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
                      style='margin-right: 20px;margin-left: 16px'>{{ $t(`语言切换`) }}
           </el-button>
 
-          <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!getUserInfo.staff_id&&!getUserInfo.uid'
+          <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!userNewInfo.staff_id&&!userNewInfo.uid'
                      style='margin-left: 16px;'
                      height='50px'>{{ $t(`登录`) }}
           </el-button>
 
-          <!--          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='getUserInfo.staff_id'-->
+          <!--          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='userNewInfo.staff_id'-->
           <!--                     style='margin-left: 16px;'-->
           <!--                     height='50px'>{{ $t(`邀请码兑换`) }}-->
           <!--          </el-button>-->
 
-          <div v-if='getUserInfo.staff_id||getUserInfo.uid' style='margin-left: 32px'>
-            <div class='flex flex-a-c' style="cursor: pointer" @click='bingOutLogin'>
-              <el-image
-                style='width: 60px; height: 60px;border-radius: 60px'
-                :src='getUserInfo.face'
-                fit='cover'></el-image>
-              <div class='ml2'>
-                <div class='font14' style='color: #f9c13e'>
-                  {{ getUserInfo.name ? getUserInfo.name : getUserInfo.nickname ? getUserInfo.nickname : '' }}
+          <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
+            <v-menu eager bottom offset-y left open-on-hover>
+              <template #activator='{ attrs, on }'>
+                <div class='flex flex-a-c' v-bind='attrs' v-on='on'>
+                  <el-image
+                    style='width: 60px; height: 60px;border-radius: 60px'
+                    :src='userNewInfo.face'
+                    fit='cover'></el-image>
+                  <div class='ml2'>
+                    <div class='font14' style='color: #f9c13e'>
+                      {{ userNewInfo.name ? userNewInfo.name : userNewInfo.nickname ? userNewInfo.nickname : '' }}
+                    </div>
+                    <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
+                  </div>
                 </div>
-                <div class='font12' style='color: #909090'>{{ getUserInfo.mobile }}</div>
-              </div>
-            </div>
-
+              </template>
+              <v-list flat>
+                <v-list-item href='/information' v-if='userNewInfo.uid'>
+                  <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click='bingOutLogin'>
+                  <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </div>
+
         </div>
       </div>
     </v-app-bar>
@@ -105,7 +107,7 @@ export default {
       isShowPhoneMenu: false, // 是否展示手机端菜单
       // 登录的选项类型
       loginType: -1,
-
+      userNewInfo: {},
       // 是否显示联系方式弹框
       isShowContactInfoDialog: false
     }
@@ -116,8 +118,8 @@ export default {
     }
 
   },
-  created () {
-
+  mounted () {
+    this.userNewInfo = this.getUserInfo
   },
   computed: {
     ...mapGetters({
@@ -128,15 +130,33 @@ export default {
     getUrlPath () {
       return this.$route.path
     },
+    // 是否展示黑底背景
+    getHeadClass () {
+      const notPath = [
+        '/message',
+        '/headlines-detail',
+        '/popular-tags',
+        '/contentDetail',
+        '/authorIndex',
+        '/personalCenter',
+        '/accountManagement',
+        '/loginSafety',
+        '/globalPreferences',
+        '/styleRecommend',
+        '/individualPrivacy',
+        '/AgreementsAndArticles',
+        '/creation'
+      ]
 
+      return notPath.includes(this.getUrlPath) ? 'cover-bg' : ''
+    },
     // 获取菜单选中下标
     getActiveMenuInx () {
       const activeMenus = [
         [],
         ['/', ''],
         ['/creation'],
-        ['/about'],
-        ['/information']
+        ['/about']
       ]
       // console.log(this.getUrlPath)
       console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)))
@@ -153,6 +173,7 @@ export default {
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
         this.$store.commit('SET_USERINFO', {})
+        window.location.href = '/'
       })
     },
     handleHome () {
@@ -179,11 +200,11 @@ export default {
 </script>
 
 <style lang='scss'>
-//.cover-bg {
-//  height: 100px !important;
-//  box-shadow: none !important;
-//  background-color: #fff8e2 !important;
-//}
+.cover-bg {
+  height: 100px !important;
+  box-shadow: none !important;
+  background-color: #fff8e2 !important;
+}
 
 .el-button {
   border: none !important;

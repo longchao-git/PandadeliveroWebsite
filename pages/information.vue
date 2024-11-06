@@ -87,6 +87,9 @@ export default {
           localStorage.setItem('userInfo', JSON.stringify(res));
           this.$store.commit('SET_USERINFO', res);
           this.$message.success(this.$t('保存成功'));
+          setTimeout(()=>{
+            window.location.href = '/';
+          },1500)
         }).catch(err => {
           this.$message.info(err.message);
         });
