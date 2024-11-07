@@ -29,7 +29,7 @@
 
 <script>
 
-import { mapGetters, mapState, mapMutations } from 'vuex';
+
 
 export default {
   props: {

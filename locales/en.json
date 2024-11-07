@@ -92,5 +92,9 @@
   "昵称": "Apodo",
   "手机号码":"Número de Teléfono",
   "余额": "Saldo",
-  "个人使用": "Personal use"
+  "个人使用": "Personal use",
+  "确认退出吗, 是否继续": "Are you sure you're out? Do you want to continue",
+  "确定": "confirm",
+  "取消": "cancel",
+  "提示": "reminder"
 }

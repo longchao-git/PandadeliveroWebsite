@@ -58,11 +58,11 @@ export default {
     // { src:  '~/plugins/stripe.js', ssr: false },
     { src: '~/plugins/qrcode.js', ssr: false },
     { src: '~/plugins/html2canvas.js', ssr: false },
-    { src: '~/plugins/LocalStorage.js' },
-    { src: '~/plugins/element-ui.js' },
-    { src: '~/plugins/websocket.js' },
+    { src: '~/plugins/LocalStorage.js',ssr: false },
+    { src: '~/plugins/element-ui.js',ssr: true },
+    { src: '~/plugins/websocket.js',ssr: false },
     { src: '~/plugins/i18n.js' },
-    { src: '~/plugins/axios' },
+    { src: '~/plugins/axios' ,ssr: true},
     {
       src: '~/plugins/vue-seamless-scroll',
       mode: 'client'

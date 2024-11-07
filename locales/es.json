@@ -92,5 +92,9 @@
   "昵称": "Nickname",
   "手机号码":"Phone Number",
   "余额": "Balance",
-  "个人使用": "Uso personal"
+  "个人使用": "Uso personal",
+  "确认退出吗, 是否继续": "¿Confirmar la salida? Sí no continuar",
+  "确定": "confirm",
+  "取消": "cancel",
+  "提示": "recordatorio,soplar"
 }

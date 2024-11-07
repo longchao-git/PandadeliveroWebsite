@@ -1,5 +1,5 @@
 <template>
-  <div :class='getHeadClass'>
+  <div>
     <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>
 
     <v-app-bar fixed :flat='true' class='header-app-bar top-app-bar' color='transparent'>
@@ -130,26 +130,7 @@ export default {
     getUrlPath () {
       return this.$route.path
     },
-    // 是否展示黑底背景
-    getHeadClass () {
-      const notPath = [
-        '/message',
-        '/headlines-detail',
-        '/popular-tags',
-        '/contentDetail',
-        '/authorIndex',
-        '/personalCenter',
-        '/accountManagement',
-        '/loginSafety',
-        '/globalPreferences',
-        '/styleRecommend',
-        '/individualPrivacy',
-        '/AgreementsAndArticles',
-        '/creation'
-      ]
 
-      return notPath.includes(this.getUrlPath) ? 'cover-bg' : ''
-    },
     // 获取菜单选中下标
     getActiveMenuInx () {
       const activeMenus = [
@@ -165,9 +146,9 @@ export default {
   },
   methods: {
     bingOutLogin () {
-      this.$confirm('确认退出吗, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(this.$t(`确认退出吗, 是否继续`)+'?', this.$t(`提示`), {
+        confirmButtonText:this.$t(`确定`),
+        cancelButtonText:this.$t(`取消`),
         type: 'warning'
       }).then(() => {
         localStorage.removeItem('token')
@@ -200,11 +181,7 @@ export default {
 </script>
 
 <style lang='scss'>
-.cover-bg {
-  height: 100px !important;
-  box-shadow: none !important;
-  background-color: #fff8e2 !important;
-}
+
 
 .el-button {
   border: none !important;
