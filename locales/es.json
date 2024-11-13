@@ -96,5 +96,11 @@
   "确认退出吗, 是否继续": "¿Confirmar la salida? Sí no continuar",
   "确定": "confirm",
   "取消": "cancel",
-  "提示": "recordatorio,soplar"
+  "提示": "recordatorio,soplar",
+  "我是商家": "Soy un comerciante",
+  "抽奖": "El sorteo",
+  "兑换码": "Canjee su código",
+  "积分": "integraci",
+  "上级邀请码": "Código de invitación superior"
+
 }

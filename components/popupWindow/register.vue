@@ -39,6 +39,11 @@
             <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="id_number">
             </el-input>
           </div>
+          <div class='login_input'>
+            <div>{{$t(`上级邀请码`)}}</div>
+            <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="share_code">
+            </el-input>
+          </div>
           <div class='flex flex-a-c' style='margin-top: 16px'>
             <img v-if='checked' src='../../assets/images/cloudSales/home/checked.png' alt='' class='icon24' @click='checked=!checked'>
             <img v-if='!checked' src='../../assets/images/cloudSales/home/default.png' alt='' class='icon24'  @click='checked=!checked'>
@@ -76,6 +81,7 @@ export default {
       passwd: '',
       uname: '',
       id_number: '',
+      share_code:'',
       checked:false,
       value:34,
       options:[{
@@ -138,6 +144,7 @@ export default {
         let params = {
           uname: this.uname,
           id_number: this.id_number,
+          share_code:this.share_code,
           mobile:  this.mobile,
           passwd: this.passwd
         };
@@ -183,7 +190,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 680px;
+  height: 740px;
   position: relative;
 
   > div {

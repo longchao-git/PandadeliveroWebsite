@@ -16,6 +16,7 @@
             <el-radio-group v-model='isType'>
               <el-radio :label='1'>{{ $t(`个人使用`) }}</el-radio>
               <el-radio :label='2'>{{ $t(`我是快递员`) }}</el-radio>
+              <el-radio :label='3'>{{ $t(`我是商家`) }}</el-radio>
             </el-radio-group>
           </div>
           <div class='login_input p-relative'>
@@ -43,7 +44,7 @@
             <el-input :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
             </el-input>
           </div>
-          <div class='login_input' v-if='isHaTrue||isType===2'>
+          <div class='login_input' v-if='isHaTrue||isType===2||isType===3'>
             <div>{{ $t(`密码`) }}</div>
             <el-input  :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
@@ -188,20 +189,38 @@ export default {
             mobile: this.mobile,
             passwd: this.passwd
           };
+          if(this.isType === 2){
+            this.$axios.post('/staff/entry/login', params).then(res => {
+              localStorage.setItem('token', res.token);
+              localStorage.setItem('userInfo', JSON.stringify(res));
+              this.$store.commit('SET_USERINFO', res);
+              this.$message.success(this.$t(`登录成功`));
+              setTimeout(()=>{
+                window.location.href = '/';
+              },1500)
+              this.$emit('handleCloseLoginDialog', -2);
 
-          this.$axios.post('/staff/entry/login', params).then(res => {
-            localStorage.setItem('token', res.token);
-            localStorage.setItem('userInfo', JSON.stringify(res));
-            this.$store.commit('SET_USERINFO', res);
-            this.$message.success(this.$t(`登录成功`));
-            setTimeout(()=>{
-              window.location.href = '/';
-            },1500)
-            this.$emit('handleCloseLoginDialog', -2);
+            }).catch(err => {
+              this.$message.info(err.message);
+            });
+          }else {
+            params.country_code =  this.phoneNumber
 
-          }).catch(err => {
-            this.$message.info(err.message);
-          });
+            this.$axios.post('/biz/account/login', params).then(res => {
+              localStorage.setItem('token', res.token);
+              localStorage.setItem('userInfo', JSON.stringify(res));
+              this.$store.commit('SET_USERINFO', res);
+              this.$message.success(this.$t(`登录成功`));
+              setTimeout(()=>{
+                window.location.href = '/';
+              },1500)
+              this.$emit('handleCloseLoginDialog', -2);
+
+            }).catch(err => {
+              this.$message.info(err.message);
+            });
+          }
+
         }
 
       }

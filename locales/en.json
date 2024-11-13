@@ -96,5 +96,10 @@
   "确认退出吗, 是否继续": "Are you sure you're out? Do you want to continue",
   "确定": "confirm",
   "取消": "cancel",
-  "提示": "reminder"
+  "提示": "reminder",
+  "我是商家": "I am a merchant",
+  "抽奖": "draw a lottery or raffle",
+  "兑换码": "reset code",
+  "积分": "integral",
+  "上级邀请码": "Parent invitation code"
 }

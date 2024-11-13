@@ -39,10 +39,15 @@
                      height='50px'>{{ $t(`登录`) }}
           </el-button>
 
-          <!--          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='userNewInfo.staff_id'-->
-          <!--                     style='margin-left: 16px;'-->
-          <!--                     height='50px'>{{ $t(`邀请码兑换`) }}-->
-          <!--          </el-button>-->
+          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='userNewInfo.uid'
+                     style='margin-left: 16px;'
+                     height='50px'>{{ $t(`邀请码兑换`) }}
+          </el-button>
+
+          <el-button @click='handleClick(3)' class='login-bt try-out-bt' v-if='userNewInfo.staff_id&&userNewInfo.integral'
+                     style='margin-left: 16px;'
+                     height='50px'>{{ $t(`抽奖`) }}
+          </el-button>
 
           <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
             <v-menu eager bottom offset-y left open-on-hover>
@@ -57,6 +62,8 @@
                       {{ userNewInfo.name ? userNewInfo.name : userNewInfo.nickname ? userNewInfo.nickname : '' }}
                     </div>
                     <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
+                    <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>{{$t(`邀请码`)}}{{ userNewInfo.share_code }}</div>
+                    <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>{{$t(`积分`)}}{{ userNewInfo.integral }}</div>
                   </div>
                 </div>
               </template>
@@ -80,28 +87,34 @@
     <login :loginType='loginType' @handleCloseLoginDialog='handleCloseLoginDialog'></login>
     <invitation-redemption :loginType='loginType'
                            @handleCloseLoginDialog='handleCloseLoginDialog'></invitation-redemption>
+    <draw-lottery  :loginType='loginType'
+                   @handleCloseLoginDialog='handleCloseLoginDialog'></draw-lottery>
   </div>
 </template>
 
 <script>
-import InfoWindow from '@/components/popupWindow/infoWindow'
-import login from '@/components/popupWindow/login'
-import InvitationRedemption from '@/components/popupWindow/InvitationRedemption'
+import InfoWindow from '@/components/popupWindow/infoWindow';
+import login from '@/components/popupWindow/login';
+import InvitationRedemption from '@/components/popupWindow/InvitationRedemption';
+import drawLottery from '@/components/popupWindow/drawLottery';
+
+
 import {
   mapGetters,
   mapMutations,
   mapState,
   mapActions
-} from 'vuex'
+} from 'vuex';
 
 export default {
   name: 'header-control',
   components: {
     InfoWindow,
     login,
-    InvitationRedemption
+    InvitationRedemption,
+    drawLottery
   },
-  data () {
+  data() {
     return {
       currentMenuInx: 1, // 当前选择菜单下标
       isShowPhoneMenu: false, // 是否展示手机端菜单
@@ -110,16 +123,16 @@ export default {
       userNewInfo: {},
       // 是否显示联系方式弹框
       isShowContactInfoDialog: false
-    }
+    };
   },
   watch: {
-    $route () {
-      this.isShowPhoneMenu = false
+    $route() {
+      this.isShowPhoneMenu = false;
     }
 
   },
-  mounted () {
-    this.userNewInfo = this.getUserInfo
+  mounted() {
+    this.userNewInfo = this.getUserInfo;
   },
   computed: {
     ...mapGetters({
@@ -127,57 +140,59 @@ export default {
     }),
 
     // 获取url 路径
-    getUrlPath () {
-      return this.$route.path
+    getUrlPath() {
+      return this.$route.path;
     },
 
     // 获取菜单选中下标
-    getActiveMenuInx () {
+    getActiveMenuInx() {
       const activeMenus = [
         [],
         ['/', ''],
         ['/creation'],
         ['/about']
-      ]
+      ];
       // console.log(this.getUrlPath)
-      console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)))
-      return activeMenus.findIndex(item => item.includes(this.getUrlPath))
+      console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)));
+      return activeMenus.findIndex(item => item.includes(this.getUrlPath));
     }
   },
   methods: {
-    bingOutLogin () {
-      this.$confirm(this.$t(`确认退出吗, 是否继续`)+'?', this.$t(`提示`), {
-        confirmButtonText:this.$t(`确定`),
-        cancelButtonText:this.$t(`取消`),
+    bingOutLogin() {
+      this.$confirm(this.$t(`确认退出吗, 是否继续`) + '?', this.$t(`提示`), {
+        confirmButtonText: this.$t(`确定`),
+        cancelButtonText: this.$t(`取消`),
         type: 'warning'
       }).then(() => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('userInfo')
-        this.$store.commit('SET_USERINFO', {})
-        window.location.href = '/'
-      })
+        localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        this.$store.commit('SET_USERINFO', {});
+        window.location.href = '/';
+      });
     },
-    handleHome () {
-      window.location.href = '/'
+    handleHome() {
+      window.location.href = '/';
     },
-    handleClick (type) {
+    handleClick(type) {
       if (type === 1) {
-        this.handleCloseLoginDialog(1)
-      } else {
-        this.handleCloseLoginDialog(2)
+        this.handleCloseLoginDialog(1);
+      } else if(type === 2){
+        this.handleCloseLoginDialog(2);
+      }else {
+        this.handleCloseLoginDialog(3);
       }
     },
 
     /** 处理联系方式弹框的状态 */
-    handleInfoWindowState (value) {
-      this.isShowContactInfoDialog = value
+    handleInfoWindowState(value) {
+      this.isShowContactInfoDialog = value;
     },
     /** 处理登录弹框的关闭操作 */
-    handleCloseLoginDialog (value) {
-      this.loginType = value
+    handleCloseLoginDialog(value) {
+      this.loginType = value;
     }
   }
-}
+};
 </script>
 
 <style lang='scss'>

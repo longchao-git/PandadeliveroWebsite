@@ -4,7 +4,7 @@ export default {
 	BASE_URL: 'https://demo.pandadelivero.com/api/v1/', // 测试
 	// BASE_URL: 'http://kuaizi.test.tmimi.cc/api/v1/', // 测试
 	//
-
+ URl:'https://demo.pandadelivero.com/',
 	// 状态码错误信息
 	ERROR_CODE: {
 		4: '请求超时',
