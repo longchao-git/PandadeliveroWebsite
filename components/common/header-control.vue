@@ -133,6 +133,10 @@ export default {
   },
   mounted() {
     this.userNewInfo = this.getUserInfo;
+    if(this.getUserInfo.staff_id||this.getUserInfo.uid){
+      this.accountProfile()
+
+    }
   },
   computed: {
     ...mapGetters({
@@ -158,6 +162,15 @@ export default {
     }
   },
   methods: {
+    accountProfile(){
+      this.$axios.post('/staff/account/profile', {
+
+      }).then(res => {
+        this.userNewInfo = res
+      }).catch(err => {
+        this.$message.info(err.message);
+      });
+    },
     bingOutLogin() {
       this.$confirm(this.$t(`确认退出吗, 是否继续`) + '?', this.$t(`提示`), {
         confirmButtonText: this.$t(`确定`),
