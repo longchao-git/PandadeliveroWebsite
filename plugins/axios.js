@@ -15,8 +15,12 @@ export default ({redirect, $axios,$cookies}) => {
     config.data = objToFormData(config.data)
 
     config.headers['Access-Control-Allow-Origin'] =  '*';
-    config.headers['System'] = 'wxapp';
+    config.headers['System'] = 'IOS';
     config.headers['token'] =  localStorage.getItem('token') || '';
+    config.headers['TOKEN'] =  localStorage.getItem('token') || '';
+    config.headers['CITY_ID'] = 2
+    config.headers['Api'] = 'STAFF'
+    config.headers['Version'] = '4.3.20190404'
     config.headers['content-type'] =  'application/x-www-form-urlencoded';
     return config
   }, error => {
