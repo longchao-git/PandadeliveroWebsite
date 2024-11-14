@@ -44,7 +44,7 @@
                      height='50px'>{{ $t(`邀请码兑换`) }}
           </el-button>
 
-          <el-button @click='handleClick(3)' class='login-bt try-out-bt' v-if='userNewInfo.staff_id&&userNewInfo.integral'
+          <el-button @click='handleClick(3)' class='login-bt try-out-bt' v-if='userNewInfo.integral'
                      style='margin-left: 16px;'
                      height='50px'>{{ $t(`抽奖`) }}
           </el-button>
