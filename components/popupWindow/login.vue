@@ -41,12 +41,12 @@
           </div>
           <div class='login_input' v-if='!isHaTrue&&isType===1'>
             <div>{{ $t(`验证码`) }}</div>
-            <el-input :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
+            <el-input :placeholder='$t(`请输入`)' type='password' show-password style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
             </el-input>
           </div>
           <div class='login_input' v-if='isHaTrue||isType===2||isType===3'>
             <div>{{ $t(`密码`) }}</div>
-            <el-input  :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
+            <el-input  :placeholder='$t(`请输入`)' type='password' show-password style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'

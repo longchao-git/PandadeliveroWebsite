@@ -31,7 +31,8 @@
           </div>
           <div class='login_input'>
             <div>{{$t(`密码`)}}</div>
-            <el-input  :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="passwd">
+            <el-input  :placeholder="$t(`请输入`)" type='password' show-password
+                       style='margin-top: 8px;height: 48px' v-model="passwd">
             </el-input>
           </div>
           <div class='login_input'>
