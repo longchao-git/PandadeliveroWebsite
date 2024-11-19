@@ -84,6 +84,7 @@ export default {
 </script>
 
 <style scoped lang='scss'>
+
 .footer-box {
   background-color: #222;
   background-image: url("@/assets/images/footICon.png");
@@ -202,7 +203,7 @@ export default {
   .contact-box {
     .related-product-box {
       > div {
-        margin-right: 40px;
+        margin-right: 60px;
       }
     }
   }
@@ -238,7 +239,7 @@ export default {
 /*小屏幕*/
 @media screen and (max-width: $pad-max-width) {
   body .footer-box {
-    padding: 16px 24px;
+    padding: 32px 48px;
     //margin-bottom: 88px;
 
     .f-title {
@@ -263,10 +264,14 @@ export default {
       flex-wrap: wrap;
 
       .asy-box {
-        padding-bottom: 8px;
-        margin: 0;
-        width: 50%;
 
+        padding-bottom: 8px;
+
+        margin: 50px 0 0 0;
+        width: 50%;
+          .isViewTxet{
+            border: none;
+          }
         .asy-phone {
           margin-top: 0;
           line-height: inherit;

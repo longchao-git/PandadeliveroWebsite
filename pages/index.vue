@@ -154,7 +154,7 @@ export default {
 .head-bg {
   @extend .tran-300ms;
   padding: 120px 0;
-  min-height: 800px;
+  height: 800px;
   background-image: url('@/assets/images/backIndexIcon.png');
   background-size: cover;
   background-position: center;
@@ -248,8 +248,8 @@ export default {
     display: none;
   }
   .head-bg {
-    margin-top: $small-app-bar-height;
-    height: 300px;
+    margin-top: 120px;
+    height: 570px;
 
     .h-content {
       top: 0;
@@ -259,8 +259,8 @@ export default {
 
       .h-conte {
         ._left {
-          width: 35%;
-
+          width: 65%;
+          margin-left: 5%;
 
           .Services {
             font-size: 32px;

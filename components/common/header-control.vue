@@ -3,6 +3,91 @@
     <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>
 
     <v-app-bar fixed :flat='true' class='header-app-bar top-app-bar' color='transparent'>
+      <!--手机端-->
+      <div class='phone-menu-box max-width'>
+        <div class='disflex al-center phone-menu-bar max-width'>
+          <nuxt-link
+            style='margin-right: 14px'
+            class='clear-flex h-logo-img'
+            to='/'
+          >
+            <embed
+              width='100%'
+              :src="require('~/assets/images/cloudSales/header2-logo.png')"
+              type='image/svg+xml'
+            />
+          </nuxt-link>
+          <v-spacer />
+          <v-app-bar-nav-icon
+            @click='isShowPhoneMenu = !isShowPhoneMenu'
+          >
+            <img src='../../assets/images/icon_shaixuan.png'
+                 style='width: 48px;height: 48px;margin-left:8px '
+                 alt='' />
+
+          </v-app-bar-nav-icon>
+          <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
+            <div class='flex flex-a-c'>
+              <el-image
+                style='width: 60px; height: 60px;border-radius: 60px'
+                :src='userNewInfo.face'
+                fit='cover'></el-image>
+              <div class='ml2'>
+                <div class='font14' style='color: #f9c13e'>
+                  {{ userNewInfo.name ? userNewInfo.name : userNewInfo.nickname ? userNewInfo.nickname : '' }}
+                </div>
+                <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
+                <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>
+                  {{ $t(`邀请码`) }}{{ userNewInfo.share_code }}
+                </div>
+                <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
+                  {{ $t(`积分`) }}{{ userNewInfo.integral }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <v-expand-transition>
+          <div
+            v-show='isShowPhoneMenu'
+            class='phone-menu-list max-width'
+          >
+            <v-list dense>
+              <v-list-item link href='/creation'>
+                <v-list-item-title
+                >{{ $t(`成为一名快递员`) }}
+                </v-list-item-title
+                >
+              </v-list-item>
+              <v-divider />
+              <v-list-item target='_blank' href='/about'>
+                <v-list-item-title>{{ $t(`关于我们`) }}</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              <v-list-item @click='handleInfoWindowState(true)'>
+                <v-list-item-title>{{ $t(`语言切换`) }}</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              <v-list-item @click='handleClick(1)' v-if='!userNewInfo.staff_id&&!userNewInfo.uid'>
+                <v-list-item-title>{{ $t(`登录`) }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click='handleClick(2)' v-if='userNewInfo.uid'>
+                <v-list-item-title>{{ $t(`邀请码兑换`) }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click='handleClick(3)' v-if='userNewInfo.integral'>
+                <v-list-item-title>{{ $t(`抽奖`) }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item target='_blank' href='/information' v-if='userNewInfo.uid'>
+                <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click='bingOutLogin' v-if='userNewInfo.staff_id||userNewInfo.uid'>
+                <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </div>
+        </v-expand-transition>
+      </div>
       <!--PC端-->
       <div class='disflex ju-center max-width al-center col-f pc-menu-box'>
         <img @click='handleHome' :src="require('~/assets/images/cloudSales/header2-logo.png')"
@@ -62,8 +147,12 @@
                       {{ userNewInfo.name ? userNewInfo.name : userNewInfo.nickname ? userNewInfo.nickname : '' }}
                     </div>
                     <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
-                    <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>{{$t(`邀请码`)}}{{ userNewInfo.share_code }}</div>
-                    <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>{{$t(`积分`)}}{{ userNewInfo.integral }}</div>
+                    <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>
+                      {{ $t(`邀请码`) }}{{ userNewInfo.share_code }}
+                    </div>
+                    <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
+                      {{ $t(`积分`) }}{{ userNewInfo.integral }}
+                    </div>
                   </div>
                 </div>
               </template>
@@ -87,8 +176,8 @@
     <login :loginType='loginType' @handleCloseLoginDialog='handleCloseLoginDialog'></login>
     <invitation-redemption :loginType='loginType'
                            @handleCloseLoginDialog='handleCloseLoginDialog'></invitation-redemption>
-    <draw-lottery  :loginType='loginType'
-                   @handleCloseLoginDialog='handleCloseLoginDialog'></draw-lottery>
+    <draw-lottery :loginType='loginType'
+                  @handleCloseLoginDialog='handleCloseLoginDialog'></draw-lottery>
   </div>
 </template>
 
@@ -133,8 +222,8 @@ export default {
   },
   mounted() {
     this.userNewInfo = this.getUserInfo;
-    if(this.getUserInfo.staff_id||this.getUserInfo.uid){
-      this.accountProfile()
+    if (this.getUserInfo.staff_id || this.getUserInfo.uid) {
+      this.accountProfile();
 
     }
   },
@@ -162,11 +251,9 @@ export default {
     }
   },
   methods: {
-    accountProfile(){
-      this.$axios.post('/staff/account/profile', {
-
-      }).then(res => {
-        this.userNewInfo = res
+    accountProfile() {
+      this.$axios.post('/staff/account/profile', {}).then(res => {
+        this.userNewInfo = res;
       }).catch(err => {
         this.$message.info(err.message);
       });
@@ -189,9 +276,9 @@ export default {
     handleClick(type) {
       if (type === 1) {
         this.handleCloseLoginDialog(1);
-      } else if(type === 2){
+      } else if (type === 2) {
         this.handleCloseLoginDialog(2);
-      }else {
+      } else {
         this.handleCloseLoginDialog(3);
       }
     },
@@ -359,7 +446,7 @@ export default {
       }
 
       .header-app-bar {
-        height: 66px !important;
+        height: 120px !important;
         background-color: #fff8e2 !important;
 
 
@@ -394,7 +481,7 @@ export default {
           .phone-menu-list {
             padding: 16px;
             position: fixed;
-            top: $small-app-bar-height;
+            top: 120px;
             background-color: white;
 
             .v-list-item__title,

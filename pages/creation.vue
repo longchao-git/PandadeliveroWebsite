@@ -88,6 +88,9 @@ export default {
 };
 </script>
 <style lang='scss'>
+.v-application--wrap{
+  max-width: 200% !important;
+}
 .login-input {
   width: 100%;
   height: 52px;
@@ -225,7 +228,7 @@ export default {
     display: none;
   }
   .head-bg {
-    margin-top: $small-app-bar-height;
+    margin-top: 120px;
     height: 300px;
 
     .h-content {

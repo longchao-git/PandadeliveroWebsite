@@ -29,3 +29,10 @@ export default {
   }
 };
 </script>
+<style lang='scss'>
+@media screen and (max-width: $pad-max-width) {
+  .aboutView{
+    padding: 0 32px;
+  }
+}
+</style>
