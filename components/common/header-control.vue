@@ -148,10 +148,10 @@
                     </div>
                     <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
                     <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>
-                      {{ $t(`邀请码`) }}{{ userNewInfo.share_code }}
+                      {{ $t(`邀请码`) }}： {{ userNewInfo.share_code }}
                     </div>
                     <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
-                      {{ $t(`积分`) }}{{ userNewInfo.integral }}
+                      {{ $t(`积分`) }}： {{ userNewInfo.integral }}
                     </div>
                   </div>
                 </div>
