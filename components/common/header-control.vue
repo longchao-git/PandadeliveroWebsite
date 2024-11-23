@@ -289,7 +289,14 @@ export default {
     },
     /** 处理登录弹框的关闭操作 */
     handleCloseLoginDialog(value) {
-      this.loginType = value;
+      if(value === -2){
+        this.loginType = -1;
+        this.accountProfile()
+      }else {
+        this.loginType = value;
+      }
+
+
     }
   }
 };

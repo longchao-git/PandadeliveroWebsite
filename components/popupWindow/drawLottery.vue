@@ -34,7 +34,7 @@ export default {
   },
   methods: {
     handleChangeType(type) {
-        this.$emit('handleCloseLoginDialog', -1);
+        this.$emit('handleCloseLoginDialog', -2);
     }
   }
 };
