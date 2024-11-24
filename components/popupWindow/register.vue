@@ -36,7 +36,7 @@
             </el-input>
           </div>
           <div class='login_input'>
-            <div>{{$t(`身份证号码`)}}</div>
+            <div>{{$t(`联系邮箱`)}}</div>
             <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="id_number">
             </el-input>
           </div>
