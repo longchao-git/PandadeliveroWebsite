@@ -57,14 +57,19 @@
         </div>
       </div>
     </div>
+    <invite-download :loginType='isType' @handleCloseLoginDialog='handleCloseLoginDialog'></invite-download>
   </div>
 </template>
 
 <script>
 
+import inviteDownload  from '@/components/popupWindow/inviteDownload';
 
 
 export default {
+  components: {
+    inviteDownload
+  },
   props: {
     loginType: {
       type: Number,
@@ -78,6 +83,7 @@ export default {
   },
   data() {
     return {
+      isType:-1,
       mobile: '',
       passwd: '',
       uname: '',
@@ -116,8 +122,11 @@ export default {
 
   methods: {
 
-
+    handleCloseLoginDialog(){
+      this.isType = -1
+    },
     handleChangeType(type) {
+
       if (type === 1) {
         this.$emit('handleCloseLoginDialog', -1);
       } else if (type === 2) {
@@ -153,9 +162,14 @@ export default {
         this.$axios.post('/staff/entry/register', params).then(res => {
 
           this.$message.success(this.$t(`已提交成功，资料正在审核中，等待管理员联系`));
-          setTimeout(()=>{
-            window.location.href = '/';
-          },1500)
+          this.isType = 3
+          this.id_number = ''
+          this.share_code = ''
+          this.mobile = ''
+          this.passwd = ''
+          // setTimeout(()=>{
+          //   window.location.href = '/';
+          // },1500)
           // this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
           this.$message.info(err.message);
