@@ -36,15 +36,28 @@
             </el-input>
           </div>
           <div class='login_input'>
-            <div>{{$t(`联系邮箱`)}}</div>
+            <div>{{$t(`身份证号码`)}}</div>
             <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="id_number">
             </el-input>
+          </div>
+          <div class='login_input'>
+            <div>{{$t(`联系邮箱`)}}</div>
+            <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="email">
+            </el-input>
+          </div>
+          <div class='login_input'>
+            <div>{{$t(`城市`)}}</div>
+            <el-radio-group v-model="city_id">
+              <el-radio :label="2">{{$t(`马德里`)}}</el-radio>
+              <el-radio :label="3">{{$t(`巴塞罗那`)}}</el-radio>
+            </el-radio-group>
           </div>
           <div class='login_input'>
             <div>{{$t(`上级邀请码`)}}</div>
             <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="share_code">
             </el-input>
           </div>
+
           <div class='flex flex-a-c' style='margin-top: 16px'>
             <img v-if='checked' src='../../assets/images/cloudSales/home/checked.png' alt='' class='icon24' @click='checked=!checked'>
             <img v-if='!checked' src='../../assets/images/cloudSales/home/default.png' alt='' class='icon24'  @click='checked=!checked'>
@@ -88,6 +101,8 @@ export default {
       passwd: '',
       uname: '',
       id_number: '',
+      email:'',
+      city_id:'',
       share_code:'',
       checked:false,
       value:34,
@@ -154,6 +169,8 @@ export default {
         let params = {
           uname: this.uname,
           id_number: this.id_number,
+          email:this.email,
+          city_id:this.city_id,
           share_code:this.share_code,
           mobile:  this.mobile,
           passwd: this.passwd
@@ -164,6 +181,8 @@ export default {
           this.$message.success(this.$t(`已提交成功，资料正在审核中，等待管理员联系`));
           this.isType = 3
           this.id_number = ''
+          this.email = ''
+          this.city_id = ''
           this.share_code = ''
           this.mobile = ''
           this.passwd = ''
@@ -205,7 +224,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 740px;
+  height: 900px;
   position: relative;
 
   > div {
@@ -383,7 +402,7 @@ export default {
   /** 登录卡片样式 */
   .login-window-card {
     width: 300px;
-    height: 480px;
+    height: 600px;
 
     > div {
       p {
