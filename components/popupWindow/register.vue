@@ -102,7 +102,7 @@ export default {
       uname: '',
       id_number: '',
       email:'',
-      city_id:'',
+      city_id:2,
       share_code:'',
       checked:false,
       value:34,
@@ -166,6 +166,10 @@ export default {
           this.$message.error(this.$t(`请输入身份证号`));
           return;
         }
+        if(!this.email){
+          this.$message.error(this.$t(`请输入联系邮箱`));
+          return;
+        }
         let params = {
           uname: this.uname,
           id_number: this.id_number,
@@ -182,7 +186,7 @@ export default {
           this.isType = 3
           this.id_number = ''
           this.email = ''
-          this.city_id = ''
+          this.city_id = 2
           this.share_code = ''
           this.mobile = ''
           this.passwd = ''
