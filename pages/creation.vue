@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--整屏滚动插件-->
-    <div class='p-relative head-bg'>
+    <div class='p-relative head-bg' style='margin-top: 100px'>
       <div class='h-content'>
         <div class='h-conte'>
           <div class='_right ml32'>
@@ -134,7 +134,7 @@ export default {
 .head-bg {
   @extend .tran-300ms;
   padding: 120px 0;
-  min-height: 1140px;
+  min-height: 900px;
   background-image: url('@/assets/images/creaTionIcon.png');
   background-size: cover;
   background-position: center;
