@@ -16,7 +16,7 @@
             </div>
             <div class='login_input'>
               <div>{{ $t(`姓`) }}</div>
-              <el-input :placeholder='$t(`请输入`)' style='height: 48px;margin-top: 8px' v-model='uname'>
+              <el-input :placeholder='$t(`请输入`)' style='height: 48px;margin-top: 8px' v-model='last_name'>
               </el-input>
             </div>
           </div>
@@ -41,18 +41,18 @@
             </el-input>
           </div>
           <div style='width: 100%;margin-top: 16px' class='flex'>
-            <el-radio-group v-model='city_id'>
-              <el-radio :label='2'>{{ $t(`短信`) }}</el-radio>
-              <el-radio :label='3'>whatsapp</el-radio>
+            <el-radio-group v-model='contact_type'>
+              <el-radio label='sms'>{{ $t(`短信`) }}</el-radio>
+              <el-radio label='whatsapp'>whatsapp</el-radio>
             </el-radio-group>
           </div>
 
-          <!--          <div class='login_input'>-->
-          <!--            <div>{{$t(`密码`)}}</div>-->
-          <!--            <el-input  :placeholder="$t(`请输入`)" type='password' show-password-->
-          <!--                       style='margin-top: 8px;height: 48px' v-model="passwd">-->
-          <!--            </el-input>-->
-          <!--          </div>-->
+          <div class='login_input'>
+            <div>{{ $t(`密码`) }}</div>
+            <el-input :placeholder='$t(`请输入`)' type='password' show-password
+                      style='margin-top: 8px;height: 48px' v-model='passwd'>
+            </el-input>
+          </div>
           <!--          <div class='login_input'>-->
           <!--            <div>{{$t(`身份证号码`)}}</div>-->
           <!--            <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="id_number">-->
@@ -61,10 +61,10 @@
           <div class='flex'>
             <div class='login_input'>
               <div>{{ $t(`国家`) }}</div>
-              <el-select v-model='value' placeholder='请选择' style='width: 240px'>
+              <el-select v-model='country' placeholder='请选择' style='width: 240px'>
                 <el-option
                   :label='$t(`西班牙`)'
-                  :value='3'>
+                  value='西班牙'>
                 </el-option>
               </el-select>
             </div>
@@ -86,14 +86,22 @@
           <div class='login_input'>
             <div>{{ $t(`交通工具`) }}</div>
 
-            <el-select v-model='city_id' placeholder='请选择' style='width: 480px'>
+            <el-select v-model='staff_type_new' placeholder='请选择' style='width: 480px'>
               <el-option
-                :label='$t(`马德里`)'
-                :value='2'>
+                :label='$t(`汽车`)'
+                value='汽车'>
               </el-option>
               <el-option
-                :label='$t(`巴塞罗那`)'
-                :value='3'>
+                :label='$t(`摩托车`)'
+                value='摩托车'>
+              </el-option>
+              <el-option
+                :label='$t(`电动自行车`)'
+                value='电动自行车'>
+              </el-option>
+              <el-option
+                :label='$t(`自行车`)'
+                value='自行车'>
               </el-option>
             </el-select>
           </div>
@@ -149,9 +157,13 @@ export default {
       mobile: '',
       passwd: '',
       uname: '',
+      last_name: '',
       id_number: '',
       email: '',
       city_id: 2,
+      staff_type_new: '自行车',
+      country: '西班牙',
+      contact_type: 'sms',
       share_code: '',
       checked: false,
       value: 34,
@@ -199,7 +211,11 @@ export default {
           return;
         }
         if (!this.uname) {
-          this.$message.error(this.$t(`请输入姓名`));
+          this.$message.error(this.$t(`请输入名字`));
+          return;
+        }
+        if (!this.last_name) {
+          this.$message.error(this.$t(`请输入姓`));
           return;
         }
         if (!this.mobile) {
@@ -211,19 +227,23 @@ export default {
           return;
         }
 
-        if (!this.id_number) {
-          this.$message.error(this.$t(`请输入身份证号`));
-          return;
-        }
+        // if (!this.id_number) {
+        //   this.$message.error(this.$t(`请输入身份证号`));
+        //   return;
+        // }
         if (!this.email) {
           this.$message.error(this.$t(`请输入联系邮箱`));
           return;
         }
         let params = {
           uname: this.uname,
+          last_name: this.last_name,
           id_number: this.id_number,
           email: this.email,
           city_id: this.city_id,
+          staff_type_new: this.staff_type_new,
+          country: this.country,
+          contact_type: this.contact_type,
           share_code: this.share_code,
           mobile: this.mobile,
           passwd: this.passwd
@@ -236,7 +256,11 @@ export default {
           this.id_number = '';
           this.email = '';
           this.city_id = 2;
+          this.staff_type_new = '汽车';
+          this.contact_type = 'sms';
           this.share_code = '';
+          this.uname = '';
+          this.last_name = '';
           this.mobile = '';
           this.passwd = '';
           // setTimeout(()=>{
@@ -278,7 +302,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 840px;
+  height: 920px;
   position: relative;
 
   > div {

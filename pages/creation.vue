@@ -134,7 +134,7 @@ export default {
 .head-bg {
   @extend .tran-300ms;
   padding: 120px 0;
-  min-height: 900px;
+  min-height: 980px;
   background-image: url('@/assets/images/creaTionIcon.png');
   background-size: cover;
   background-position: center;

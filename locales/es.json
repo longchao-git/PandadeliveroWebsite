@@ -106,5 +106,16 @@
   "联系邮箱": "Email de contacto",
   "城市": "Ciudad",
   "马德里": "Madrid",
-  "巴塞罗那": "Barcelona"
+  "巴塞罗那": "Barcelona",
+  "请输入姓": "Por favor ingrese su apellido",
+  "请输入名字": "Por favor ingrese un nombre",
+  "名字": "Nombre",
+  "姓": "Apellido",
+  "国家": "País",
+  "西班牙": "Hispania",
+  "交通工具": "Transporte",
+  "汽车": "automóvil; auto",
+  "摩托车": "Motocicleta",
+  "电动自行车": "Bicilec",
+  "自行车": "bici,bicicleta,máquina"
 }
