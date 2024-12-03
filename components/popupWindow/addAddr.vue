@@ -15,7 +15,7 @@
               class='inline-input'
               v-model='addr' :trigger-on-focus='false'
               :fetch-suggestions='querySearch'
-              :placeholder='$t(`请输入`)'
+              :placeholder='$t(`详情地址`)'
               style='width: 330px'
               @select='handleSelect'
             ></el-autocomplete>
@@ -26,14 +26,14 @@
             <div>{{ $t(`门牌号`) }}</div>
             <input
               v-model='house'
-              :placeholder='$t(`请输入`)'
+              :placeholder='$t(`门牌号`)'
               class='c-input' />
           </div>
           <div class='login_input'>
             <div>{{ $t(`联系人`) }}</div>
             <input
               v-model='contact'
-              :placeholder='$t(`请输入`)'
+              :placeholder='$t(`联系人`)'
               class='c-input' />
 
           </div>
@@ -41,7 +41,7 @@
             <div>{{ $t(`电话号码`) }}</div>
             <el-input @mousewheel.native.prevent
                       v-model='mobile' type='number' style='width: 330px'
-                      :placeholder='$t(`请输入`)'
+                      :placeholder='$t(`电话号码`)'
             >
             </el-input>
           </div>

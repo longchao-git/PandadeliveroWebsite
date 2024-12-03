@@ -1,6 +1,6 @@
 <template>
   <div v-if='loginType === 1' :class='type === 0?"login-window":""'>
-    <div class='login-window-card'>
+    <div class='login-window-card newVaeea'>
       <div>
         <div class='loginView' v-if='type === 0'>
           <img @click='handleChangeType(1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
@@ -8,26 +8,26 @@
         <p>{{ $t(`申请成为快递员`) }}</p>
         <div class='divContent'>{{ $t(`填写下面的表格以开始使用`) }}</div>
         <div class='loginClass'>
-          <div class='flex'>
-            <div class='login_input'>
-              <div>{{ $t(`名字`) }}</div>
-              <el-input :placeholder='$t(`请输入`)' style='height: 48px;margin-top: 8px' v-model='uname'>
+          <div class='flex '>
+            <div class='login_input leftview'>
+<!--              <div>{{ $t(`名字`) }}</div>-->
+              <el-input :placeholder='$t(`名字`)' style='height: 48px;margin-top: 8px' v-model='uname'>
               </el-input>
             </div>
-            <div class='login_input'>
-              <div>{{ $t(`姓`) }}</div>
-              <el-input :placeholder='$t(`请输入`)' style='height: 48px;margin-top: 8px' v-model='last_name'>
+            <div class='login_input rightview'>
+<!--              <div>{{ $t(`姓`) }}</div>-->
+              <el-input :placeholder='$t(`姓`)' style='height: 48px;margin-top: 8px' v-model='last_name'>
               </el-input>
             </div>
           </div>
           <div class='login_input'>
-            <div>{{ $t(`联系邮箱`) }}</div>
-            <el-input :placeholder='$t(`请输入`)+$t(`联系邮箱`)' style='margin-top: 8px;height: 48px' v-model='email'>
+<!--            <div>{{ $t(`联系邮箱`) }}</div>-->
+            <el-input :placeholder='$t(`联系邮箱`)' style='margin-top: 8px;height: 48px;border-radius: 48px' v-model='email'>
             </el-input>
           </div>
-          <div class='login_input'>
-            <div>{{ $t(`手机号`) }}</div>
-            <el-input :placeholder='$t(`请输入`)+$t(`手机号`)' style='margin-top: 8px;height: 48px' v-model='mobile'>
+          <div class='login_input rightview'>
+<!--            <div>{{ $t(`手机号`) }}</div>-->
+            <el-input :placeholder='$t(`手机号`)' style='margin-top: 8px;height: 48px' v-model='mobile'>
               <template slot='prepend'>+34
                 <!--                <el-select v-model="value" placeholder="请选择" style="width: 80px">-->
                 <!--                  <el-option-->
@@ -48,8 +48,8 @@
           </div>
 
           <div class='login_input'>
-            <div>{{ $t(`密码`) }}</div>
-            <el-input :placeholder='$t(`请输入`)' type='password' show-password
+<!--            <div>{{ $t(`密码`) }}</div>-->
+            <el-input :placeholder='$t(`密码`)' type='password' show-password
                       style='margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
@@ -59,8 +59,8 @@
           <!--            </el-input>-->
           <!--          </div>-->
           <div class='flex'>
-            <div class='login_input'>
-              <div>{{ $t(`国家`) }}</div>
+            <div class='login_input leftview'>
+<!--              <div>{{ $t(`国家`) }}</div>-->
               <el-select v-model='country' placeholder='请选择' style='width: 240px'>
                 <el-option
                   :label='$t(`西班牙`)'
@@ -68,8 +68,8 @@
                 </el-option>
               </el-select>
             </div>
-            <div class='login_input'>
-              <div>{{ $t(`城市`) }}</div>
+            <div class='login_input rightview'>
+<!--              <div>{{ $t(`城市`) }}</div>-->
 
               <el-select v-model='city_id' placeholder='请选择' style='width: 240px'>
                 <el-option
@@ -84,7 +84,7 @@
             </div>
           </div>
           <div class='login_input'>
-            <div>{{ $t(`交通工具`) }}</div>
+<!--            <div>{{ $t(`交通工具`) }}</div>-->
 
             <el-select v-model='staff_type_new' placeholder='请选择' style='width: 480px'>
               <el-option
@@ -106,8 +106,8 @@
             </el-select>
           </div>
           <div class='login_input'>
-            <div>{{ $t(`上级邀请码`) }}</div>
-            <el-input :placeholder='$t(`请输入`)' style='margin-top: 8px;height: 48px' v-model='share_code'>
+<!--            <div>{{ $t(`上级邀请码`) }}</div>-->
+            <el-input :placeholder='$t(`上级邀请码`)' style='margin-top: 8px;height: 48px' v-model='share_code'>
             </el-input>
           </div>
 
@@ -163,7 +163,7 @@ export default {
       city_id: 2,
       staff_type_new: '自行车',
       country: '西班牙',
-      contact_type: 'sms',
+      contact_type: 'whatsapp',
       share_code: '',
       checked: false,
       value: 34,
@@ -257,7 +257,7 @@ export default {
           this.email = '';
           this.city_id = 2;
           this.staff_type_new = '汽车';
-          this.contact_type = 'sms';
+          this.contact_type = 'whatsapp';
           this.share_code = '';
           this.uname = '';
           this.last_name = '';
@@ -276,8 +276,30 @@ export default {
   }
 };
 </script>
+<style lang='scss'>
 
+  .leftview{
+    .el-input__inner{
+      border-radius: 16px 0 0 16px !important;
+
+    }
+  }
+  .rightview{
+    .el-input__inner{
+      border-radius: 0 16px  16px  0 !important;
+
+    }
+  }
+.newVaeea{
+  .el-input__inner{
+    border-radius: 16px;
+    background: #fff8e2;
+  }
+}
+
+</style>
 <style lang='scss' scoped>
+
 .login-window {
   position: fixed;
   background: rgba(0, 0, 0, 0.4);
@@ -302,7 +324,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
   margin: auto;
   width: 540px;
-  height: 920px;
+  height: 780px;
   position: relative;
 
   > div {

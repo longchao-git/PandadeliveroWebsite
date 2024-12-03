@@ -12,7 +12,7 @@
         <div class='loginClass'>
           <div class='login_input'>
             <div>{{ $t(`邀请码`) }}</div>
-            <el-input :placeholder='$t(`请输入`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='code'>
+            <el-input :placeholder='$t(`邀请码`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='code'>
             </el-input>
           </div>
 
