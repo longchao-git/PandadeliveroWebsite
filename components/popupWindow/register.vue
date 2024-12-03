@@ -11,12 +11,12 @@
           <div class='flex '>
             <div class='login_input leftview'>
 <!--              <div>{{ $t(`名字`) }}</div>-->
-              <el-input :placeholder='$t(`名字`)' style='height: 48px;margin-top: 8px' v-model='uname'>
+              <el-input :placeholder='$t(`名字`)' style='height: 48px;margin-top: 8px;flex: 1;width: 242px;' v-model='uname'>
               </el-input>
             </div>
             <div class='login_input rightview'>
 <!--              <div>{{ $t(`姓`) }}</div>-->
-              <el-input :placeholder='$t(`姓`)' style='height: 48px;margin-top: 8px' v-model='last_name'>
+              <el-input :placeholder='$t(`姓`)' style='height: 48px;margin-top: 8px;flex: 1;width: 242px;' v-model='last_name'>
               </el-input>
             </div>
           </div>
