@@ -2,7 +2,7 @@
   <div class='footer-box disflex al-center max-width f-column'>
     <div class='disflex p-relative contact-box'>
       <div class='asy-box'>
-        <div class='f-title ' @click='bingtapCilck(1)'>
+        <div class='f-title ' style='display: flex;flex-direction: column;align-items: flex-start;' @click='bingtapCilck(1)'>
           <img class='footer_icon' src='~/assets/images/footIConLogin.png' alt='' />
           <div class='footer_buttom'>{{ $t(`成为快递员`) }}</div>
         </div>
@@ -119,7 +119,7 @@ export default {
       cursor: pointer;
       border-radius: 30px;
       background: #F9C13E;
-      width: 164px;
+
       height: 58px;
       padding: 0px 16px;
       justify-content: center;
@@ -340,6 +340,9 @@ export default {
         margin-top: 10px;
       }
     }
+  }
+  .footer_buttom{
+    font-size: 14px;
   }
 }
 </style>
