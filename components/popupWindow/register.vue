@@ -8,7 +8,7 @@
         <p>{{ $t(`申请成为快递员`) }}</p>
         <div class='divContent'>{{ $t(`填写下面的表格以开始使用`) }}</div>
         <div class='loginClass'>
-          <div class='flex '>
+          <div class='flex ' style='width: 100%;'>
             <div class='login_input leftview'>
 <!--              <div>{{ $t(`名字`) }}</div>-->
               <el-input :placeholder='$t(`名字`)' style='height: 48px;margin-top: 8px;flex: 1;' v-model='uname'>
@@ -58,10 +58,10 @@
           <!--            <el-input :placeholder="$t(`请输入`)"  style='margin-top: 8px;height: 48px' v-model="id_number">-->
           <!--            </el-input>-->
           <!--          </div>-->
-          <div class='flex'>
+          <div class='flex' style='width: 100%;'>
             <div class='login_input leftview'>
 <!--              <div>{{ $t(`国家`) }}</div>-->
-              <el-select v-model='country' placeholder='请选择' style='width: 240px'>
+              <el-select v-model='country' placeholder='请选择' style='flex: 1;width: 100%'>
                 <el-option
                   :label='$t(`西班牙`)'
                   value='西班牙'>
@@ -71,7 +71,7 @@
             <div class='login_input rightview'>
 <!--              <div>{{ $t(`城市`) }}</div>-->
 
-              <el-select v-model='city_id' placeholder='请选择' style='width: 240px'>
+              <el-select v-model='city_id' placeholder='请选择' style='flex: 1;width: 100%'>
                 <el-option
                   :label='$t(`马德里`)'
                   :value='2'>
@@ -86,7 +86,7 @@
           <div class='login_input'>
 <!--            <div>{{ $t(`交通工具`) }}</div>-->
 
-            <el-select v-model='staff_type_new' placeholder='请选择' style='width: 480px'>
+            <el-select v-model='staff_type_new' placeholder='请选择' style='flex: 1;'>
               <el-option
                 :label='$t(`汽车`)'
                 value='汽车'>
