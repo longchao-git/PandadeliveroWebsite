@@ -8,7 +8,7 @@
             <div class='Services'>pandadelivero</div>
 
             <div class='Potential'>
-              pandadelivero{{$t(`是您值得信赖的合作伙伴，在您的城市快速和安全的快递`)}}
+              {{$t(`是您值得信赖的合作伙伴，在您的城市快速和安全的快递`)}}
             </div>
             <div class='button-view flex-a-c' style='display: flex; width: 100%'>
               <div class=' indexBob' style='cursor: pointer' @click='handleClick(3)'>
