@@ -1,21 +1,19 @@
 <template>
   <div class="points-mall">
     <!-- 头部横幅 -->
-    <div class="banner-section">
-      <div class="banner-content">
-        <div class="banner-left">
-          <h1 class="banner-title">积分商城新功能上线</h1>
-          <p class="banner-subtitle">更简单的兑换，更丰富的收益</p>
-        </div>
-        <div class="banner-right">
-          <div class="points-badge">
-            <span class="points-label">积分</span>
-            <div class="decorative-elements">
-              <div class="coin"></div>
-              <div class="sparkle sparkle-1"></div>
-              <div class="sparkle sparkle-2"></div>
-              <div class="sparkle sparkle-3"></div>
+    <div class='p-relative head-bg'>
+      <div class='h-content'>
+        <div class='h-conte'>
+          <div class='_left'>
+            <div class='Services'> {{$t('积分商城新功能上线')}}</div>
+
+            <div class='Potential'>
+              {{$t('更简单的规则/更丰富的权益')}}
             </div>
+            
+          </div>
+          <div class='_right ml32'>
+
           </div>
         </div>
       </div>
@@ -29,12 +27,12 @@
             <div class="nav-icon" :class="category.iconClass">
               <i :class="category.icon"></i>
             </div>
-            <span class="nav-label">{{ category.name }}</span>
+            <span class="nav-label">{{ $t(category.name) }}</span>
           </div>
         </div>
         <div class="points-balance">
           <div class="balance-card">
-            <span class="balance-label">我的积分</span>
+            <span class="balance-label">{{ $t('我的积分') }}</span>
             <span class="balance-amount">12000</span>
           </div>
         </div>
@@ -43,7 +41,7 @@
 
     <!-- 热门产品 -->
     <div class="products-section">
-      <h2 class="section-title">🔥热门产品</h2>
+      <h2 class="section-title">🔥{{ $t('热门产品') }}</h2>
       <div class="products-grid">
         <div class="product-card" v-for="product in products" :key="product.id">
           <div class="product-image">
@@ -52,7 +50,7 @@
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
             <div class="product-price">
-              <span class="price-label">积分</span>
+              <span class="price-label">{{ $t('积分') }}</span>
               <span class="price-amount">{{ product.points }}</span>
             </div>
             <button class="exchange-btn">
@@ -119,7 +117,7 @@ export default {
 .points-mall {
     padding: 100px 0;
   min-height: 100vh;
-  background-color: #f5f5f5; 
+  background-color: #fff; 
 }
 
 // 头部横幅样式
@@ -186,6 +184,136 @@ export default {
     color: #FFB84D;
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
+}
+.head-bg {
+  @extend .tran-300ms;
+  padding: 120px 0;
+  height: 727px;
+  background-image: url('@/assets/images/points-mall.png');
+  background-size: cover;
+  background-position: center;
+
+
+  .h-content {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+
+    .h-conte {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+
+      ._left {
+        width: 35%;
+
+        .Business {
+          color: #FFF;
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 22px;
+          background-color: #254969;
+          padding: 4px 16px;
+          border-radius: 30px;
+          display: inline-block;
+        }
+
+        .Services {
+          color: #000;
+          font-size: 72px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 107px;
+          letter-spacing: -1.12px;
+          text-transform: capitalize;
+        }
+
+        .Potential {
+          color: #3A3509;
+          font-size: 36px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 26px;
+          margin-top: 12px;
+        }
+
+        .button-view {
+          margin-top: 20px;
+          display: flex;
+
+          .v-btn {
+            border-radius: 35px !important;
+          }
+        }
+      }
+
+      ._right {
+        width: 600px;
+
+      }
+    }
+  }
+}
+/*中屏幕*/
+@media screen and(max-width: $big-pc-width) {
+  .head-bg .h-content {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    .h-conte {
+
+    }
+  }
+}
+
+@media screen and (max-width: $pad-max-width) {
+  .customer-collection_footer-close {
+    display: none;
+  }
+  .head-bg {
+    margin-top: 120px;
+    height: 570px;
+
+    .h-content {
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+
+      .h-conte {
+        ._left {
+          width: 65%;
+          margin-left: 5%;
+
+          .Services {
+            font-size: 32px;
+          }
+
+          .button-view {
+            margin-top: 20px;
+
+            .v-btn {
+              border-radius: 35px !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+@media screen and (max-width: $pad-max-width) {
+
 }
 
 .decorative-elements {
@@ -255,7 +383,6 @@ export default {
   border-radius: 20px 20px 0 0;
   position: relative;
   z-index: 2;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
 }
 
 .nav-container {
@@ -265,14 +392,16 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  gap: 40px;
 }
 
 .nav-items-wrapper {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   flex: 1;
   gap: 40px;
+  padding: 0 20px;
 }
 
 .nav-item {
@@ -336,7 +465,9 @@ export default {
 }
 
 .points-balance {
-  /* margin-left: auto; - 移除这行，因为父容器已经使用space-between布局 */
+  min-width: 120px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .balance-card {
@@ -358,6 +489,7 @@ export default {
   .balance-amount {
     font-size: 18px;
     font-weight: 700;
+    color: #0D0D0D;
   }
 }
 
