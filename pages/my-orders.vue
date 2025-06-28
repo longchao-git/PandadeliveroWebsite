@@ -17,7 +17,13 @@
       <table class="orders-table">
         <thead>
           <tr>
-            <th><input type="checkbox" /></th>
+            <th>
+              <div class="custom-checkbox" @click="toggleAllOrders">
+                <img :src="allOrdersChecked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
+                     :alt="allOrdersChecked ? '已选中' : '未选中'" 
+                     class="checkbox-icon" />
+              </div>
+            </th>
             <th>{{ $t('订单编号') }}</th>
             <th>{{ $t('图片') }}</th>
             <th>{{ $t('名称') }}</th>
@@ -31,13 +37,25 @@
         </thead>
         <tbody>
           <tr v-for="order in pagedOrders" :key="order.id">
-            <td><input type="checkbox" /></td>
+            <td>
+              <div class="custom-checkbox" @click="toggleOrder(order.id)">
+                <img :src="order.checked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
+                     :alt="order.checked ? '已选中' : '未选中'" 
+                     class="checkbox-icon" />
+              </div>
+            </td>
             <td>{{ order.code }}</td>
-            <td><img :src="order.image" alt="product" class="order-img" /></td>
+            <td><img src="~/assets/images/iconYuan.png" alt="product" class="order-img" /></td>
             <td>{{ order.name }}</td>
             <td>{{ order.quantity }}</td>
             <td class="order-amount">€{{ order.amount }}</td>
-            <td class="order-points"><span class="points-icon">🟢</span>{{ order.points }}</td>
+            <td class="order-points">
+              <div class="order-points-box">
+                <img src="~/assets/images/icon_jfien.png" alt="积分图标" class="price-icon" />
+                {{ order.points }}
+              </div>
+             
+            </td>
             <td :class="['order-status', order.statusClass]">{{ $t(order.status) }}</td>
             <td>{{ order.date }}</td>
             <td>
@@ -99,7 +117,8 @@ export default {
           statusClass: 'status-pending',
           date: '2024-04-29 15:00:00',
           action: '去支付',
-          canDelete: false
+          canDelete: false,
+          checked: false
         },
         {
           id: 2,
@@ -113,7 +132,8 @@ export default {
           statusClass: 'status-confirm',
           date: '2024-04-29 15:00:00',
           action: '发票/提单',
-          canDelete: false
+          canDelete: false,
+          checked: false
         },
         {
           id: 3,
@@ -127,7 +147,8 @@ export default {
           statusClass: 'status-received',
           date: '2024-04-29 15:00:00',
           action: '',
-          canDelete: true
+          canDelete: true,
+          checked: false
         },
         {
           id: 4,
@@ -141,7 +162,8 @@ export default {
           statusClass: 'status-received',
           date: '2024-04-29 15:00:00',
           action: '',
-          canDelete: true
+          canDelete: true,
+          checked: false
         },
         {
           id: 5,
@@ -155,7 +177,8 @@ export default {
           statusClass: 'status-received',
           date: '2024-04-29 15:00:00',
           action: '',
-          canDelete: true
+          canDelete: true,
+          checked: false
         }
       ],
       currentPage: 2,
@@ -169,12 +192,29 @@ export default {
     pagedOrders() {
       // For mock, always return all 5
       return this.orders
+    },
+    allOrdersChecked() {
+      return this.orders.length > 0 && this.orders.every(order => order.checked);
+    }
+  },
+  methods: {
+    toggleOrder(orderId) {
+      const order = this.orders.find(o => o.id === orderId);
+      if (order) {
+        order.checked = !order.checked;
+      }
+    },
+    toggleAllOrders() {
+      const checked = !this.allOrdersChecked;
+      this.orders.forEach(order => {
+        order.checked = checked;
+      });
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .my-orders {
   background: #fff;
   padding: 100px 300px;
@@ -182,7 +222,7 @@ export default {
 }
 .orders-tabs {
   display: flex;
-  gap: 32px;
+  gap: 40px;
   font-size: 16px;
   font-weight: 500;
   border-bottom: 2px solid #f5f5f5;
@@ -214,27 +254,38 @@ export default {
   padding: 12px 8px;
   text-align: center;
   border-bottom: 1px solid #f0f0f0;
-  font-size: 14px;
+  font-size: 18px;
 }
 .orders-table th {
   background: #fafafa;
   font-weight: 600;
-  color: #888;
+  color: #383838;
 }
 .order-img {
-  width: 56px;
-  height: 56px;
+  width: 78px;
+  height: 78px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid #eee;
 }
 .order-amount {
   color: #FFB84D;
   font-weight: 600;
 }
 .order-points {
-  color: #4CAF50;
+  .order-points-box{
+    .price-icon{
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      margin-right: 4px;
+    }
+    display: flex;
+    align-items: center;
+    color: #7AC554;
   font-weight: 600;
+justify-content: center;
+  }
+ 
 }
 .points-icon {
   margin-right: 2px;
@@ -290,5 +341,18 @@ export default {
   background: #FFB84D;
   color: #fff;
   border-color: #FFB84D;
+}
+
+.custom-checkbox {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-checkbox .checkbox-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 </style> 

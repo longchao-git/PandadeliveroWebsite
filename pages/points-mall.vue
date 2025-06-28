@@ -23,7 +23,7 @@
     <div class="category-nav">
       <div class="nav-container">
         <div class="nav-items-wrapper">
-          <div class="nav-item" v-for="category in categories" :key="category.id">
+          <div class="nav-item" v-for="category in categories" :key="category.id" @click="goToCategory(category)">
             <div class="nav-icon" :class="category.iconClass">
               <i :class="category.icon"></i>
             </div>
@@ -32,7 +32,10 @@
         </div>
         <div class="points-balance">
           <div class="balance-card">
-            <span class="balance-label">{{ $t('我的积分') }}</span>
+            <span class="balance-label">
+              <img src="~/assets/images/icon_jifen.png" alt="积分图标" class="balance-icon" />
+              {{ $t('我的积分') }}
+            </span>
             <span class="balance-amount">12000</span>
           </div>
         </div>
@@ -41,7 +44,10 @@
 
     <!-- 热门产品 -->
     <div class="products-section">
-      <h2 class="section-title">🔥{{ $t('热门产品') }}</h2>
+      <h2 class="section-title">
+        <img src="~/assets/images/iconYuan.png" alt="圆形图标" class="section-icon" />
+        <div>{{ $t('热门产品') }}</div>
+      </h2>
       <div class="products-grid">
         <div class="product-card" v-for="product in products" :key="product.id">
           <div class="product-image">
@@ -49,13 +55,18 @@
           </div>
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
-            <div class="product-price">
-              <span class="price-label">{{ $t('积分') }}</span>
-              <span class="price-amount">{{ product.points }}</span>
-            </div>
-            <button class="exchange-btn">
-              <i class="cart-icon">🛒</i>
-            </button>
+            <div class="product-desc">
+              <div class="product-price">
+                <span class="price-label">€{{ product.points }}</span>
+                <div class="price-amount">
+                  <img src="~/assets/images/icon_jfien.png" alt="积分图标" class="price-icon" />
+                  {{ product.points }}
+                </div>
+              </div>
+              <button class="exchange-btn">
+                <img src="~/assets/images/icon_gouwuche.png" alt="购物车图标" class="cart-icon" />
+              </button>
+            </div>  
           </div>
         </div>
       </div>
@@ -100,6 +111,29 @@ export default {
           name: 'club Vuitton Beautiful PM', 
           points: '3600',
           image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y0ZjBmMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+R2FkZ2V0PC90ZXh0Pjwvc3ZnPg=='
+        },{ 
+          id: 1, 
+          name: 'club Vuitton Beautiful PM', 
+          points: '3000',
+          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TFYgQmFnPC90ZXh0Pjwvc3ZnPg=='
+        },
+        { 
+          id: 2, 
+          name: 'club Vuitton Beautiful PM', 
+          points: '3500',
+          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZjZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Q29zbWV0aWNzPC90ZXh0Pjwvc3ZnPg=='
+        },
+        { 
+          id: 3, 
+          name: 'club Vuitton Beautiful PM', 
+          points: '4500',
+          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZlZjNlMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TmF0dXJhbDwvdGV4dD48L3N2Zz4='
+        },
+        { 
+          id: 4, 
+          name: 'club Vuitton Beautiful PM', 
+          points: '3600',
+          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y0ZjBmMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+R2FkZ2V0PC90ZXh0Pjwvc3ZnPg=='
         }
       ]
     }
@@ -108,6 +142,9 @@ export default {
     exchangeProduct(product) {
       console.log('兑换商品:', product);
       // 实现兑换逻辑
+    },
+    goToCategory(category) {
+      this.$router.push({ path: '/category-list', query: { category: category.id } });
     }
   }
 }
@@ -378,9 +415,7 @@ export default {
 // 分类导航样式
 .category-nav {
   background: #fff;
-  padding: 20px;
-  margin-top: -30px;
-  border-radius: 20px 20px 0 0;
+  padding: 60px;
   position: relative;
   z-index: 2;
 }
@@ -417,14 +452,14 @@ export default {
 }
 
 .nav-icon {
-  width: 50px;
-  height: 50px;
+  width: 104px;
+  height: 104px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 8px;
-  font-size: 24px;
+  font-size: 28px;
   transition: all 0.3s ease;
   
   &.category-all {
@@ -459,80 +494,106 @@ export default {
 }
 
 .nav-label {
-  font-size: 12px;
-  color: #333;
+  font-size: 16px;
+  color: #000;
   font-weight: 500;
 }
 
 .points-balance {
-  min-width: 120px;
+  width: 180px;
+  height: 120px;
   display: flex;
   justify-content: flex-end;
 }
 
 .balance-card {
   background: linear-gradient(135deg, #FFB84D, #FF9500);
-  padding: 15px 25px;
-  border-radius: 25px;
+  padding: 16px;
+  border-radius: 16px;
   color: #fff;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   box-shadow: 0 4px 15px rgba(255, 148, 0, 0.3);
+  width: 100%;
   
   .balance-label {
-    font-size: 12px;
+    font-size: 18px;
     opacity: 0.9;
     margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    .balance-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      margin-right: 10px;
+    }
   }
   
   .balance-amount {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 500;
     color: #0D0D0D;
+    margin-top: 6px;
   }
 }
 
 // 产品部分样式
 .products-section {
-  padding: 30px 20px;
+  padding: 0 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
+  
+  color: #000;
+  line-height: 42px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #DEDEDE;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  div{
+    margin-left: -20px;
+    font-size: 28px;
+  font-weight: 500;
+  }
+}
+
+.section-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 40px 20px;
+  margin-top: 40px;
 }
 
 .product-card {
-  background: #fff;
-  border-radius: 12px;
+  // background: #fff;
+  // border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
+  // box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  // transition: all 0.3s ease;
   position: relative;
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  }
+  // &:hover {
+  //   transform: translateY(-4px);
+  //   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  // }
 }
 
 .product-image {
   width: 100%;
-  height: 200px;
+  height: 172px;
   position: relative;
   overflow: hidden;
   background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
@@ -544,66 +605,65 @@ export default {
     transition: transform 0.3s ease;
   }
   
-  &:hover img {
-    transform: scale(1.05);
-  }
+  // &:hover img {
+  //   transform: scale(1.05);
+  // }
 }
 
 .product-info {
-  padding: 15px;
+  padding: 10px 0;
   position: relative;
 }
 
 .product-name {
-  font-size: 14px;
-  color: #666;
-  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #181818;
   font-weight: 400;
-  line-height: 1.4;
+}
+
+.product-desc{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .product-price {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 15px;
   
   .price-label {
-    font-size: 12px;
+    font-size: 14px;
     color: #FFB84D;
     font-weight: 500;
   }
   
   .price-amount {
-    font-size: 16px;
-    font-weight: 700;
-    color: #FFB84D;
+    margin-left: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7AC554;
+    display: flex;
+    align-items: center;
+    .price-icon{
+      width: 18px;
+      height: 18px;
+    }
   }
 }
 
 .exchange-btn {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #FFB84D, #FF9500);
-  border: none;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(255, 148, 0, 0.3);
   
   .cart-icon {
-    font-size: 16px;
-  }
-  
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(255, 148, 0, 0.4);
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
   }
 }
 
@@ -655,8 +715,8 @@ export default {
   }
   
   .nav-icon {
-    width: 45px;
-    height: 45px;
+    width: 120px;
+    height: 120px;
     font-size: 20px;
   }
 }

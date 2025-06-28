@@ -1,20 +1,28 @@
 <template>
   <div class="cart-page">
     <div class="cart-title">
-      <span class="cart-title-icon">🌙</span>
+      <img src="~/assets/images/iconYuan.png" alt="圆形图标" class="section-icon" />
       <span class="cart-title-text">{{ $t('全部产品') }}</span>
     </div>
     <div class="cart-list">
       <div v-for="(shop, sidx) in shops" :key="sidx" class="cart-shop-block">
         <div class="cart-shop-header">
-          <input type="checkbox" :checked="shop.checked" @change="toggleShop(sidx, $event)" />
-          <img :src="shop.avatar" class="shop-avatar" />
+          <div class="custom-checkbox" @click="toggleShop(sidx)">
+            <img :src="shop.checked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
+                 :alt="shop.checked ? '已选中' : '未选中'" 
+                 class="checkbox-icon" />
+          </div>
+          <img src="~/assets/images/iconYuan.png" class="shop-avatar" />
           <span class="shop-name">{{ shop.name }}</span>
         </div>
         <div v-for="(item, idx) in shop.items" :key="idx" class="cart-item-row">
           <div class="cart-item-left">
-            <input type="checkbox" :checked="item.checked" @change="toggleItem(sidx, idx, $event)" />
-            <img :src="item.image" class="item-img" />
+            <div class="custom-checkbox" @click="toggleItem(sidx, idx)">
+              <img :src="item.checked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
+                   :alt="item.checked ? '已选中' : '未选中'" 
+                   class="checkbox-icon" />
+            </div>
+            <img src="~/assets/images/iconYuan.png" class="item-img" />
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-size">{{ $t('规格尺寸') }}</div>
@@ -26,21 +34,31 @@
             <span class="qty-num">{{ item.qty }}</span>
             <button class="qty-btn">+</button>
           </div>
-          <div class="cart-item-points"><span class="points-icon">🟢</span>{{ item.points }}</div>
+          <div class="cart-item-points">
+            <img src="~/assets/images/icon_jfien.png" alt="积分图标" class="price-icon" />
+            {{ item.points }}
+          </div>
           <div class="cart-item-delete">{{ $t('删除') }}</div>
         </div>
       </div>
     </div>
     <div class="cart-footer">
       <div class="cart-footer-left">
-        <input type="checkbox" :checked="allChecked" @change="toggleAll($event)" />
+        <div class="custom-checkbox" @click="toggleAll">
+          <img :src="allChecked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
+               :alt="allChecked ? '已选中' : '未选中'" 
+               class="checkbox-icon" />
+        </div>
         <span>{{ $t('全选') }}</span>
         <button class="footer-delete-btn">{{ $t('删除选中的商品') }}</button>
       </div>
       <div class="cart-footer-right">
-        <span class="footer-summary">{{ $t('已选择') }}2{{ $t('件商品，总价(不含运费)：') }}<span class="footer-price">€12.00</span></span>
-        <span class="footer-tip">{{ $t('以优惠：') }}€1</span>
-        <button class="footer-checkout-btn">{{ $t('立即结算') }}</button>
+        <div class="footer-summary-box">
+          <div class="footer-summary">{{ $t('已选择') }}<span class="footer-price">2</span>{{ $t('件商品，总价(不含运费)：') }}<span class="footer-price">€12.00</span></div>
+          <div class="footer-tip">{{ $t('以优惠：') }}€1</div>
+        </div>
+       
+        <button class="footer-checkout-btn" @click="goToOrderPage">{{ $t('立即结算') }}</button>
       </div>
     </div>
   </div>
@@ -107,34 +125,37 @@ export default {
     }
   },
   methods: {
-    toggleShop(sidx, e) {
-      const checked = e.target.checked;
+    toggleShop(sidx) {
+      const checked = !this.shops[sidx].checked;
       this.shops[sidx].checked = checked;
       this.shops[sidx].items.forEach((item, idx) => {
         this.$set(this.shops[sidx].items, idx, { ...item, checked });
       });
     },
-    toggleItem(sidx, idx, e) {
-      const checked = e.target.checked;
+    toggleItem(sidx, idx) {
+      const checked = !this.shops[sidx].items[idx].checked;
       this.$set(this.shops[sidx].items, idx, { ...this.shops[sidx].items[idx], checked });
       // 如果所有商品都选中，则店铺选中，否则取消店铺选中
       const allChecked = this.shops[sidx].items.every(item => item.checked);
       this.$set(this.shops, sidx, { ...this.shops[sidx], checked: allChecked });
     },
-    toggleAll(e) {
-      const checked = e.target.checked;
+    toggleAll() {
+      const checked = !this.allChecked;
       this.shops.forEach((shop, sidx) => {
         this.$set(this.shops, sidx, { ...shop, checked });
         shop.items.forEach((item, idx) => {
           this.$set(this.shops[sidx].items, idx, { ...item, checked });
         });
       });
+    },
+    goToOrderPage() {
+      this.$router.push('/submit-order');
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .cart-page {
   background: #fff;
   min-height: 100vh;
@@ -143,27 +164,28 @@ export default {
 .cart-title {
   display: flex;
   align-items: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  margin-bottom: 32px;
-  margin-top: 0;
-  margin-top: 30px;
+  margin-bottom: 40px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dedede;
+  margin-top: 60px;
+  .section-icon{
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
 }
-.cart-title-icon {
-  font-size: 32px;
-  margin-right: 8px;
-  color: #FFB84D;
-}
+
 .cart-title-text {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 700;
+  margin-left: -20px;
 }
 .cart-list {
   margin-bottom: 32px;
 }
-.cart-shop-block {
-  margin-bottom: 24px;
-}
+
 .cart-shop-header {
   background: #f5f5f5;
   padding: 12px 16px;
@@ -184,27 +206,29 @@ export default {
 .shop-name {
   font-size: 16px;
   font-weight: 500;
+  color: #383838;
 }
 .cart-item-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background: #fff;
-  padding: 18px 16px;
+  padding: 20px 16px;
   border-bottom: 1px solid #f0f0f0;
 }
 .cart-item-left {
   display: flex;
   align-items: center;
-  flex: 1 1 400px;
+  // flex: 1 1 400px;
   min-width: 300px;
 }
 .item-img {
-  width: 64px;
-  height: 64px;
+  width: 78px;
+  height: 78px;
   border-radius: 8px;
   object-fit: cover;
   margin-right: 16px;
-  border: 1px solid #eee;
+  margin-left: 16px;
 }
 .item-info {
   display: flex;
@@ -212,47 +236,58 @@ export default {
   gap: 6px;
 }
 .item-name {
+  color: #13161B;
   font-size: 16px;
   font-weight: 500;
 }
 .item-size {
-  font-size: 13px;
-  color: #888;
+  font-size: 14px;
+  color: #4B4B4B;
 }
 .cart-item-mid {
   flex: 0 0 120px;
   text-align: center;
   font-size: 16px;
-  color: #222;
+  color: #333;
 }
 .cart-item-qty {
   flex: 0 0 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  border-radius: 4px;
+  border: 1px solid #BCC4D0;
+ 
 }
 .qty-btn {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #eee;
-  background: #fafafa;
-  border-radius: 4px;
+  width: 36px;
+  height: 36px;
   font-size: 18px;
   color: #888;
   cursor: pointer;
 }
 .qty-num {
-  width: 24px;
+  width: 72px;
+  height: 36px;
+  line-height: 36px;
   text-align: center;
-  font-size: 15px;
+  border-left: 1px solid #BCC4D0;
+  border-right: 1px solid #BCC4D0;
+  font-size: 16px;
 }
 .cart-item-points {
+  display: flex;
+  align-items: center;
   flex: 0 0 100px;
-  color: #4CAF50;
-  font-weight: 600;
+  color: #7AC554;
   text-align: center;
-  font-size: 15px;
+  font-size: 16px;
+  .price-icon{
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    margin-right: 4px;
+  }
 }
 .points-icon {
   margin-right: 2px;
@@ -272,7 +307,7 @@ export default {
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 18px 24px;
-  margin-top: 32px;
+  margin-top: 40px;
 }
 .cart-footer-left {
   display: flex;
@@ -280,44 +315,64 @@ export default {
   gap: 16px;
 }
 .footer-delete-btn {
-  background: #fafafa;
-  border: 1px solid #eee;
+  border: 1px solid #D6D6D6;
   border-radius: 4px;
-  color: #888;
+  color: #4B4B4B;
   padding: 6px 16px;
   cursor: pointer;
   font-size: 14px;
 }
 .cart-footer-right {
+  .footer-summary-box{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+  }
   display: flex;
   align-items: center;
   gap: 18px;
 }
 .footer-summary {
+  line-height: 21px;
   font-size: 14px;
-  color: #222;
+  color: #4B4B4B;
 }
 .footer-price {
-  color: #FFB84D;
-  font-weight: 700;
-  margin: 0 2px;
+  color: #FDB100;
+  font-weight: 500;
+  font-size: 18px;
 }
 .footer-tip {
-  color: #888;
-  font-size: 13px;
+  color: #333;
+  margin-top: 4px;
+  font-size: 16px;
 }
 .footer-checkout-btn {
-  background: #FFB84D;
+  background: #F9C13E;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 8px 28px;
-  font-size: 15px;
+  border-radius: 30px;
+  padding: 16px 28px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
 }
 .footer-checkout-btn:hover {
   background: #ffa726;
+}
+
+.custom-checkbox {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .checkbox-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
 }
 </style> 

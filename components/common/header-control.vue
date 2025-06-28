@@ -28,7 +28,7 @@
           </v-app-bar-nav-icon>
           <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
             <div class='flex flex-a-c'>
-              <el-image
+              <el-image v-if="userNewInfo.face"
                 style='width: 60px; height: 60px;border-radius: 60px'
                 :src='userNewInfo.face'
                 fit='cover'></el-image>
@@ -65,6 +65,19 @@
                 <v-list-item-title>{{ $t(`关于我们`) }}</v-list-item-title>
               </v-list-item>
               <v-divider />
+              <v-list-item target='_blank' href='/points-mall' v-if="userNewInfo.staff_id">
+                <v-list-item-title>{{ $t(`积分商城`) }}</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              <v-list-item target='_blank' href='/cart' v-if="userNewInfo.staff_id">
+                <v-list-item-title>{{ $t(`购物车`) }}</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              <v-list-item target='_blank' href='/my-orders' v-if="userNewInfo.staff_id">
+                <v-list-item-title>{{ $t(`我的订单`) }}</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              
               <v-list-item @click='handleInfoWindowState(true)'>
                 <v-list-item-title>{{ $t(`语言切换`) }}</v-list-item-title>
               </v-list-item>
@@ -81,6 +94,7 @@
               <v-list-item target='_blank' href='/information' v-if='userNewInfo.uid'>
                 <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
               </v-list-item>
+              <v-divider />
               <v-list-item @click='bingOutLogin' v-if='userNewInfo.staff_id||userNewInfo.uid'>
                 <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
               </v-list-item>
@@ -114,7 +128,16 @@
             href='/about'
           >{{ $t(`关于我们`) }}
           </v-tab>
-
+          <v-tab  v-if="userNewInfo.staff_id"
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 4,
+                            inactive: getActiveMenuInx !== 4,
+                        }"
+            link
+            href='/points-mall'
+          >{{ $t(`积分商城`) }}
+          </v-tab>
+    
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
                      style='margin-right: 20px;margin-left: 16px'>{{ $t(`语言切换`) }}
           </el-button>
@@ -138,7 +161,7 @@
             <v-menu eager bottom offset-y left open-on-hover>
               <template #activator='{ attrs, on }'>
                 <div class='flex flex-a-c' v-bind='attrs' v-on='on'>
-                  <el-image
+                  <el-image v-if="userNewInfo.face"
                     style='width: 60px; height: 60px;border-radius: 60px'
                     :src='userNewInfo.face'
                     fit='cover'></el-image>
@@ -160,6 +183,15 @@
                 <v-list-item href='/information' v-if='userNewInfo.uid'>
                   <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
                 </v-list-item>
+    
+                <v-list-item @click='bingCart' v-if="userNewInfo.staff_id">
+                  <v-list-item-title>{{ $t(`购物车`) }}</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item @click='bingOrders' v-if="userNewInfo.staff_id">
+                  <v-list-item-title>{{ $t(`我的订单`) }}</v-list-item-title>
+                </v-list-item>
+
                 <v-list-item @click='bingOutLogin'>
                   <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
                 </v-list-item>
@@ -243,7 +275,8 @@ export default {
         [],
         ['/', ''],
         ['/creation'],
-        ['/about']
+        ['/about'],
+        ['/points-mall']
       ];
       // console.log(this.getUrlPath)
       console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)));
@@ -272,6 +305,12 @@ export default {
     },
     handleHome() {
       window.location.href = '/';
+    },
+    bingCart(){
+      window.location.href = '/cart';
+    },
+    bingOrders(){
+      window.location.href = '/my-orders';
     },
     handleClick(type) {
       if (type === 1) {
@@ -330,7 +369,7 @@ export default {
     background: linear-gradient(0deg, rgba(37, 37, 37, 0) 83.5%, rgba(37, 37, 37, 0.5) 100%);
 
     .pc-menu-box {
-      width: 70%;
+      width:80%;
       justify-content: space-between;
       margin: auto;
     }
