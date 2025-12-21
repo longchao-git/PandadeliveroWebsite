@@ -4,15 +4,15 @@
 
       <div class='_right'>
         <div class='content'>
-          <p>{{ $t(`成为骑手，最大化您的收入`) }}</p>
-          <div>{{ $t(`诚聘精英`) }} {{ $t(`薪动你就来`) }}</div>
+          <p>{{ $t('becomeRiderMaximizeIncome') }}</p>
+          <div>{{ $t('recruitElite') }} {{ $t('salaryMotivatesYou') }}</div>
         </div>
         <dl>
           <dd @mouseover='currentStepsIndex = 0' @click='currentStepsIndex = 0'
               :class="[currentStepsIndex === 0 ? 'selected' : '']">
             <div>
               <div>
-                <span>{{ $t(`快速简便的申请流程`) }}</span>
+                <span>{{ $t('quickAndEasyApplicationProcess') }}</span>
               </div>
             </div>
           </dd>
@@ -20,7 +20,7 @@
               :class="[currentStepsIndex === 1 ? 'selected' : '']">
             <div>
               <div>
-                <span>{{ $t(`在适合您的时候交付`) }}</span>
+                <span>{{ $t('deliverAtTimesThatSuitYou') }}</span>
               </div>
             </div>
           </dd>
@@ -28,7 +28,7 @@
               :class="[currentStepsIndex === 2 ? 'selected' : '']">
             <div>
               <div>
-                <span>{{ $t(`享受每周收入`) }}</span>
+                <span>{{ $t('enjoyWeeklyIncome') }}</span>
               </div>
             </div>
           </dd>
@@ -36,7 +36,7 @@
               :class="[currentStepsIndex === 3 ? 'selected' : '']">
             <div>
               <div>
-                <span>{{ $t(`PandaDelivero快递员的独家优惠`) }}</span>
+                <span>{{ $t('exclusivePandaDeliveroRiderBenefits') }}</span>
               </div>
             </div>
           </dd>

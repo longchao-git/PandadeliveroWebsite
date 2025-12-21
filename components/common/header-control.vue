@@ -38,10 +38,10 @@
                 </div>
                 <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
                 <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>
-                  {{ $t(`邀请码`) }}{{ userNewInfo.share_code }}
+                  {{ $t('invitationCode') }}{{ userNewInfo.share_code }}
                 </div>
                 <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
-                  {{ $t(`积分`) }}{{ userNewInfo.integral }}
+                  {{ $t('points') }}{{ userNewInfo.integral }}
                 </div>
               </div>
             </div>
@@ -56,47 +56,47 @@
             <v-list dense>
               <v-list-item link href='/creation'>
                 <v-list-item-title
-                >{{ $t(`成为一名快递员`) }}
+                >{{ $t('becomeARider') }}
                 </v-list-item-title
                 >
               </v-list-item>
               <v-divider />
               <v-list-item target='_blank' href='/about'>
-                <v-list-item-title>{{ $t(`关于我们`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('aboutUs') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item target='_blank' href='/points-mall' v-if="userNewInfo.staff_id">
-                <v-list-item-title>{{ $t(`积分商城`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('pointsMall') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item target='_blank' href='/cart' v-if="userNewInfo.staff_id">
-                <v-list-item-title>{{ $t(`购物车`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('shoppingCart') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item target='_blank' href='/my-orders' v-if="userNewInfo.staff_id">
-                <v-list-item-title>{{ $t(`我的订单`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('myOrders') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               
               <v-list-item @click='handleInfoWindowState(true)'>
-                <v-list-item-title>{{ $t(`语言切换`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('languageSwitch') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item @click='handleClick(1)' v-if='!userNewInfo.staff_id&&!userNewInfo.uid'>
-                <v-list-item-title>{{ $t(`登录`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('login') }}</v-list-item-title>
               </v-list-item>
               <v-list-item @click='handleClick(2)' v-if='userNewInfo.uid'>
-                <v-list-item-title>{{ $t(`邀请码兑换`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('invitationCodeRedemption') }}</v-list-item-title>
               </v-list-item>
               <v-list-item @click='handleClick(3)' v-if='userNewInfo.integral'>
-                <v-list-item-title>{{ $t(`抽奖`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('luckyDraw') }}</v-list-item-title>
               </v-list-item>
               <v-list-item target='_blank' href='/information' v-if='userNewInfo.uid'>
-                <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('personalInformation') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item @click='bingOutLogin' v-if='userNewInfo.staff_id||userNewInfo.uid'>
-                <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
+                <v-list-item-title>{{ $t('logOut') }}</v-list-item-title>
               </v-list-item>
             </v-list>
           </div>
@@ -116,7 +116,7 @@
                         }"
             link
             href='/creation'
-          >{{ $t(`成为一名快递员`) }}
+          >{{ $t('becomeARider') }}
           </v-tab>
 
           <v-tab
@@ -126,35 +126,35 @@
                         }"
             link
             href='/about'
-          >{{ $t(`关于我们`) }}
+          >{{ $t('aboutUs') }}
           </v-tab>
-          <v-tab  v-if="userNewInfo.staff_id"
+          <!-- <v-tab  v-if="userNewInfo.staff_id"
             :class="{
                             'v-tab--active': getActiveMenuInx === 4,
                             inactive: getActiveMenuInx !== 4,
                         }"
             link
             href='/points-mall'
-          >{{ $t(`积分商城`) }}
-          </v-tab>
+          >{{ $t('pointsMall') }}
+          </v-tab> -->
     
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
-                     style='margin-right: 20px;margin-left: 16px'>{{ $t(`语言切换`) }}
+                     style='margin-right: 20px;margin-left: 16px'>{{ $t('languageSwitch') }}
           </el-button>
 
           <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!userNewInfo.staff_id&&!userNewInfo.uid'
                      style='margin-left: 16px;'
-                     height='50px'>{{ $t(`登录`) }}
+                     height='50px'>{{ $t('login') }}
           </el-button>
 
           <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='userNewInfo.uid'
                      style='margin-left: 16px;'
-                     height='50px'>{{ $t(`邀请码兑换`) }}
+                     height='50px'>{{ $t('invitationCodeRedemption') }}
           </el-button>
 
           <el-button @click='handleClick(3)' class='login-bt try-out-bt' v-if='userNewInfo.integral'
                      style='margin-left: 16px;'
-                     height='50px'>{{ $t(`抽奖`) }}
+                     height='50px'>{{ $t('luckyDraw') }}
           </el-button>
 
           <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
@@ -171,29 +171,29 @@
                     </div>
                     <div class='font12' style='color: #909090'>{{ userNewInfo.mobile }}</div>
                     <div class='font12' style='color: #909090' v-if='userNewInfo.share_code'>
-                      {{ $t(`邀请码`) }}： {{ userNewInfo.share_code }}
+                      {{ $t('invitationCode') }}： {{ userNewInfo.share_code }}
                     </div>
                     <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
-                      {{ $t(`积分`) }}： {{ userNewInfo.integral }}
+                      {{ $t('points') }}： {{ userNewInfo.integral }}
                     </div>
                   </div>
                 </div>
               </template>
               <v-list flat>
                 <v-list-item href='/information' v-if='userNewInfo.uid'>
-                  <v-list-item-title>{{ $t(`个人信息`) }}</v-list-item-title>
+                  <v-list-item-title>{{ $t('personalInformation') }}</v-list-item-title>
                 </v-list-item>
     
                 <v-list-item @click='bingCart' v-if="userNewInfo.staff_id">
-                  <v-list-item-title>{{ $t(`购物车`) }}</v-list-item-title>
+                  <v-list-item-title>{{ $t('shoppingCart') }}</v-list-item-title>
                 </v-list-item>
 
                 <v-list-item @click='bingOrders' v-if="userNewInfo.staff_id">
-                  <v-list-item-title>{{ $t(`我的订单`) }}</v-list-item-title>
+                  <v-list-item-title>{{ $t('myOrders') }}</v-list-item-title>
                 </v-list-item>
 
                 <v-list-item @click='bingOutLogin'>
-                  <v-list-item-title>{{ $t(`退出登录`) }}</v-list-item-title>
+                  <v-list-item-title>{{ $t('logOut') }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -292,9 +292,9 @@ export default {
       });
     },
     bingOutLogin() {
-      this.$confirm(this.$t(`确认退出吗, 是否继续`) + '?', this.$t(`提示`), {
-        confirmButtonText: this.$t(`确定`),
-        cancelButtonText: this.$t(`取消`),
+      this.$confirm(this.$t('confirmExitContinue') + '?', this.$t('prompt'), {
+        confirmButtonText: this.$t('confirm'),
+        cancelButtonText: this.$t('cancel'),
         type: 'warning'
       }).then(() => {
         localStorage.removeItem('token');

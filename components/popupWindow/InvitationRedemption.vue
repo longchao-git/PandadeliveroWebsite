@@ -6,19 +6,19 @@
           <img @click='handleChangeType(1)' src='@/assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
         <div class='flex' style='justify-content: center;margin-top: 36px'>
-          <p>{{ $t(`邀请码兑换`) }}</p>
+          <p>{{ $t('invitationCodeRedemption') }}</p>
         </div>
 
         <div class='loginClass'>
           <div class='login_input'>
-            <div>{{ $t(`邀请码`) }}</div>
-            <el-input :placeholder='$t(`邀请码`)' style='width: 380px;margin-top: 8px;height: 48px' v-model='code'>
+            <div>{{ $t('invitationCode') }}</div>
+            <el-input :placeholder='$t("invitationCode")' style='width: 380px;margin-top: 8px;height: 48px' v-model='code'>
             </el-input>
           </div>
 
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
-            {{ $t(`领取`) }}
+            {{ $t('redeem') }}
           </v-btn>
 
         </div>
@@ -49,16 +49,16 @@ export default {
         this.$emit('handleCloseLoginDialog', -1);
       } else if (type === 2) {
         if (!this.code) {
-          this.$message.error(this.$t(`请输入邀请码`));
+          this.$message.error(this.$t('pleaseEnterInvitationCode'));
           return;
         }
         let params = {
           code: this.code
         };
         this.$axios.post('/client/member/promotion/validate_code', params).then(res => {
-          this.$confirm(this.$t(`兑换成功，请下载客户端app使用`) + '?', this.$t(`提示`), {
-            confirmButtonText: this.$t(`确定`),
-            cancelButtonText: this.$t(`取消`),
+          this.$confirm(this.$t('redemptionSuccessfulPleaseDownloadApp') + '?', this.$t('prompt'), {
+            confirmButtonText: this.$t('confirm'),
+            cancelButtonText: this.$t('cancel'),
             type: 'warning'
           }).then(() => {
             this.$emit('handleCloseLoginDialog', -2);

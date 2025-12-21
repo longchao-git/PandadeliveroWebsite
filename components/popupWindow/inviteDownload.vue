@@ -6,7 +6,7 @@
           <img @click='handleChangeType(1)' src='@/assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
         <div class='flex' style='justify-content: center;margin-top: 36px'>
-          <p>{{ $t(`下载app进行使用`) }}</p>
+          <p>{{ $t('downloadAppToUse') }}</p>
         </div>
 
         <div class='loginClass'>

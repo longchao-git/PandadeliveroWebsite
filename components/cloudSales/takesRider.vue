@@ -1,7 +1,7 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
     <div class='content'>
-      <p>{{ $t(`成为骑手的条件`) }}</p>
+      <p>{{ $t('requirementsToBecomeRider') }}</p>
     </div>
 
     <div class='_bottom'>
@@ -10,9 +10,9 @@
           <img src='@/assets/images/cloudSales/home/header2-img1.png' class='icon60' alt=''
                style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>18+ & {{ $t(`工作许可证`) }}</p>
-            <div>{{ $t(`您必须年满18岁或以上`) }}<br>
-              {{ $t(`并有权在西班牙工作`) }}
+            <p>18+ & {{ $t('workPermit') }}</p>
+            <div>{{ $t('mustBeAtLeast18YearsOld') }}<br>
+              {{ $t('haveRightToWorkInSpain') }}
             </div>
           </dd>
         </dl>
@@ -22,8 +22,8 @@
           <img src='@/assets/images/cloudSales/home/header2-img2.png' class='icon60' alt=''
                style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p> {{ $t(`智能手机`) }} </p>
-            <div> {{ $t(`一台装有 iOS 10+ 或 Android 5+ 的iPhone，可供使用`) }}</div>
+            <p> {{ $t('smartphone') }} </p>
+            <div> {{ $t('iphoneWithIos10OrAndroid5') }}</div>
           </dd>
         </dl>
       </div>
@@ -32,8 +32,8 @@
           <img src='@/assets/images/cloudSales/home/header2-img3.png' class='icon60' alt=''
                style='width: 280px;height: 174px;border-radius: 12px'>
           <dd>
-            <p>{{ $t(`自行车、轻便摩托车或电动汽车`) }} </p>
-            <div>{{ $t(`选择您喜欢的交通工具并开始在你所在的城市周边提供派送服务`) }}
+            <p>{{ $t('bicycleMopedOrElectricVehicle') }} </p>
+            <div>{{ $t('chooseYourPreferredTransportAndStartDelivering') }}
             </div>
           </dd>
         </dl>

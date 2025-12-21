@@ -4,38 +4,38 @@
       <div class='asy-box'>
         <div class='f-title ' style='display: flex;flex-direction: column;align-items: flex-start;' @click='bingtapCilck(1)'>
           <img class='footer_icon' src='~/assets/images/footIConLogin.png' alt='' />
-          <div class='footer_buttom'>{{ $t(`成为快递员`) }}</div>
+          <div class='footer_buttom'>{{ $t('becomeRider') }}</div>
         </div>
 
       </div>
       <div class='asy-box'>
         <div class='f-title'>
-          <div class='isViewTxet'>{{ $t(`业务解决方案`) }}</div>
+          <div class='isViewTxet'>{{ $t('businessSolutions') }}</div>
         </div>
 
         <div class='asy-phone'>
-          <div class='service_title'>{{ $t(`商家`) }}</div>
+          <div class='service_title'>{{ $t('merchants') }}</div>
           <!--          <div class='service_title'>{{ $t('footer.Company.desc') }}</div>-->
         </div>
       </div>
       <div class='asy-box'>
         <div class='f-title '>
-          <div class='isViewTxet'>{{ $t(`新闻`) }}</div>
+          <div class='isViewTxet'>{{ $t('news') }}</div>
         </div>
 
         <div class='asy-phone'>
-          <div class='service_title'>{{ $t(`本月精选`) }}</div>
-          <div class='service_title'>{{ $t(`全部新闻`) }}</div>
+          <div class='service_title'>{{ $t('featuredThisMonth') }}</div>
+          <div class='service_title'>{{ $t('allNews') }}</div>
 
         </div>
       </div>
       <div class='asy-box'>
         <div class='f-title '>
-          <div class='isViewTxet'>{{ $t(`关于我们`) }}</div>
+          <div class='isViewTxet'>{{ $t('aboutUs') }}</div>
         </div>
         <div class='asy-phone'>
-          <div class='service_title'>{{ $t(`联系我们`) }}</div>
-          <div class='service_title'>{{ $t(`人才招牌`) }}</div>
+          <div class='service_title'>{{ $t('contactUs') }}</div>
+          <div class='service_title'>{{ $t('recruitment') }}</div>
         </div>
       </div>
       <div class='asy-box'>
@@ -44,7 +44,7 @@
         <img class='footer_app' @click='bingtapCilck(3)' src='~/assets/images/google_play.png' alt=''
              style='cursor: pointer' />
         <div class='f-title '>
-          <div class='isViewTxet' style='border: none'>{{ $t(`下载我们的应用程序`) }}</div>
+          <div class='isViewTxet' style='border: none'>{{ $t('downloadOurApp') }}</div>
         </div>
 
       </div>

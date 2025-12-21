@@ -1,8 +1,8 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
     <div class='content'>
-      <p>{{ $t(`成为骑手，最大化您的收入`) }}</p>
-      <div>{{ $t(`诚聘精英`) }} {{ $t(`薪动你就来`) }}</div>
+      <p>{{ $t('becomeRiderMaximizeIncome') }}</p>
+      <div>{{ $t('recruitElite') }} {{ $t('salaryMotivatesYou') }}</div>
     </div>
 
     <div class='_bottom'>
@@ -11,8 +11,8 @@
           <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt=''
                style='width: 60px;height: 60px'>
           <dd>
-            <p>{{ $t(`有竞争力的收益`) }}</p>
-            <div>{{ $t(`通过PandaDelivero获得每日收入`) }}</div>
+            <p>{{ $t('competitiveEarnings') }}</p>
+            <div>{{ $t('earnDailyIncomeThroughPandaDelivero') }}</div>
           </dd>
 
         </dl>
@@ -22,8 +22,8 @@
           <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt=''
                style='width: 60px;height: 60px'>
           <dd>
-            <p>{{ $t(`灵活的时间表`) }}</p>
-            <div>{{ $t(`随时随地交付赚取所需`) }}</div>
+            <p>{{ $t('flexibleSchedule') }}</p>
+            <div>{{ $t('deliverAnytimeEarnWhatYouNeed') }}</div>
           </dd>
         </dl>
       </div>
@@ -32,8 +32,8 @@
           <img src='@/assets/images/cloudSales/home/icon_peixun.png' class='icon60' alt=''
                style='width: 60px;height: 60px'>
           <dd>
-            <p>{{ $t(`保险和福利`) }}</p>
-            <div>{{ $t(`使用PandaDelivero安全骑行享受独家优惠`) }}</div>
+            <p>{{ $t('insuranceAndBenefits') }}</p>
+            <div>{{ $t('rideSafelyWithPandaDeliveroEnjoyExclusiveOffers') }}</div>
           </dd>
         </dl>
       </div>
@@ -61,6 +61,10 @@ export default {};
     transform: translateX(-50%);
     width: 100%;
     text-align: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    max-width: 1400px;
+    z-index: 1;
 
     p {
       font-size: 54px;
@@ -68,7 +72,9 @@ export default {};
       font-weight: bold;
       margin: 0 auto 10px;
       letter-spacing: 1px;
-      max-width: 800px;
+      max-width: 1300px;
+      word-wrap: break-word;
+      line-height: 1.3;
     }
 
     div {
@@ -79,6 +85,7 @@ export default {};
       line-height: 26px;
       margin: 0 auto 10px;
       max-width: 800px;
+      word-wrap: break-word;
     }
   }
 
@@ -86,8 +93,10 @@ export default {};
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 360px auto 120px;
+    margin: 420px auto 120px;
     height: 120px;
+    position: relative;
+    z-index: 2;
 
 
     ._left, ._right {
@@ -180,7 +189,7 @@ export default {};
 
     > ._bottom {
       height: 300px;
-      margin: 170px auto 80px;
+      margin: 200px auto 80px;
 
       > img {
         display: none;
@@ -227,7 +236,7 @@ export default {};
     > ._bottom {
       height: auto;
       flex-direction: column;
-      margin: 130px auto 60px;
+      margin: 160px auto 60px;
 
       img {
         display: block;

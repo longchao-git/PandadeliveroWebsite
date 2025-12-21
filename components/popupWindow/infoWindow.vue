@@ -8,7 +8,7 @@
                  alt='' />
           </div>
           <div class='info-window_view'>
-            <p class='pone'>{{ $t(`切换语言`) }}</p>
+            <p class='pone'>{{ $t('switchLanguage') }}</p>
             <div class='languageView'>
               <div @click='handleSelectLang(item)' v-for='(item, index) in languageList' :key='item.value'
                    :class='{ setView: setIndex === item.value }'>
@@ -17,7 +17,7 @@
               </div>
             </div>
             <div class='flex_center'>
-              <div @click='handleConfirmSubbit' class='button_info'>{{ $t(`保存`) }}</div>
+              <div @click='handleConfirmSubbit' class='button_info'>{{ $t('save') }}</div>
             </div>
           </div>
         </v-card>

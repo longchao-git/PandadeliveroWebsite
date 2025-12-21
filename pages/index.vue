@@ -8,16 +8,16 @@
             <div class='Services'>pandadelivero</div>
 
             <div class='Potential'>
-              {{$t(`是您值得信赖的合作伙伴，在您的城市快速和安全的快递`)}}
+              {{$t('trustedPartnerFastAndSafeDelivery')}}
             </div>
             <div class='button-view flex-a-c' style='display: flex; width: 100%'>
               <div class=' indexBob' style='cursor: pointer' @click='handleClick(3)'>
-                <div>{{$t(`加入我们`)}}</div>
+                <div>{{$t('joinUs')}}</div>
                 <img src='../assets/images/icon_iconVIew.png'
                      style='width: 24px;height: 24px;margin-left:8px '
                      alt='' />
               </div>
-              <div style='margin-left: 40px;color: #FFFFFF;cursor: pointer' class='font18'  @click='handleClick(3)'>{{$t(`立即申请`)}}</div>
+              <div style='margin-left: 40px;color: #FFFFFF;cursor: pointer' class='font18'  @click='handleClick(3)'>{{$t('applyNow')}}</div>
 
             </div>
           </div>

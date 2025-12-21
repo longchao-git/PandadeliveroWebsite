@@ -2,11 +2,11 @@
   <div class='personal_information'>
     <div class='information_title flex flex-a-c'>
       <img class='title_icon' src='~/assets/images/icon_information.png' alt='' />
-      <div class='title_text'>{{ $t(`个人信息`) }}</div>
+      <div class='title_text'>{{ $t('personalInformation') }}</div>
     </div>
     <div class='info_form'>
       <div class='form_item flex-a-c'>
-        <div class='form_label'>{{ $t(`头像`) }}</div>
+        <div class='form_label'>{{ $t('avatar') }}</div>
         <div class='form_content'>
           <el-upload
             class='avatar-uploader'
@@ -19,20 +19,20 @@
         </div>
       </div>
       <div class='form_item flex-a-c'>
-        <div class='form_label'>{{ $t(`昵称`) }}</div>
+        <div class='form_label'>{{ $t('nickname') }}</div>
         <div class='form_content'>
           <el-input placeholder='请输入' v-model='nickname'></el-input>
         </div>
       </div>
 
       <div class='form_item flex-a-c'>
-        <div class='form_label'>{{ $t(`手机号码`) }}</div>
+        <div class='form_label'>{{ $t('phoneNumberFull') }}</div>
         <div class='form_content'>
-          <el-input :placeholder='$t(`手机号码`)' v-model='getUserInfo.mobile' disabled></el-input>
+          <el-input :placeholder='$t("phoneNumberFull")' v-model='getUserInfo.mobile' disabled></el-input>
         </div>
       </div>
       <div class='form_item flex-a-c'>
-        <div class='form_label'>{{ $t(`余额`) }}</div>
+        <div class='form_label'>{{ $t('balance') }}</div>
         <div class='form_content'>
           <div>
             <el-input placeholder='0' v-model='getUserInfo.money' disabled></el-input>
@@ -42,7 +42,7 @@
       <div class='form_item'>
         <div class='form_label'></div>
         <div class='form_content'>
-          <el-button class='save_btn' color='#09236c' type='primary' @click='bindtaoCikc()'>{{ $t(`保存`) }}</el-button>
+          <el-button class='save_btn' color='#09236c' type='primary' @click='bindtaoCikc()'>{{ $t('save') }}</el-button>
         </div>
       </div>
     </div>

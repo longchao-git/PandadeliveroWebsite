@@ -1,12 +1,12 @@
 <template>
   <div class='cloud_sales_believe-cooperation'>
     <div class='content' v-if='type===0'>
-      <p>{{ $t(`今天就注册并开始赚钱吧`) }}!</p>
+      <p>{{ $t('registerTodayAndStartEarning') }}!</p>
     </div>
 
     <div class='_bottom' v-if='type===0'>
       <div class=' indexBob' style='cursor: pointer' @click='bingTapClick'>
-        <div>{{ $t(`立即注册`) }}</div>
+        <div>{{ $t('registerNow') }}</div>
         <img src='@/assets/images/icon_iconVIew.png'
              style='width: 24px;height: 24px;margin-left:8px '
              alt='' />
@@ -14,12 +14,12 @@
 
     </div>
     <div class='content' v-if='type===1'>
-      <p>{{ $t(`关于我们`) }}</p>
+      <p>{{ $t('aboutUs') }}</p>
     </div>
     <div class='aboutView' v-if='type===1'>
-      <p>Pandadelivero {{ $t(`是西班牙本地值得信赖的同城快递与外卖配送服务公司`) }}!</p>
-      <p>{{ $t(`我们的配送团队经验丰富`) }}。</p>
-      <p>{{ $t(`无论您身在何处`) }}。</p>
+      <p>Pandadelivero {{ $t('trustedLocalCompanyInSpain') }}!</p>
+      <p>{{ $t('ourDeliveryTeamIsExperienced') }}。</p>
+      <p>{{ $t('whereverYouAre') }}。</p>
     </div>
   </div>
 </template>

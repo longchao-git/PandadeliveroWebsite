@@ -6,16 +6,16 @@
           <img @click='handleChangeType(-1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png'
                alt='' />
         </div>
-        <p>{{ $t(`地址`) }}</p>
+        <p>{{ $t('address') }}</p>
         <div class='loginClass'>
           <div class='login_input'>
-            <div>{{ $t(`详情地址`) }}</div>
+            <div>{{ $t('detailedAddress') }}</div>
 
             <el-autocomplete
               class='inline-input'
               v-model='addr' :trigger-on-focus='false'
               :fetch-suggestions='querySearch'
-              :placeholder='$t(`详情地址`)'
+              :placeholder='$t("detailedAddress")'
               style='width: 330px'
               @select='handleSelect'
             ></el-autocomplete>
@@ -23,29 +23,29 @@
           <div class='mapContainer' ref='mapContainer'></div>
 
           <div class='login_input'>
-            <div>{{ $t(`门牌号`) }}</div>
+            <div>{{ $t('houseNumber') }}</div>
             <input
               v-model='house'
-              :placeholder='$t(`门牌号`)'
+              :placeholder='$t("houseNumber")'
               class='c-input' />
           </div>
           <div class='login_input'>
-            <div>{{ $t(`联系人`) }}</div>
+            <div>{{ $t('contactPerson') }}</div>
             <input
               v-model='contact'
-              :placeholder='$t(`联系人`)'
+              :placeholder='$t("contactPerson")'
               class='c-input' />
 
           </div>
           <div class='login_input'>
-            <div>{{ $t(`电话号码`) }}</div>
+            <div>{{ $t('phoneNumber') }}</div>
             <el-input @mousewheel.native.prevent
                       v-model='mobile' type='number' style='width: 330px'
-                      :placeholder='$t(`电话号码`)'
+                      :placeholder='$t("phoneNumber")'
             >
             </el-input>
           </div>
-          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>{{ $t(`保存`) }}
+          <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>{{ $t('save') }}
           </v-btn>
         </div>
       </div>
@@ -156,15 +156,15 @@ export default {
     handleChangeType(value) {
       if (value === 2) {
         if (!this.contact) {
-          this.$message.info(this.$t(`请输入`) + this.$t(`联系人`));
+          this.$message.info(this.$t('pleaseInput') + this.$t('contactPerson'));
           return;
         }
         if (!this.mobile) {
-          this.$message.info(this.$t(`请输入`) + this.$t(`电话号码`));
+          this.$message.info(this.$t('pleaseInput') + this.$t('phoneNumber'));
           return;
         }
         if (!this.house) {
-          this.$message.info(this.$t(`请输入`) + this.$t(`门牌号`));
+          this.$message.info(this.$t('pleaseInput') + this.$t('houseNumber'));
           return;
         }
         // if (!this.nameId) {

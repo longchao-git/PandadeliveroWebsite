@@ -9,19 +9,19 @@
           <img src='@/static/favicon.png' alt='' style='width: 70px;height: 70px' />
           <p>Pandadelivero</p>
         </div>
-        <div class='center choneChone'>{{ $t(`欢迎回来`) }}!</div>
+        <div class='center choneChone'>{{ $t('welcomeBack') }}!</div>
         <div class='loginClass'>
           <div class='login_input p-relative'>
-            <div style='margin-bottom: 8px'>{{ $t(`您将如何使用我们的服务`) }}？</div>
+            <div style='margin-bottom: 8px'>{{ $t('howWillYouUseOurServices') }}？</div>
             <el-radio-group v-model='isType'>
-              <el-radio :label='1'>{{ $t(`个人使用`) }}</el-radio>
-              <el-radio :label='2'>{{ $t(`我是快递员`) }}</el-radio>
-              <el-radio :label='3'>{{ $t(`我是商家`) }}</el-radio>
+              <el-radio :label='1'>{{ $t('personalUse') }}</el-radio>
+              <el-radio :label='2'>{{ $t('iAmRider') }}</el-radio>
+              <el-radio :label='3'>{{ $t('iAmMerchant') }}</el-radio>
             </el-radio-group>
           </div>
           <div class='login_input p-relative'>
-            <div>{{ $t(`手机号`) }}</div>
-            <el-input :placeholder='$t(`手机号`)' @mousewheel.native.prevent type='number'
+            <div>{{ $t('mobileNumber') }}</div>
+            <el-input :placeholder='$t("mobileNumber")' @mousewheel.native.prevent type='number'
                       style='width: 380px;margin-top: 8px; height: 48px'
                       v-model='mobile'>
               <template slot='prepend'>
@@ -36,25 +36,25 @@
               </template>
             </el-input>
             <div class='button' style='cursor: pointer' @click='bindSendCode()' v-if='!isHaTrue&&isType===1'>{{
-                isGetCode ? $t(`获取验证码`) : `${countdown}s` + $t(`重新获取`)
+                isGetCode ? $t('getVerificationCode') : `${countdown}s` + $t('resendCode')
               }}</div>
           </div>
           <div class='login_input' v-if='!isHaTrue&&isType===1'>
-            <div>{{ $t(`验证码`) }}</div>
-            <el-input :placeholder='$t(`验证码`)' type='password' show-password style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
+            <div>{{ $t('verificationCode') }}</div>
+            <el-input :placeholder='$t("verificationCode")' type='password' show-password style='width: 380px;margin-top: 8px;height: 48px' v-model='smsCode'>
             </el-input>
           </div>
           <div class='login_input' v-if='isHaTrue||isType===2||isType===3'>
-            <div>{{ $t(`密码`) }}</div>
-            <el-input  :placeholder='$t(`密码`)' type='password' show-password style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
+            <div>{{ $t('password') }}</div>
+            <el-input  :placeholder='$t("password")' type='password' show-password style='width: 380px;margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
-            {{ $t(`登录`) }}
+            {{ $t('login') }}
           </v-btn>
           <div class='mt2' @click='isHaTrue=!isHaTrue' style='cursor: pointer;color: #F9C13E;' v-if='isType===1'>
-            {{ isHaTrue ? $t(`验证码登录`) : $t(`密码登录`) }}
+            {{ isHaTrue ? $t('verificationCodeLogin') : $t('passwordLogin') }}
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default {
       }
       this.isAddClickFalse = false;
       if (!this.mobile) {
-        this.$message.error(this.$t(`请输入手机号码`));
+        this.$message.error(this.$t('pleaseEnterPhoneNumber'));
         this.isAddClickFalse = true;
         return;
       } else {
@@ -148,7 +148,7 @@ export default {
       } else if (type === 2) {
         if (this.isType === 1) {
           if ((!this.passwd || !this.mobile) && (!this.mobile || !this.smsCode)) {
-            this.$message.error(this.$t(`请输入内容`));
+            this.$message.error(this.$t('pleaseEnterContent'));
             return;
           }
           let data = {
@@ -165,7 +165,7 @@ export default {
             this.$axios.post('/client/member/member/index', data).then(res => {
               localStorage.setItem('userInfo', JSON.stringify(res));
               this.$store.commit('SET_USERINFO', res);
-              this.$message.success(this.$t(`登录成功`));
+              this.$message.success(this.$t('loginSuccessful'));
               setTimeout(()=>{
                 window.location.href = '/';
               },1500)
@@ -178,11 +178,11 @@ export default {
           });
         } else {
           if (!this.mobile) {
-            this.$message.error(this.$t(`请输入手机号`));
+            this.$message.error(this.$t('pleaseEnterMobileNumber'));
             return;
           }
           if (!this.passwd) {
-            this.$message.error(this.$t(`请输入密码`));
+            this.$message.error(this.$t('pleaseEnterPassword'));
             return;
           }
           let params = {
@@ -194,7 +194,7 @@ export default {
               localStorage.setItem('token', res.token);
               localStorage.setItem('userInfo', JSON.stringify(res));
               this.$store.commit('SET_USERINFO', res);
-              this.$message.success(this.$t(`登录成功`));
+              this.$message.success(this.$t('loginSuccessful'));
               setTimeout(()=>{
                 window.location.href = '/';
               },1500)
@@ -210,7 +210,7 @@ export default {
               localStorage.setItem('token', res.token);
               localStorage.setItem('userInfo', JSON.stringify(res));
               this.$store.commit('SET_USERINFO', res);
-              this.$message.success(this.$t(`登录成功`));
+              this.$message.success(this.$t('loginSuccessful'));
               setTimeout(()=>{
                 window.location.href = '/';
               },1500)

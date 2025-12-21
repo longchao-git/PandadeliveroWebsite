@@ -5,29 +5,29 @@
         <div class='loginView' v-if='type === 0'>
           <img @click='handleChangeType(1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png' alt='' />
         </div>
-        <p>{{ $t(`申请成为快递员`) }}</p>
-        <div class='divContent'>{{ $t(`填写下面的表格以开始使用`) }}</div>
+        <p>{{ $t('applyToBecomeRider') }}</p>
+        <div class='divContent'>{{ $t('fillOutFormBelowToStart') }}</div>
         <div class='loginClass'>
           <div class='flex ' style='width: 100%;'>
             <div class='login_input leftview'>
 <!--              <div>{{ $t(`名字`) }}</div>-->
-              <el-input :placeholder='$t(`名字`)' style='height: 48px;margin-top: 8px;flex: 1;' v-model='uname'>
+              <el-input :placeholder='$t("firstName")' style='height: 48px;margin-top: 8px;flex: 1;' v-model='uname'>
               </el-input>
             </div>
             <div class='login_input rightview'>
 <!--              <div>{{ $t(`姓`) }}</div>-->
-              <el-input :placeholder='$t(`姓`)' style='height: 48px;margin-top: 8px;flex: 1;' v-model='last_name'>
+              <el-input :placeholder='$t("lastName")' style='height: 48px;margin-top: 8px;flex: 1;' v-model='last_name'>
               </el-input>
             </div>
           </div>
           <div class='login_input'>
 <!--            <div>{{ $t(`联系邮箱`) }}</div>-->
-            <el-input :placeholder='$t(`联系邮箱`)' style='margin-top: 8px;height: 48px;border-radius: 48px' v-model='email'>
+            <el-input :placeholder='$t("contactEmail")' style='margin-top: 8px;height: 48px;border-radius: 48px' v-model='email'>
             </el-input>
           </div>
           <div class='login_input rightview'>
 <!--            <div>{{ $t(`手机号`) }}</div>-->
-            <el-input :placeholder='$t(`手机号`)' style='margin-top: 8px;height: 48px' v-model='mobile'>
+            <el-input :placeholder='$t("mobileNumber")' style='margin-top: 8px;height: 48px' v-model='mobile'>
               <template slot='prepend'>+34
                 <!--                <el-select v-model="value" placeholder="请选择" style="width: 80px">-->
                 <!--                  <el-option-->
@@ -42,14 +42,14 @@
           </div>
           <div style='width: 100%;margin-top: 16px' class='flex'>
             <el-radio-group v-model='contact_type'>
-              <el-radio label='sms'>{{ $t(`短信`) }}</el-radio>
+              <el-radio label='sms'>{{ $t('sms') }}</el-radio>
               <el-radio label='whatsapp'>whatsapp</el-radio>
             </el-radio-group>
           </div>
 
           <div class='login_input'>
 <!--            <div>{{ $t(`密码`) }}</div>-->
-            <el-input :placeholder='$t(`密码`)' type='password' show-password
+            <el-input :placeholder='$t("password")' type='password' show-password
                       style='margin-top: 8px;height: 48px' v-model='passwd'>
             </el-input>
           </div>
@@ -63,7 +63,7 @@
 <!--              <div>{{ $t(`国家`) }}</div>-->
               <el-select v-model='country' placeholder='请选择' style='flex: 1;width: 100%'>
                 <el-option
-                  :label='$t(`西班牙`)'
+                  :label='$t("spain")'
                   value='西班牙'>
                 </el-option>
               </el-select>
@@ -73,11 +73,11 @@
 
               <el-select v-model='city_id' placeholder='请选择' style='flex: 1;width: 100%'>
                 <el-option
-                  :label='$t(`马德里`)'
+                  :label='$t("madrid")'
                   :value='2'>
                 </el-option>
                 <el-option
-                  :label='$t(`巴塞罗那`)'
+                  :label='$t("barcelona")'
                   :value='3'>
                 </el-option>
               </el-select>
@@ -88,26 +88,26 @@
 
             <el-select v-model='staff_type_new' placeholder='请选择' style='flex: 1;'>
               <el-option
-                :label='$t(`汽车`)'
+                :label='$t("car")'
                 value='汽车'>
               </el-option>
               <el-option
-                :label='$t(`摩托车`)'
+                :label='$t("motorcycle")'
                 value='摩托车'>
               </el-option>
               <el-option
-                :label='$t(`电动自行车`)'
+                :label='$t("electricBicycle")'
                 value='电动自行车'>
               </el-option>
               <el-option
-                :label='$t(`自行车`)'
+                :label='$t("bicycle")'
                 value='自行车'>
               </el-option>
             </el-select>
           </div>
           <div class='login_input'>
 <!--            <div>{{ $t(`上级邀请码`) }}</div>-->
-            <el-input :placeholder='$t(`上级邀请码`)' style='margin-top: 8px;height: 48px' v-model='share_code'>
+            <el-input :placeholder='$t("superiorInvitationCode")' style='margin-top: 8px;height: 48px' v-model='share_code'>
             </el-input>
           </div>
 
@@ -117,12 +117,12 @@
             <img v-if='!checked' src='../../assets/images/cloudSales/home/default.png' alt='' class='icon24'
                  @click='checked=!checked'>
             <div style='color: #1D2129;text-align: left' class='font14'>
-              {{ $t(`我们收集这些数据是为了处理您成为快递员的申请。点击此框，即表示您确认已阅读并理解`) }} <span style='color: #4787F0'>{{ $t(`隐私政策`) }}</span>
+              {{ $t('weCollectDataToProcessApplication') }} <span style='color: #4787F0'>{{ $t('privacyPolicy') }}</span>
             </div>
           </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'
                  style='font-weight: bold'>
-            {{ $t(`立即申请`) }}
+            {{ $t('applyNow') }}
           </v-btn>
         </div>
       </div>
@@ -207,23 +207,23 @@ export default {
         this.$emit('handleCloseLoginDialog', -1);
       } else if (type === 2) {
         if (!this.checked) {
-          this.$message.error(this.$t(`请阅读并理解隐私政策`));
+          this.$message.error(this.$t('pleaseReadAndUnderstandPrivacyPolicy'));
           return;
         }
         if (!this.uname) {
-          this.$message.error(this.$t(`请输入名字`));
+          this.$message.error(this.$t('pleaseEnterFirstName'));
           return;
         }
         if (!this.last_name) {
-          this.$message.error(this.$t(`请输入姓`));
+          this.$message.error(this.$t('pleaseEnterLastName'));
           return;
         }
         if (!this.mobile) {
-          this.$message.error(this.$t(`请输入手机号`));
+          this.$message.error(this.$t('pleaseEnterMobileNumber'));
           return;
         }
         if (!this.passwd) {
-          this.$message.error(this.$t(`请输入密码`));
+          this.$message.error(this.$t('pleaseEnterPassword'));
           return;
         }
 
@@ -232,7 +232,7 @@ export default {
         //   return;
         // }
         if (!this.email) {
-          this.$message.error(this.$t(`请输入联系邮箱`));
+          this.$message.error(this.$t('pleaseEnterContactEmail'));
           return;
         }
         let params = {
@@ -251,7 +251,7 @@ export default {
 
         this.$axios.post('/staff/entry/register', params).then(res => {
 
-          this.$message.success(this.$t(`已提交成功，资料正在审核中，等待管理员联系`));
+          this.$message.success(this.$t('submittedSuccessfullyDataUnderReview'));
           this.isType = 3;
           this.id_number = '';
           this.email = '';
