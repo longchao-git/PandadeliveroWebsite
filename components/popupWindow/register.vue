@@ -61,17 +61,17 @@
           <div class='flex' style='width: 100%;'>
             <div class='login_input leftview'>
 <!--              <div>{{ $t(`国家`) }}</div>-->
-              <el-select v-model='country' placeholder='请选择' style='flex: 1;width: 100%'>
+              <el-select v-model='country' :placeholder='$t("pleaseSelect")' style='flex: 1;width: 100%'>
                 <el-option
                   :label='$t("spain")'
-                  value='西班牙'>
+                  :value="$t('spain')">
                 </el-option>
               </el-select>
             </div>
             <div class='login_input rightview'>
 <!--              <div>{{ $t(`城市`) }}</div>-->
 
-              <el-select v-model='city_id' placeholder='请选择' style='flex: 1;width: 100%'>
+              <el-select v-model='city_id' :placeholder='$t("pleaseSelect")' style='flex: 1;width: 100%'>
                 <el-option
                   :label='$t("madrid")'
                   :value='2'>
@@ -86,22 +86,22 @@
           <div class='login_input'>
 <!--            <div>{{ $t(`交通工具`) }}</div>-->
 
-            <el-select v-model='staff_type_new' placeholder='请选择' style='flex: 1;'>
+            <el-select v-model='staff_type_new' :placeholder='$t("pleaseSelect")' style='flex: 1;'>
               <el-option
                 :label='$t("car")'
-                value='汽车'>
+                :value="$t('car')">
               </el-option>
               <el-option
                 :label='$t("motorcycle")'
-                value='摩托车'>
+                :value="$t('motorcycle')">
               </el-option>
               <el-option
                 :label='$t("electricBicycle")'
-                value='电动自行车'>
+                :value="$t('electricBicycle')">
               </el-option>
               <el-option
                 :label='$t("bicycle")'
-                value='自行车'>
+                :value="$t('bicycle')">
               </el-option>
             </el-select>
           </div>
@@ -161,8 +161,8 @@ export default {
       id_number: '',
       email: '',
       city_id: 2,
-      staff_type_new: '自行车',
-      country: '西班牙',
+      staff_type_new: '',
+      country: '',
       contact_type: 'whatsapp',
       share_code: '',
       checked: false,
@@ -256,7 +256,7 @@ export default {
           this.id_number = '';
           this.email = '';
           this.city_id = 2;
-          this.staff_type_new = '汽车';
+          this.staff_type_new = this.$t('car');
           this.contact_type = 'whatsapp';
           this.share_code = '';
           this.uname = '';

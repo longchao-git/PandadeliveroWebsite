@@ -43,6 +43,7 @@
   "address": "Address",
   "detailedAddress": "Detailed Address",
   "pleaseInput": "Please input",
+  "pleaseSelect": "Please select",
   "houseNumber": "House Number",
   "contactPerson": "Contact Person",
   "phoneNumber": "Phone Number",
@@ -163,5 +164,19 @@
   "pointsMall": "Points Mall",
   "shoppingCart": "Shopping Cart",
   "myOrders": "My Orders",
-  "downloadAppToUse": "Download app to use"
+  "downloadAppToUse": "Download app to use",
+  "orderInfo": "Order Information",
+  "deliveryAddress": "Delivery Address",
+  "supplierInfo": "Supplier Information",
+  "totalWeight": "Total Weight (kg)",
+  "actualPrice": "Actual Price",
+  "shippingFee": "Shipping Fee",
+  "payablePrice": "Payable Price",
+  "evaluate": "Review",
+  "orderNumber": "Order Number",
+  "myAddresses": "My Addresses",
+  "addAddress": "Add Address",
+  "editAddress": "Edit Address",
+  "setDefault": "Set as Default",
+  "defaultAddress": "Default Address"
 }

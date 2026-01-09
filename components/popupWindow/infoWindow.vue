@@ -12,8 +12,8 @@
             <div class='languageView'>
               <div @click='handleSelectLang(item)' v-for='(item, index) in languageList' :key='item.value'
                    :class='{ setView: setIndex === item.value }'>
-                <div>{{ item.label }}</div>
-                <span>{{ item.description }}</span>
+                <div>{{ $t(item.label) }}</div>
+                <span>{{ $t(item.description) }}</span>
               </div>
             </div>
             <div class='flex_center'>
@@ -37,19 +37,19 @@ export default {
     return {
       languageList: [
         {
-          label: '简体中文',
+          label: 'languageChinese',
           value: 'zh',
-          description: '中国'
+          description: 'countryChina'
         },
         {
-          label: 'spanish',
+          label: 'languageSpanish',
           value: 'es',
-          description: 'Spain'
+          description: 'countrySpain'
         },
         {
-          label: 'English',
+          label: 'languageEnglish',
           value: 'en',
-          description: 'Britain'
+          description: 'countryBritain'
         }
       ],
       setIndex: 'es'

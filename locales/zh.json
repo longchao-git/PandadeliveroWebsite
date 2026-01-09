@@ -43,6 +43,7 @@
   "address": "地址",
   "detailedAddress": "详情地址",
   "pleaseInput": "请输入",
+  "pleaseSelect": "请选择",
   "houseNumber": "门牌号",
   "contactPerson": "联系人",
   "phoneNumber": "电话号码",
@@ -163,5 +164,19 @@
   "pointsMall": "积分商城",
   "shoppingCart": "购物车",
   "myOrders": "我的订单",
-  "downloadAppToUse": "下载app进行使用"
+  "downloadAppToUse": "下载app进行使用",
+  "orderInfo": "订单信息",
+  "deliveryAddress": "收货地址",
+  "supplierInfo": "供应商信息",
+  "totalWeight": "总重量(kg)",
+  "actualPrice": "实付价",
+  "shippingFee": "运费",
+  "payablePrice": "应付价",
+  "evaluate": "评价",
+  "orderNumber": "订单编号",
+  "myAddresses": "我的地址",
+  "addAddress": "添加地址",
+  "editAddress": "编辑地址",
+  "setDefault": "设为默认",
+  "defaultAddress": "默认地址"
 }

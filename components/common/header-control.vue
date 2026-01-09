@@ -77,6 +77,10 @@
                 <v-list-item-title>{{ $t('myOrders') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
+              <v-list-item target='_blank' href='/my-addresses' v-if="userNewInfo.staff_id">
+                <v-list-item-title>{{ $t('myAddresses') }}</v-list-item-title>
+              </v-list-item>
+              <v-divider />
               
               <v-list-item @click='handleInfoWindowState(true)'>
                 <v-list-item-title>{{ $t('languageSwitch') }}</v-list-item-title>
@@ -128,7 +132,7 @@
             href='/about'
           >{{ $t('aboutUs') }}
           </v-tab>
-          <!-- <v-tab  v-if="userNewInfo.staff_id"
+          <v-tab  v-if="userNewInfo.staff_id"
             :class="{
                             'v-tab--active': getActiveMenuInx === 4,
                             inactive: getActiveMenuInx !== 4,
@@ -136,7 +140,7 @@
             link
             href='/points-mall'
           >{{ $t('pointsMall') }}
-          </v-tab> -->
+          </v-tab>
     
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
                      style='margin-right: 20px;margin-left: 16px'>{{ $t('languageSwitch') }}
@@ -190,6 +194,10 @@
 
                 <v-list-item @click='bingOrders' v-if="userNewInfo.staff_id">
                   <v-list-item-title>{{ $t('myOrders') }}</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item @click='bingAddresses' v-if="userNewInfo.staff_id">
+                  <v-list-item-title>{{ $t('myAddresses') }}</v-list-item-title>
                 </v-list-item>
 
                 <v-list-item @click='bingOutLogin'>
@@ -311,6 +319,9 @@ export default {
     },
     bingOrders(){
       window.location.href = '/my-orders';
+    },
+    bingAddresses(){
+      window.location.href = '/my-addresses';
     },
     handleClick(type) {
       if (type === 1) {

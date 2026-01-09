@@ -1,15 +1,15 @@
 <template>
   <div class="cart-page">
     <div class="cart-title">
-      <img src="~/assets/images/iconYuan.png" alt="圆形图标" class="section-icon" />
-      <span class="cart-title-text">{{ $t('全部产品') }}</span>
+      <img src="~/assets/images/iconYuan.png" :alt="$t('iconCircle')" class="section-icon" />
+      <span class="cart-title-text">{{ $t('allProducts') }}</span>
     </div>
     <div class="cart-list">
       <div v-for="(shop, sidx) in shops" :key="sidx" class="cart-shop-block">
         <div class="cart-shop-header">
           <div class="custom-checkbox" @click="toggleShop(sidx)">
             <img :src="shop.checked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
-                 :alt="shop.checked ? '已选中' : '未选中'" 
+                 :alt="shop.checked ? selectedText : notSelectedText" 
                  class="checkbox-icon" />
           </div>
           <img src="~/assets/images/iconYuan.png" class="shop-avatar" />
@@ -19,13 +19,13 @@
           <div class="cart-item-left">
             <div class="custom-checkbox" @click="toggleItem(sidx, idx)">
               <img :src="item.checked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
-                   :alt="item.checked ? '已选中' : '未选中'" 
+                   :alt="item.checked ? selectedText : notSelectedText" 
                    class="checkbox-icon" />
             </div>
             <img src="~/assets/images/iconYuan.png" class="item-img" />
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
-              <div class="item-size">{{ $t('规格尺寸') }}</div>
+              <div class="item-size">{{ $t('specification') }}</div>
             </div>
           </div>
           <div class="cart-item-mid">€{{ item.price }}</div>
@@ -35,10 +35,10 @@
             <button class="qty-btn">+</button>
           </div>
           <div class="cart-item-points">
-            <img src="~/assets/images/icon_jfien.png" alt="积分图标" class="price-icon" />
+            <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
             {{ item.points }}
           </div>
-          <div class="cart-item-delete">{{ $t('删除') }}</div>
+          <div class="cart-item-delete">{{ $t('delete') }}</div>
         </div>
       </div>
     </div>
@@ -46,19 +46,19 @@
       <div class="cart-footer-left">
         <div class="custom-checkbox" @click="toggleAll">
           <img :src="allChecked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
-               :alt="allChecked ? '已选中' : '未选中'" 
+               :alt="allChecked ? selectedText : notSelectedText" 
                class="checkbox-icon" />
         </div>
-        <span>{{ $t('全选') }}</span>
-        <button class="footer-delete-btn">{{ $t('删除选中的商品') }}</button>
+        <span>{{ $t('selectAll') }}</span>
+        <button class="footer-delete-btn">{{ $t('deleteSelectedItems') }}</button>
       </div>
       <div class="cart-footer-right">
         <div class="footer-summary-box">
-          <div class="footer-summary">{{ $t('已选择') }}<span class="footer-price">2</span>{{ $t('件商品，总价(不含运费)：') }}<span class="footer-price">€12.00</span></div>
-          <div class="footer-tip">{{ $t('以优惠：') }}€1</div>
+          <div class="footer-summary">{{ selectedText }}<span class="footer-price">2</span>{{ $t('itemsTotalExclShipping') }}<span class="footer-price">€12.00</span></div>
+          <div class="footer-tip">{{ $t('discount') }}€1</div>
         </div>
        
-        <button class="footer-checkout-btn" @click="goToOrderPage">{{ $t('立即结算') }}</button>
+        <button class="footer-checkout-btn" @click="goToOrderPage">{{ $t('checkoutNow') }}</button>
       </div>
     </div>
   </div>
@@ -71,7 +71,7 @@ export default {
     return {
       shops: [
         {
-          name: '店铺名字',
+          name: 'shopName',
           avatar: 'https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/live2d-widget-model-hijiki/assets/hijiki.2048/texture_00.png',
           checked: false,
           items: [
@@ -86,7 +86,7 @@ export default {
           ]
         },
         {
-          name: '店铺名字',
+          name: 'shopName',
           avatar: 'https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/live2d-widget-model-hijiki/assets/hijiki.2048/texture_00.png',
           checked: false,
           items: [
@@ -101,7 +101,7 @@ export default {
           ]
         },
         {
-          name: '店铺名字',
+          name: 'shopName',
           avatar: 'https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/live2d-widget-model-hijiki/assets/hijiki.2048/texture_00.png',
           checked: false,
           items: [
@@ -122,6 +122,12 @@ export default {
     allChecked() {
       // 只要所有商品都 checked 就返回 true
       return this.shops.length > 0 && this.shops.every(shop => shop.items.length > 0 && shop.items.every(item => item.checked));
+    },
+    selectedText() {
+      return this.$t('selected')
+    },
+    notSelectedText() {
+      return this.$t('notSelected')
     }
   },
   methods: {

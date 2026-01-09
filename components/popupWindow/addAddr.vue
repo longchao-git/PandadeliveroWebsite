@@ -196,7 +196,7 @@ export default {
           }
         }
         this.$axios.post('/client/member/addr/create', params).then(res => {
-          this.$message.success(this.$t('保存成功'));
+          this.$message.success(this.$t('saveSuccess'));
           this.$emit('handleCloseLoginDialog', -2);
         }).catch(err => {
           this.$message.info(err.message);

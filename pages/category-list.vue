@@ -39,7 +39,7 @@
                     </div>
                   </div>
                   <button class="exchange-btn">
-                    <img src="~/assets/images/icon_gouwuche.png" alt="购物车图标" class="cart-icon" />
+                    <img src="~/assets/images/icon_gouwuche.png" :alt="$t('iconCart')" class="cart-icon" />
                   </button>
                 </div>
               </div>
@@ -59,7 +59,7 @@ export default {
       categories: [
         {
           id: 1,
-          name: '全部商品',
+          name: 'allProducts',
           icon: require('~/assets/images/iconYuan.png'),
           products: [
             { id: 1, name: 'LV包', price: '120.00', points: 1800, image: require('~/assets/images/iconYuan.png') },
@@ -68,7 +68,7 @@ export default {
         },
         {
           id: 2,
-          name: '营养美食',
+          name: 'nutritionFood',
           icon: require('~/assets/images/iconYuan.png'),
           products: [
             { id: 3, name: '营养早餐', price: '30.00', points: 300, image: require('~/assets/images/iconYuan.png') }
@@ -76,7 +76,7 @@ export default {
         },
         {
           id: 3,
-          name: '美妆护肤',
+          name: 'beautySkincare',
           icon: require('~/assets/images/iconYuan.png'),
           products: [
             { id: 4, name: '护肤水', price: '50.00', points: 500, image: require('~/assets/images/iconYuan.png') }
@@ -84,7 +84,7 @@ export default {
         },
         {
           id: 4,
-          name: '厨房用品',
+          name: 'kitchenSupplies',
           icon: require('~/assets/images/iconYuan.png'),
           products: [
             { id: 5, name: '锅具', price: '60.00', points: 600, image: require('~/assets/images/iconYuan.png') }
@@ -92,7 +92,7 @@ export default {
         },
         {
           id: 5,
-          name: 'hand礼',
+          name: 'gifts',
           icon: require('~/assets/images/iconYuan.png'),
           products: [
             { id: 6, name: '手工礼品', price: '40.00', points: 400, image: require('~/assets/images/iconYuan.png') }
@@ -100,7 +100,7 @@ export default {
         },
         {
           id: 6,
-          name: '生活',
+          name: 'lifestyle',
           icon: require('~/assets/images/iconYuan.png'),
           products: [
             { id: 7, name: '生活用品', price: '20.00', points: 200, image: require('~/assets/images/iconYuan.png') }

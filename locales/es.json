@@ -43,6 +43,7 @@
   "address": "Dirección",
   "detailedAddress": "Dirección detallada",
   "pleaseInput": "Ingrese la dirección",
+  "pleaseSelect": "Por favor seleccione",
   "houseNumber": "Número de puerta",
   "contactPerson": "Persona de contacto",
   "phoneNumber": "Número de teléfono",
@@ -163,5 +164,19 @@
   "pointsMall": "Tienda de Puntos",
   "shoppingCart": "Carrito de Compras",
   "myOrders": "Mis pedidos",
-  "downloadAppToUse": "Descargue la app para usarla"
+  "downloadAppToUse": "Descargue la app para usarla",
+  "orderInfo": "Información del Pedido",
+  "deliveryAddress": "Dirección de Entrega",
+  "supplierInfo": "Información del Proveedor",
+  "totalWeight": "Peso Total (kg)",
+  "actualPrice": "Precio Real",
+  "shippingFee": "Gastos de Envío",
+  "payablePrice": "Precio a Pagar",
+  "evaluate": "Evaluar",
+  "orderNumber": "Número de Pedido",
+  "myAddresses": "Mis Direcciones",
+  "addAddress": "Añadir Dirección",
+  "editAddress": "Editar Dirección",
+  "setDefault": "Establecer como Predeterminada",
+  "defaultAddress": "Dirección Predeterminada"
 }

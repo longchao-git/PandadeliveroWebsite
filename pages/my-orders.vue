@@ -20,19 +20,19 @@
             <th>
               <div class="custom-checkbox" @click="toggleAllOrders">
                 <img :src="allOrdersChecked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
-                     :alt="allOrdersChecked ? '已选中' : '未选中'" 
+                     :alt="allOrdersChecked ? selectedText : notSelectedText" 
                      class="checkbox-icon" />
               </div>
             </th>
-            <th>{{ $t('订单编号') }}</th>
-            <th>{{ $t('图片') }}</th>
-            <th>{{ $t('名称') }}</th>
-            <th>{{ $t('数量') }}</th>
-            <th>{{ $t('金额') }}</th>
-            <th>{{ $t('积分') }}</th>
-            <th>{{ $t('状态') }}</th>
-            <th>{{ $t('下单日期') }}</th>
-            <th>{{ $t('操作') }}</th>
+            <th>{{ $t('orderNumber') }}</th>
+            <th>{{ $t('image') }}</th>
+            <th>{{ $t('productName') }}</th>
+            <th>{{ $t('quantity') }}</th>
+            <th>{{ $t('amount') }}</th>
+            <th>{{ $t('points') }}</th>
+            <th>{{ $t('status') }}</th>
+            <th>{{ $t('orderDate') }}</th>
+            <th>{{ $t('action') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +40,7 @@
             <td>
               <div class="custom-checkbox" @click="toggleOrder(order.id)">
                 <img :src="order.checked ? require('~/assets/images/icon_fuxuan.png') : require('~/assets/images/icon_nofuxuan.png')" 
-                     :alt="order.checked ? '已选中' : '未选中'" 
+                     :alt="order.checked ? selectedText : notSelectedText" 
                      class="checkbox-icon" />
               </div>
             </td>
@@ -51,7 +51,7 @@
             <td class="order-amount">€{{ order.amount }}</td>
             <td class="order-points">
               <div class="order-points-box">
-                <img src="~/assets/images/icon_jfien.png" alt="积分图标" class="price-icon" />
+                <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
                 {{ order.points }}
               </div>
              
@@ -60,10 +60,10 @@
             <td>{{ order.date }}</td>
             <td>
               <div class="order-actions">
-                <span v-if="order.action === '去支付'" class="order-pay">{{ $t('去支付') }}</span>
-                <span v-if="order.action === '发票/提单'" class="order-invoice">{{ $t('发票/提单') }}</span>
-                <span class="order-detail">{{ $t('详情') }}</span>
-                <span v-if="order.canDelete" class="order-delete">{{ $t('删除') }}</span>
+                <span v-if="order.action === 'payNow'" class="order-pay">{{ $t('payNow') }}</span>
+                <span v-if="order.action === 'invoiceOrder'" class="order-invoice">{{ $t('invoiceOrder') }}</span>
+                <span class="order-detail">{{ $t('details') }}</span>
+                <span v-if="order.canDelete" class="order-delete">{{ $t('delete') }}</span>
               </div>
             </td>
           </tr>
@@ -94,14 +94,14 @@ export default {
   data() {
     return {
       tabs: [
-        { key: 'all', label: '全部订单' },
-        { key: 'pending', label: '待付款' },
-        { key: 'to_confirm', label: '待确认' },
-        { key: 'to_ship', label: '待发货' },
-        { key: 'to_receive', label: '待收货' },
-        { key: 'after_sale', label: '售后' },
-        { key: 'completed', label: '已完成' },
-        { key: 'cancelled', label: '已取消' }
+        { key: 'all', label: 'allOrders' },
+        { key: 'pending', label: 'pendingPayment' },
+        { key: 'to_confirm', label: 'toConfirm' },
+        { key: 'to_ship', label: 'toShip' },
+        { key: 'to_receive', label: 'toReceive' },
+        { key: 'after_sale', label: 'afterSale' },
+        { key: 'completed', label: 'completed' },
+        { key: 'cancelled', label: 'cancelled' }
       ],
       activeTab: 'all',
       orders: [
@@ -113,10 +113,10 @@ export default {
           quantity: 1,
           amount: '12.00',
           points: 1800,
-          status: '待下单',
+          status: 'toOrder',
           statusClass: 'status-pending',
           date: '2024-04-29 15:00:00',
-          action: '去支付',
+          action: 'payNow',
           canDelete: false,
           checked: false
         },
@@ -128,10 +128,10 @@ export default {
           quantity: 1,
           amount: '12.00',
           points: 1800,
-          status: '待确认',
+          status: 'toConfirm',
           statusClass: 'status-confirm',
           date: '2024-04-29 15:00:00',
-          action: '发票/提单',
+          action: 'invoiceOrder',
           canDelete: false,
           checked: false
         },
@@ -143,7 +143,7 @@ export default {
           quantity: 1,
           amount: '12.00',
           points: 1800,
-          status: '已收货',
+          status: 'received',
           statusClass: 'status-received',
           date: '2024-04-29 15:00:00',
           action: '',
@@ -158,7 +158,7 @@ export default {
           quantity: 1,
           amount: '12.00',
           points: 1800,
-          status: '已收货',
+          status: 'received',
           statusClass: 'status-received',
           date: '2024-04-29 15:00:00',
           action: '',
@@ -173,7 +173,7 @@ export default {
           quantity: 1,
           amount: '12.00',
           points: 1800,
-          status: '已收货',
+          status: 'received',
           statusClass: 'status-received',
           date: '2024-04-29 15:00:00',
           action: '',
@@ -195,6 +195,12 @@ export default {
     },
     allOrdersChecked() {
       return this.orders.length > 0 && this.orders.every(order => order.checked);
+    },
+    selectedText() {
+      return this.$t('selected')
+    },
+    notSelectedText() {
+      return this.$t('notSelected')
     }
   },
   methods: {

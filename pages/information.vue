@@ -21,14 +21,14 @@
       <div class='form_item flex-a-c'>
         <div class='form_label'>{{ $t('nickname') }}</div>
         <div class='form_content'>
-          <el-input placeholder='请输入' v-model='nickname'></el-input>
+          <el-input :placeholder='$t("pleaseInput")' v-model='nickname'></el-input>
         </div>
       </div>
 
       <div class='form_item flex-a-c'>
-        <div class='form_label'>{{ $t('phoneNumberFull') }}</div>
+        <div class='form_label'>{{ $t('mobileNumber') }}</div>
         <div class='form_content'>
-          <el-input :placeholder='$t("phoneNumberFull")' v-model='getUserInfo.mobile' disabled></el-input>
+          <el-input :placeholder='$t("mobileNumber")' v-model='getUserInfo.mobile' disabled></el-input>
         </div>
       </div>
       <div class='form_item flex-a-c'>
@@ -86,7 +86,7 @@ export default {
         this.$axios.post('/client/member/member/index', data).then(res => {
           localStorage.setItem('userInfo', JSON.stringify(res));
           this.$store.commit('SET_USERINFO', res);
-          this.$message.success(this.$t('保存成功'));
+          this.$message.success(this.$t('saveSuccess'));
           setTimeout(()=>{
             window.location.href = '/';
           },1500)

@@ -25,7 +25,7 @@
                       style='width: 380px;margin-top: 8px; height: 48px'
                       v-model='mobile'>
               <template slot='prepend'>
-                <el-select v-model='phoneNumber' placeholder='请选择' style='width: 80px'>
+                <el-select v-model='phoneNumber' :placeholder='$t("pleaseSelect")' style='width: 80px'>
                   <el-option
                     v-for='item in options'
                     :key='item.value'

@@ -1,11 +1,11 @@
 <template>
   <div class="submit-order-page">
     <div class="order-info-box">
-      <div class="order-info-title">订单信息</div>
+      <div class="order-info-title">{{ $t('orderInfo') }}</div>
       <div class="order-info-list">
-        <div>收货地址：小明子 +86-13999999999 天津市 河区 中山路100号xxx大厦xxx单元 000000</div>
-        <div>订单编号：32131643132162132</div>
-        <div>供应商信息：电子现货</div>
+        <div>{{ $t('deliveryAddress') }}：小明子 +86-13999999999 天津市 河区 中山路100号xxx大厦xxx单元 000000</div>
+        <div>{{ $t('orderNumber') }}：32131643132162132</div>
+        <div>{{ $t('supplierInfo') }}：电子现货</div>
       </div>
     </div>
     <div class="order-table-box">
@@ -13,15 +13,15 @@
         <thead>
           <tr>
             <th><div class="custom-checkbox"><img src="~/assets/images/icon_nofuxuan.png" class="checkbox-icon" /></div></th>
-            <th>订单编号</th>
-            <th>图片</th>
-            <th>名称</th>
-            <th>数量</th>
-            <th>金额</th>
-            <th>积分</th>
-            <th>状态</th>
-            <th>下单日期</th>
-            <th>操作</th>
+            <th>{{ $t('orderNumber') }}</th>
+            <th>{{ $t('image') }}</th>
+            <th>{{ $t('productName') }}</th>
+            <th>{{ $t('quantity') }}</th>
+            <th>{{ $t('amount') }}</th>
+            <th>{{ $t('points') }}</th>
+            <th>{{ $t('status') }}</th>
+            <th>{{ $t('orderDate') }}</th>
+            <th>{{ $t('action') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -38,19 +38,19 @@
                     1800
                 </div>
             </td>
-            <td>待确认</td>
+            <td>{{ $t('toConfirm') }}</td>
             <td>2024-04-29 15:00:00</td>
-            <td><span class="order-delete">删除</span> <span class="order-detail">评价</span></td>
+            <td><span class="order-delete">{{ $t('delete') }}</span> <span class="order-detail">{{ $t('evaluate') }}</span></td>
           </tr>
         </tbody>
       </table>
     </div>  
     <div class="order-summary-box">
-      <div class="font18">总重量(kg)：1.965</div>
+      <div class="font18">{{ $t('totalWeight') }}：1.965</div>
       <div class="order-summary-right">
-        <div class="font18">实付价：456.9€</div>
-        <div class="font18">运费：1.00€</div>
-        <div class="font18">应付价：<span class="order-summary-pay font20">457.9€</span></div>
+        <div class="font18">{{ $t('actualPrice') }}：456.9€</div>
+        <div class="font18">{{ $t('shippingFee') }}：1.00€</div>
+        <div class="font18">{{ $t('payablePrice') }}：<span class="order-summary-pay font20">457.9€</span></div>
       </div>
     </div>
   </div>

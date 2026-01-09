@@ -5,10 +5,10 @@
       <div class='h-content'>
         <div class='h-conte'>
           <div class='_left'>
-            <div class='Services'> {{$t('积分商城新功能上线')}}</div>
+            <div class='Services'> {{$t('pointsMallNewFeaturesLaunched')}}</div>
 
             <div class='Potential'>
-              {{$t('更简单的规则/更丰富的权益')}}
+              {{$t('simplerRulesRicherBenefits')}}
             </div>
             
           </div>
@@ -33,10 +33,10 @@
         <div class="points-balance">
           <div class="balance-card">
             <span class="balance-label">
-              <img src="~/assets/images/icon_jifen.png" alt="积分图标" class="balance-icon" />
-              {{ $t('我的积分') }}
+              <img src="~/assets/images/icon_jifen.png" :alt="$t('iconPoints')" class="balance-icon" />
+              {{ $t('myPoints') }}
             </span>
-            <span class="balance-amount">12000</span>
+            <span class="balance-amount">{{ balance }}</span>
           </div>
         </div>
       </div>
@@ -45,8 +45,8 @@
     <!-- 热门产品 -->
     <div class="products-section">
       <h2 class="section-title">
-        <img src="~/assets/images/iconYuan.png" alt="圆形图标" class="section-icon" />
-        <div>{{ $t('热门产品') }}</div>
+        <img src="~/assets/images/iconYuan.png" :alt="$t('iconCircle')" class="section-icon" />
+        <div>{{ $t('hotProducts') }}</div>
       </h2>
       <div class="products-grid">
         <div class="product-card" v-for="product in products" :key="product.id">
@@ -59,12 +59,12 @@
               <div class="product-price">
                 <span class="price-label">€{{ product.points }}</span>
                 <div class="price-amount">
-                  <img src="~/assets/images/icon_jfien.png" alt="积分图标" class="price-icon" />
+                  <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
                   {{ product.points }}
                 </div>
               </div>
-              <button class="exchange-btn">
-                <img src="~/assets/images/icon_gouwuche.png" alt="购物车图标" class="cart-icon" />
+              <button class="exchange-btn" @click="exchangeProduct(product)">
+                <img src="~/assets/images/icon_gouwuche.png" :alt="$t('iconCart')" class="cart-icon" />
               </button>
             </div>  
           </div>
@@ -75,76 +75,85 @@
 </template>
 
 <script>
+import config from '~/config/index'
+
 export default {
   name: 'PointsMall',
   data() {
     return {
+      balance: 0,
+      page: 1,
+      hasNext: true,
+      loading: false,
+      activeCid: 0, // 0 表示全部分类
       categories: [
-        { id: 1, name: '全部商品', icon: 'category-icon', iconClass: 'category-all' },
-        { id: 2, name: '营养美食', icon: 'food-icon', iconClass: 'category-food' },
-        { id: 3, name: '美妆护肤', icon: 'beauty-icon', iconClass: 'category-beauty' },
-        { id: 4, name: '厨房用品', icon: 'kitchen-icon', iconClass: 'category-kitchen' },
-        { id: 5, name: 'hand礼', icon: 'gift-icon', iconClass: 'category-gift' },
-        { id: 6, name: '生活', icon: 'life-icon', iconClass: 'category-life' }
+        { id: 1, name: 'allProducts', icon: 'category-icon', iconClass: 'category-all' },
+        { id: 2, name: 'nutritionFood', icon: 'food-icon', iconClass: 'category-food' },
+        { id: 3, name: 'beautySkincare', icon: 'beauty-icon', iconClass: 'category-beauty' },
+        { id: 4, name: 'kitchenSupplies', icon: 'kitchen-icon', iconClass: 'category-kitchen' },
+        { id: 5, name: 'gifts', icon: 'gift-icon', iconClass: 'category-gift' },
+        { id: 6, name: 'lifestyle', icon: 'life-icon', iconClass: 'category-life' }
       ],
-      products: [
-        { 
-          id: 1, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '3000',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TFYgQmFnPC90ZXh0Pjwvc3ZnPg=='
-        },
-        { 
-          id: 2, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '3500',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZjZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Q29zbWV0aWNzPC90ZXh0Pjwvc3ZnPg=='
-        },
-        { 
-          id: 3, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '4500',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZlZjNlMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TmF0dXJhbDwvdGV4dD48L3N2Zz4='
-        },
-        { 
-          id: 4, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '3600',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y0ZjBmMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+R2FkZ2V0PC90ZXh0Pjwvc3ZnPg=='
-        },{ 
-          id: 1, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '3000',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TFYgQmFnPC90ZXh0Pjwvc3ZnPg=='
-        },
-        { 
-          id: 2, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '3500',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZjZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Q29zbWV0aWNzPC90ZXh0Pjwvc3ZnPg=='
-        },
-        { 
-          id: 3, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '4500',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZlZjNlMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TmF0dXJhbDwvdGV4dD48L3N2Zz4='
-        },
-        { 
-          id: 4, 
-          name: 'club Vuitton Beautiful PM', 
-          points: '3600',
-          image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y0ZjBmMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+R2FkZ2V0PC90ZXh0Pjwvc3ZnPg=='
-        }
-      ]
+      products: [] // 初始为空，接口拉取
     }
   },
+  async mounted() {
+    await this.fetchBalance()
+    await this.fetchProducts()
+  },
   methods: {
-    exchangeProduct(product) {
-      console.log('兑换商品:', product);
-      // 实现兑换逻辑
+    /* 获取积分余额 */
+    async fetchBalance() {
+      try {
+        const res = await this.$axios.post('/staff/account/profile', {})
+        this.balance = res.integral || 0
+      } catch (e) {
+        this.$message.error(e.msg || 'Balance error')
+      }
     },
-    goToCategory(category) {
-      this.$router.push({ path: '/category-list', query: { category: category.id } });
+    /* 拉取商品列表（分页） */
+    async fetchProducts(loadMore = false) {
+      if (this.loading || (!this.hasNext && loadMore)) return
+      this.loading = true
+      try {
+        const res = await this.$axios.post('/staff/jifen/index/loaditems', {
+          page: this.page,
+          cid: this.activeCid === 0 ? '' : this.activeCid
+        })
+        const rawItems = (res.items || [])
+        const list = rawItems.map(it => ({
+          id: it.product_id,
+          name: it.title,
+          points: it.jifen,
+          image: config.URl + it.photo // 拼出完整图片地址
+        }))
+        // pager.is_last_page: "0" 表示还有下一页, "1" 表示最后一页
+        const isLastPage = res.pager ? res.pager.is_last_page === '1' : true
+        this.products = loadMore ? [...this.products, ...list] : list
+        this.hasNext = !isLastPage
+        if (this.hasNext) this.page += 1
+      } catch (e) {
+        this.$message.error(e.msg || 'Load items error')
+      } finally {
+        this.loading = false
+      }
+    },
+    /* 点击分类 */
+    async goToCategory(category) {
+      this.activeCid = category.id || 0
+      this.page = 1
+      this.hasNext = true
+      await this.fetchProducts(false)
+    },
+    /* 兑换 */
+    async exchangeProduct(product) {
+      try {
+        await this.$axios.post('/staff/jifen/index/exchange', { item_id: product.id, qty: 1 })
+        this.$message.success(this.$t('redeem') + ' success')
+        await this.fetchBalance()
+      } catch (e) {
+        this.$message.error(e.msg || 'Exchange error')
+      }
     }
   }
 }
