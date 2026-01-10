@@ -9,42 +9,51 @@
           :class="['side-category', { active: cat.id === activeCategoryId }]"
           @click="selectCategory(cat.id)"
         >
-          <img :src="cat.icon" class="side-category-icon" />
-          <span>{{ $t(cat.name) }}</span>
+          <img v-if="cat.icon" :src="cat.icon" class="side-category-icon" />
+          <img v-else src="~/assets/images/iconYuan.png" class="side-category-icon" />
+          <span>{{ cat.name }}</span>
         </div>
       </div>
       <!-- 右侧商品列表 -->
       <div class="category-products" ref="productScroll" @scroll="onProductScroll">
-        <div
-          v-for="cat in categories"
-          :key="cat.id"
-          :ref="'catSection' + cat.id"
-          class="product-section"
-        >
-          <div class="product-section-title">{{ $t(cat.name) }}</div>
-          <div class="product-list">
-            <div class="product-card" v-for="product in cat.products" :key="product.id">
-              <img :src="product.image" class="product-img" />
-              <div class="product-info">
-                <div class="product-name">{{ product.name }}</div>
-                <div class="product-desc">
-                  <div class="product-desc-box">
-                    <div class="product-price">
-                      <span class="price-label">€</span>
-                      <span class="price-amount">{{ product.price }}</span>
+        <div v-if="categoryProducts.length > 0">
+          <div
+            v-for="category in categoryProducts"
+            :key="category.id"
+            :ref="'catSection' + category.id"
+            class="product-section"
+          >
+            <div class="product-section-title">{{ category.name }}</div>
+            <div class="product-list">
+              <div class="product-card" v-for="product in category.products" :key="product.id" @click="goToProductDetail(product)">
+                <img :src="product.image || require('~/assets/images/iconYuan.png')" class="product-img" />
+                <div class="product-info">
+                  <div class="product-name">{{ product.name }}</div>
+                  <div class="product-desc">
+                    <div class="product-desc-box">
+                      <div class="product-price">
+                        <span class="price-label">€</span>
+                        <span class="price-amount">{{ product.price }}</span>
+                      </div>
+                      <div class="product-points">
+                        <img src="~/assets/images/icon_jfien.png" class="price-icon" />
+                        {{ product.points }}
+                      </div>
                     </div>
-                    <div class="product-points">
-                      <img src="~/assets/images/icon_jfien.png" class="price-icon" />
-                      {{ product.points }}
-                    </div>
+                    <button class="exchange-btn" @click.stop="exchangeProduct(product)">
+                      <img src="~/assets/images/icon_gouwuche.png" :alt="$t('iconCart')" class="cart-icon" />
+                    </button>
                   </div>
-                  <button class="exchange-btn">
-                    <img src="~/assets/images/icon_gouwuche.png" :alt="$t('iconCart')" class="cart-icon" />
-                  </button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+        <div v-else-if="!loading" class="empty-products">
+          <div class="empty-text">{{ $t('noProducts') }}</div>
+        </div>
+        <div v-if="loading" class="loading-products">
+          <div class="loading-text">{{ $t('loading') }}</div>
         </div>
       </div>
     </div>
@@ -52,101 +61,189 @@
 </template>
 
 <script>
+import config from '~/config/index'
+
 export default {
   name: 'CategoryListPage',
   data() {
     return {
-      categories: [
-        {
-          id: 1,
-          name: 'allProducts',
-          icon: require('~/assets/images/iconYuan.png'),
-          products: [
-            { id: 1, name: 'LV包', price: '120.00', points: 1800, image: require('~/assets/images/iconYuan.png') },
-            { id: 2, name: '美妆套装', price: '80.00', points: 1200, image: require('~/assets/images/iconYuan.png') }
-          ]
-        },
-        {
-          id: 2,
-          name: 'nutritionFood',
-          icon: require('~/assets/images/iconYuan.png'),
-          products: [
-            { id: 3, name: '营养早餐', price: '30.00', points: 300, image: require('~/assets/images/iconYuan.png') }
-          ]
-        },
-        {
-          id: 3,
-          name: 'beautySkincare',
-          icon: require('~/assets/images/iconYuan.png'),
-          products: [
-            { id: 4, name: '护肤水', price: '50.00', points: 500, image: require('~/assets/images/iconYuan.png') }
-          ]
-        },
-        {
-          id: 4,
-          name: 'kitchenSupplies',
-          icon: require('~/assets/images/iconYuan.png'),
-          products: [
-            { id: 5, name: '锅具', price: '60.00', points: 600, image: require('~/assets/images/iconYuan.png') }
-          ]
-        },
-        {
-          id: 5,
-          name: 'gifts',
-          icon: require('~/assets/images/iconYuan.png'),
-          products: [
-            { id: 6, name: '手工礼品', price: '40.00', points: 400, image: require('~/assets/images/iconYuan.png') }
-          ]
-        },
-        {
-          id: 6,
-          name: 'lifestyle',
-          icon: require('~/assets/images/iconYuan.png'),
-          products: [
-            { id: 7, name: '生活用品', price: '20.00', points: 200, image: require('~/assets/images/iconYuan.png') }
-          ]
-        }
-      ],
-      activeCategoryId: 1
+      categories: [], // 左侧分类导航列表
+      categoryProducts: [], // 右侧分类及其商品列表（从接口获取的完整数据）
+      activeCategoryId: 0, // 当前选中的分类ID
+      loading: false
     }
   },
-  mounted() {
-    // 如果有query参数，自动滚动到对应分类
-    const catId = parseInt(this.$route.query.category)
-    if (catId) {
-      this.activeCategoryId = catId
+  async mounted() {
+    // 获取分类ID（从路由参数）
+    const cateId = parseInt(this.$route.query.cate_id)
+    
+    // 获取所有分类及其商品列表（同时会更新左侧分类导航）
+    await this.fetchProductsByCategory()
+    
+    // 如果有分类ID且分类存在，滚动到对应分类并高亮
+    if (cateId && this.categoryProducts.find(cat => cat.id === cateId)) {
+      this.activeCategoryId = cateId
       this.$nextTick(() => {
-        this.scrollToCategory(catId)
+        this.scrollToCategory(cateId)
       })
+    } else if (this.categoryProducts.length > 0) {
+      // 如果没有指定分类或分类不存在，默认选中第一个分类
+      this.activeCategoryId = this.categoryProducts[0].id
     }
   },
   methods: {
+    /* 获取所有分类及其商品列表（同时更新左侧分类导航） */
+    async fetchProductsByCategory() {
+      this.loading = true
+      try {
+        const params = {}
+        const res = await this.$axios.post('/staff/jifen/index/prodcut_list_by_category', params)
+        
+        // 接口返回数据结构：{ data: [...], error: "0", message: "success" }
+        // 兼容多种返回格式
+        let dataList = []
+        if (Array.isArray(res)) {
+          dataList = res
+        } else if (res && res.data && Array.isArray(res.data)) {
+          dataList = res.data
+        } else if (res && Array.isArray(res.list)) {
+          dataList = res.list
+        }
+        
+        const currentLocale = this.$store.getters.getLocale || 'es'
+        
+        // 处理返回的数据，每个分类包含其商品列表
+        this.categoryProducts = dataList
+          .filter(item => item.parent_id === '0' || item.parent_id === 0) // 只显示顶级分类
+          .sort((a, b) => {
+            const orderA = parseInt(a.orderby || 0)
+            const orderB = parseInt(b.orderby || 0)
+            return orderA - orderB
+          })
+          .map(category => {
+            // 根据当前语言选择分类名称
+            let categoryName = category.title || ''
+            if (currentLocale === 'es' && category.title_es) {
+              categoryName = category.title_es
+            } else if (currentLocale === 'en' && category.title_en) {
+              categoryName = category.title_en
+            } else if (currentLocale === 'zh' && category.title) {
+              categoryName = category.title
+            }
+            
+            // 处理该分类下的商品列表
+            const products = (category.product_list || []).map(product => ({
+              id: product.product_id || product.id,
+              product_id: product.product_id || product.id, // 保存原始 product_id
+              name: product.title || product.name || '',
+              price: product.price || '0.00',
+              points: product.jifen || product.points || 0,
+              image: product.photo ? (config.URl + product.photo) : (product.image || require('~/assets/images/iconYuan.png'))
+            }))
+            
+            return {
+              id: parseInt(category.cate_id) || 0,
+              name: categoryName,
+              icon: category.icon || '',
+              products: products
+            }
+          })
+        
+        // 过滤掉ID为0的"全部"分类
+        this.categoryProducts = this.categoryProducts.filter(cat => cat.id !== 0)
+        
+        // 同时更新左侧分类导航列表（使用相同的分类数据）
+        this.categories = this.categoryProducts.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          icon: cat.icon
+        }))
+      } catch (e) {
+        console.error('Fetch products error:', e)
+        this.$message.error(e.msg || this.$t('loadProductsError'))
+      } finally {
+        this.loading = false
+      }
+    },
+    /* 选择分类 - 滚动到对应区域 */
     selectCategory(id) {
       this.activeCategoryId = id
       this.scrollToCategory(id)
     },
+    /* 滚动到指定分类区域 */
     scrollToCategory(id) {
-      const section = this.$refs['catSection' + id]
-      const container = this.$refs.productScroll
-      if (section && container) {
-        const el = Array.isArray(section) ? section[0] : section
-        container.scrollTop = el.offsetTop
-      }
-    },
-    onProductScroll() {
-      // 监听滚动，自动高亮左侧分类
-      const container = this.$refs.productScroll
-      let found = false
-      for (const cat of this.categories) {
-        const section = this.$refs['catSection' + cat.id]
-        if (section) {
+      this.$nextTick(() => {
+        const section = this.$refs['catSection' + id]
+        const container = this.$refs.productScroll
+        if (section && container) {
           const el = Array.isArray(section) ? section[0] : section
-          const top = el.getBoundingClientRect().top - container.getBoundingClientRect().top
-          if (top >= 0 && !found) {
-            this.activeCategoryId = cat.id
-            found = true
+          if (el) {
+            // 使用 offsetTop 获取元素相对于容器的位置
+            const elementTop = el.offsetTop
+            container.scrollTo({
+              top: elementTop - 20, // 减去一些偏移量，让标题更明显
+              behavior: 'smooth'
+            })
           }
         }
+      })
+    },
+    /* 监听滚动，自动高亮左侧分类 */
+    onProductScroll() {
+      const container = this.$refs.productScroll
+      if (!container || this.categoryProducts.length === 0) return
+      
+      const scrollTop = container.scrollTop
+      let activeId = this.activeCategoryId
+      
+      // 从后往前遍历，找到当前滚动位置所在的分类
+      for (let i = this.categoryProducts.length - 1; i >= 0; i--) {
+        const category = this.categoryProducts[i]
+        const section = this.$refs['catSection' + category.id]
+        if (section) {
+          const el = Array.isArray(section) ? section[0] : section
+          if (el) {
+            // 获取元素距离容器顶部的距离
+            const elementTop = el.offsetTop
+            
+            // 如果滚动位置超过了这个分类的起始位置，则高亮该分类
+            if (scrollTop + 150 >= elementTop) {
+              activeId = category.id
+              break
+            }
+          }
+        }
+      }
+      
+      // 如果滚动到最顶部，高亮第一个分类
+      if (scrollTop < 50 && this.categoryProducts.length > 0) {
+        activeId = this.categoryProducts[0].id
+      }
+      
+      // 更新高亮的分类
+      if (activeId !== this.activeCategoryId) {
+        this.activeCategoryId = activeId
+      }
+    },
+    /* 跳转到商品详情页面 */
+    goToProductDetail(product) {
+      this.$router.push({
+        path: '/product-detail',
+        query: {
+          product_id: product.product_id || product.id
+        }
+      })
+    },
+    /* 添加到购物车 */
+    async exchangeProduct(product) {
+      try {
+        await this.$axios.post('/staff/jifen/cart/add_cart', {
+          product_id: product.product_id || product.id,
+          product_num: 1
+        })
+        this.$message.success(this.$t('addToCartSuccess') || '已添加到购物车')
+      } catch (e) {
+        this.$message.error(e.msg || this.$t('addToCartError') || '添加到购物车失败')
       }
     }
   }
@@ -234,11 +331,17 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 40px 20px;
-  margin-top: 40px;
 }
 .product-card {
   overflow: hidden;
   position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
 }
 .product-img {
   width: 100%;
@@ -303,5 +406,16 @@ export default {
   height: 18px;
   object-fit: contain;
   margin-right: 4px;
+}
+.empty-products,
+.loading-products {
+  padding: 60px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+}
+.empty-text,
+.loading-text {
+  margin-top: 20px;
 }
 </style> 

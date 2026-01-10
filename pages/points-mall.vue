@@ -23,11 +23,12 @@
     <div class="category-nav">
       <div class="nav-container">
         <div class="nav-items-wrapper">
-          <div class="nav-item" v-for="category in categories" :key="category.id" @click="goToCategory(category)">
+          <div class="nav-item" v-for="category in categories" :key="category.id" @click="goToCategory(category)" :class="{ 'active': activeCid === category.id }">
             <div class="nav-icon" :class="category.iconClass">
-              <i :class="category.icon"></i>
+              <img v-if="category.icon" :src="category.icon" :alt="category.name" class="category-icon-img" />
+              <i v-else :class="category.icon"></i>
             </div>
-            <span class="nav-label">{{ $t(category.name) }}</span>
+            <span class="nav-label">{{ category.name }}</span>
           </div>
         </div>
         <div class="points-balance">
@@ -49,7 +50,7 @@
         <div>{{ $t('hotProducts') }}</div>
       </h2>
       <div class="products-grid">
-        <div class="product-card" v-for="product in products" :key="product.id">
+        <div class="product-card" v-for="product in products" :key="product.id" @click="goToProductDetail(product)">
           <div class="product-image">
             <img :src="product.image" :alt="product.name" />
           </div>
@@ -57,13 +58,13 @@
             <h3 class="product-name">{{ product.name }}</h3>
             <div class="product-desc">
               <div class="product-price">
-                <span class="price-label">€{{ product.points }}</span>
+                <!-- <span class="price-label">€{{ product.points }}</span> -->
                 <div class="price-amount">
                   <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
                   {{ product.points }}
                 </div>
               </div>
-              <button class="exchange-btn" @click="exchangeProduct(product)">
+              <button class="exchange-btn" @click.stop="exchangeProduct(product)">
                 <img src="~/assets/images/icon_gouwuche.png" :alt="$t('iconCart')" class="cart-icon" />
               </button>
             </div>  
@@ -86,22 +87,84 @@ export default {
       hasNext: true,
       loading: false,
       activeCid: 0, // 0 表示全部分类
-      categories: [
-        { id: 1, name: 'allProducts', icon: 'category-icon', iconClass: 'category-all' },
-        { id: 2, name: 'nutritionFood', icon: 'food-icon', iconClass: 'category-food' },
-        { id: 3, name: 'beautySkincare', icon: 'beauty-icon', iconClass: 'category-beauty' },
-        { id: 4, name: 'kitchenSupplies', icon: 'kitchen-icon', iconClass: 'category-kitchen' },
-        { id: 5, name: 'gifts', icon: 'gift-icon', iconClass: 'category-gift' },
-        { id: 6, name: 'lifestyle', icon: 'life-icon', iconClass: 'category-life' }
-      ],
+      categories: [], // 从接口获取分类
       products: [] // 初始为空，接口拉取
     }
   },
   async mounted() {
     await this.fetchBalance()
+    await this.fetchCategories() // 先获取分类
     await this.fetchProducts()
   },
   methods: {
+    /* 获取分类列表 */
+    async fetchCategories() {
+      try {
+        const res = await this.$axios.post('/staff/jifen/index/index', {})
+        // 处理接口返回的 cate_list 字段
+        if (res && res.cate_list && Array.isArray(res.cate_list)) {
+          // 获取当前语言
+          const currentLocale = this.$store.getters.getLocale || 'es'
+          
+          // 过滤出顶级分类（parent_id === "0"），并根据 orderby 排序
+          const topCategories = res.cate_list
+            .filter(cat => cat.parent_id === '0' || cat.parent_id === 0)
+            .sort((a, b) => {
+              const orderA = parseInt(a.orderby || 0)
+              const orderB = parseInt(b.orderby || 0)
+              return orderA - orderB
+            })
+            .map(cat => {
+              // 根据当前语言选择标题
+              let name = cat.title || ''
+              if (currentLocale === 'es' && cat.title_es) {
+                name = cat.title_es
+              } else if (currentLocale === 'en' && cat.title_en) {
+                name = cat.title_en
+              } else if (currentLocale === 'zh' && cat.title) {
+                name = cat.title
+              }
+              
+              return {
+                id: parseInt(cat.cate_id) || 0,
+                name: name,
+                icon: cat.icon || '', // 图标URL
+                iconClass: 'category-custom' // 自定义图标类
+              }
+            })
+          
+          // 确保有"全部"分类在第一位
+          const allCategory = topCategories.find(cat => cat.id === 0)
+          if (!allCategory) {
+            topCategories.unshift({ 
+              id: 0, 
+              name: this.$t('allProducts'), 
+              icon: '', 
+              iconClass: 'category-all' 
+            })
+          } else {
+            // 如果存在 id 为 0 的分类，将其名称设置为"全部"
+            allCategory.name = this.$t('allProducts')
+            allCategory.iconClass = 'category-all'
+          }
+          
+          this.categories = topCategories
+        } else {
+          // 如果接口返回格式不符合预期，使用默认分类
+          this.categories = [
+            { id: 0, name: this.$t('allProducts'), icon: '', iconClass: 'category-all' }
+          ]
+        }
+      } catch (e) {
+        console.error('Fetch categories error:', e)
+        // 出错时使用默认分类
+        this.categories = [
+          { id: 0, name: this.$t('allProducts'), icon: '', iconClass: 'category-all' }
+        ]
+        this.$message.error(e.msg || 'Load categories error')
+      }
+    },
+
     /* 获取积分余额 */
     async fetchBalance() {
       try {
@@ -118,11 +181,13 @@ export default {
       try {
         const res = await this.$axios.post('/staff/jifen/index/loaditems', {
           page: this.page,
-          cid: this.activeCid === 0 ? '' : this.activeCid
+          cate_id: this.activeCid === 0 ? '' : this.activeCid,
+          cat_id: this.activeCid === 0 ? '' : this.activeCid,
         })
         const rawItems = (res.items || [])
         const list = rawItems.map(it => ({
           id: it.product_id,
+          product_id: it.product_id, // 保存原始 product_id
           name: it.title,
           points: it.jifen,
           image: config.URl + it.photo // 拼出完整图片地址
@@ -138,21 +203,36 @@ export default {
         this.loading = false
       }
     },
-    /* 点击分类 */
-    async goToCategory(category) {
-      this.activeCid = category.id || 0
-      this.page = 1
-      this.hasNext = true
-      await this.fetchProducts(false)
+    /* 点击分类 - 跳转到分类列表页面 */
+    goToCategory(category) {
+      // 跳转到分类列表页面，传递分类ID
+      const categoryId = category.id || 0
+      this.$router.push({
+        path: '/category-list',
+        query: {
+          cate_id: categoryId
+        }
+      })
     },
-    /* 兑换 */
+    /* 跳转到商品详情页面 */
+    goToProductDetail(product) {
+      this.$router.push({
+        path: '/product-detail',
+        query: {
+          product_id: product.product_id || product.id
+        }
+      })
+    },
+    /* 添加到购物车 */
     async exchangeProduct(product) {
       try {
-        await this.$axios.post('/staff/jifen/index/exchange', { item_id: product.id, qty: 1 })
-        this.$message.success(this.$t('redeem') + ' success')
-        await this.fetchBalance()
+        await this.$axios.post('/staff/jifen/cart/add_cart', {
+          product_id: product.product_id || product.id,
+          product_num: 1
+        })
+        this.$message.success(this.$t('addToCartSuccess') || '已添加到购物车')
       } catch (e) {
-        this.$message.error(e.msg || 'Exchange error')
+        this.$message.error(e.msg || this.$t('addToCartError') || '添加到购物车失败')
       }
     }
   }
@@ -314,10 +394,6 @@ export default {
     left: 0;
     bottom: 0;
     right: 0;
-
-    .h-conte {
-
-    }
   }
 }
 
@@ -355,11 +431,6 @@ export default {
       }
     }
   }
-}
-
-
-@media screen and (max-width: $pad-max-width) {
-
 }
 
 .decorative-elements {
@@ -458,6 +529,17 @@ export default {
   &:hover {
     transform: translateY(-2px);
   }
+  
+  &.active {
+    .nav-icon {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
+    }
+    .nav-label {
+      color: #FFB84D;
+      font-weight: 600;
+    }
+  }
 }
 
 .nav-icon {
@@ -470,12 +552,26 @@ export default {
   margin-bottom: 8px;
   font-size: 28px;
   transition: all 0.3s ease;
+  overflow: hidden;
+  background: #f5f5f5;
   
   &.category-all {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     &::before { content: '📦'; }
   }
   
+  &.category-custom {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .category-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  // 保留原有的emoji图标样式作为备用
   &.category-food {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     &::before { content: '🍎'; }
@@ -591,13 +687,14 @@ export default {
   // border-radius: 12px;
   overflow: hidden;
   // box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  // transition: all 0.3s ease;
+  transition: all 0.3s ease;
   position: relative;
+  cursor: pointer;
   
-  // &:hover {
-  //   transform: translateY(-4px);
-  //   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  // }
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
 }
 
 .product-image {
@@ -647,7 +744,6 @@ export default {
   }
   
   .price-amount {
-    margin-left: 12px;
     font-size: 14px;
     font-weight: 500;
     color: #7AC554;

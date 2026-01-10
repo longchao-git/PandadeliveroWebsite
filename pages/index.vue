@@ -27,7 +27,6 @@
         </div>
       </div>
     </div>
-    <addAddr :type='loginType'></addAddr>
   </div>
 </template>
 
@@ -35,18 +34,15 @@
 
 import collaborationMechanism from '../components/cloudSales/collaborationMechanism.vue';
 import believeCooperation from '../components/cloudSales/believeCooperation.vue';
-import addAddr from '../components/popupWindow/addAddr.vue';
 
 export default {
 
   components: {
     believeCooperation,
     collaborationMechanism,
-    addAddr
   },
   data() {
     return {
-      loginType: 1,
       // 是否显示底部内容
 
       page: 1
@@ -71,24 +67,7 @@ export default {
   },
 
   mounted() {
-    //获取用户经纬度
-    // if (navigator.geolocation) {
-    //   navigator.geolocation.getCurrentPosition(
-    //     res => {
-    //       console.log(res);
-    //     },
-    //     error => {
-    //       console.log(error);
-    //     }
-    //   );
-    // } else {
-    //   console.log('Geolocation is not supported by this browser.');
-    // }
 
-    // this.$nextTick(() => {
-    //   this.loginType = 4
-    // })
-    // this.shoplist();
   }
 };
 </script>

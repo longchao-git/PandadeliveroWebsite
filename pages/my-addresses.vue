@@ -2,7 +2,7 @@
   <div class="my-addresses">
     <div class="addresses-header">
       <h1 class="page-title">{{ $t('myAddresses') }}</h1>
-      <button class="add-btn" @click="showAddDialog = true">
+      <button class="add-btn" @click="addNewAddress">
         <span>+</span> {{ $t('addAddress') }}
       </button>
     </div>
@@ -10,26 +10,32 @@
     <div class="addresses-list" v-if="addresses.length > 0">
       <div 
         v-for="address in addresses" 
-        :key="address.id" 
+        :key="address.addr_id" 
         class="address-card"
-        :class="{ 'default': address.is_default === 1 }"
+        :class="{ 'default': address.is_default === 1 || address.is_default === '1' }"
       >
         <div class="address-content">
           <div class="address-header">
             <div class="address-info">
               <span class="contact-name">{{ address.contact }}</span>
               <span class="contact-phone">{{ address.mobile }}</span>
-              <span v-if="address.is_default === 1" class="default-badge">{{ $t('defaultAddress') }}</span>
+              <span v-if="address.is_default === 1 || address.is_default === '1'" class="default-badge">{{ $t('defaultAddress') }}</span>
             </div>
             <div class="address-actions">
               <button 
-                v-if="address.is_default !== 1" 
+                class="action-btn edit-btn" 
+                @click="editAddress(address)"
+              >
+                {{ $t('edit') }}
+              </button>
+              <button 
+                v-if="address.is_default !== 1 && address.is_default !== '1'" 
                 class="action-btn default-btn" 
-                @click="setDefaultAddress(address.id)"
+                @click="setDefaultAddress(address.addr_id)"
               >
                 {{ $t('setDefault') }}
               </button>
-              <button class="action-btn delete-btn" @click="deleteAddress(address.id)">{{ $t('delete') }}</button>
+              <button class="action-btn delete-btn" @click="deleteAddress(address.addr_id)">{{ $t('delete') }}</button>
             </div>
           </div>
           <div class="address-details">
@@ -44,15 +50,15 @@
     <div class="empty-state" v-else>
       <div class="empty-icon">📍</div>
       <div class="empty-text">{{ $t('myAddresses') }}</div>
-      <button class="add-btn" @click="showAddDialog = true">
+      <button class="add-btn" @click="addNewAddress">
         <span>+</span> {{ $t('addAddress') }}
       </button>
     </div>
 
-    <!-- 添加地址弹窗 -->
+    <!-- 添加/编辑地址弹窗 -->
     <add-addr 
-      v-if="showAddDialog" 
-      :type="4"
+      :type="isType"
+      :edit-data="currentEditData"
       @handleCloseLoginDialog="handleCloseDialog"
     />
   </div>
@@ -68,9 +74,10 @@ export default {
   },
   data() {
     return {
+      isType:-1,
       addresses: [],
-      showAddDialog: false,
-      loading: false
+      loading: false,
+      currentEditData: null // 当前编辑的地址数据
     }
   },
   async mounted() {
@@ -81,27 +88,51 @@ export default {
     async fetchAddresses() {
       this.loading = true
       try {
-        const res = await this.$axios.post('/client/member/addr/index', {
-          page: 1,
-          type: 0
-        })
-        this.addresses = res.list || []
+        const res = await this.$axios.post('/staff/jifen/addr/index', {})
+        // 接口返回的地址列表，字段包括：addr_id, contact, mobile, house, addr, lng, lat, is_default
+        this.addresses = res.items || res || []
       } catch (e) {
-        this.$message.error(e.msg || 'Load addresses error')
+        this.$message.error(e.msg || this.$t('loadAddressesError'))
       } finally {
         this.loading = false
       }
     },
-    /* 设为默认地址 */
+    /* 编辑地址 */
+    editAddress(address) {
+      this.currentEditData = {
+        addr_id: address.addr_id,
+        contact: address.contact,
+        mobile: address.mobile,
+        house: address.house,
+        addr: address.addr,
+        lng: address.lng,
+        lat: address.lat,
+        is_default: address.is_default
+      }
+      this.isType = 4
+    },
+    /* 设为默认地址 - 通过编辑接口实现 */
     async setDefaultAddress(addressId) {
       try {
-        await this.$axios.post('/client/member/addr/setDefault', {
-          id: addressId
+        const address = this.addresses.find(addr => addr.addr_id === addressId)
+        if (!address) {
+          this.$message.error(this.$t('addressNotFound'))
+          return
+        }
+        await this.$axios.post('/staff/jifen/addr/edit', {
+          addr_id: addressId,
+          contact: address.contact,
+          mobile: address.mobile,
+          house: address.house || '',
+          addr: address.addr || '',
+          lng: address.lng || '',
+          lat: address.lat || '',
+          is_default: 1
         })
         this.$message.success(this.$t('saveSuccess'))
         await this.fetchAddresses()
       } catch (e) {
-        this.$message.error(e.msg || 'Set default error')
+        this.$message.error(e.msg || this.$t('setDefaultError'))
       }
     },
     /* 删除地址 */
@@ -112,20 +143,26 @@ export default {
           cancelButtonText: this.$t('cancel'),
           type: 'warning'
         })
-        await this.$axios.post('/client/member/addr/delete', {
-          id: addressId
+        await this.$axios.post('/staff/jifen/addr/del', {
+          addr_id: addressId
         })
         this.$message.success(this.$t('delete') + ' ' + this.$t('saveSuccess'))
         await this.fetchAddresses()
       } catch (e) {
         if (e !== 'cancel') {
-          this.$message.error(e.msg || 'Delete error')
+          this.$message.error(e.msg || this.$t('deleteError'))
         }
       }
     },
+    /* 添加新地址 */
+    addNewAddress() {
+      this.currentEditData = null
+      this.isType = 4
+    },
     /* 关闭弹窗 */
     handleCloseDialog(value) {
-      this.showAddDialog = false
+      this.isType = -1
+      this.currentEditData = null // 清空编辑数据
       if (value === -2) {
         // 保存成功，刷新列表
         this.fetchAddresses()
@@ -254,6 +291,15 @@ export default {
           cursor: pointer;
           transition: all 0.3s ease;
           background: #fff;
+
+          &.edit-btn {
+            color: #1890ff;
+            border-color: #1890ff;
+            &:hover {
+              background: #1890ff;
+              color: #fff;
+            }
+          }
 
           &.default-btn {
             color: #f9c13e;

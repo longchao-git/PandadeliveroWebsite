@@ -6,7 +6,7 @@
           <img @click='handleChangeType(-1)' src='../../assets/images/cloudSales/popupWindow/icon_delet.png'
                alt='' />
         </div>
-        <p>{{ $t('address') }}</p>
+        <p>{{ addr_id ? $t('editAddress') : $t('addAddress') }}</p>
         <div class='loginClass'>
           <div class='login_input'>
             <div>{{ $t('detailedAddress') }}</div>
@@ -14,11 +14,12 @@
             <el-autocomplete
               class='inline-input'
               v-model='addr' :trigger-on-focus='false'
-              :fetch-suggestions='querySearch'
+              :fetch-suggestions='handClickSerch'
               :placeholder='$t("detailedAddress")'
               style='width: 330px'
               @select='handleSelect'
             ></el-autocomplete>
+            
           </div>
           <div class='mapContainer' ref='mapContainer'></div>
 
@@ -45,6 +46,13 @@
             >
             </el-input>
           </div>
+          <div class='login_input' v-if="!addr_id || is_default == 0">
+            <div></div>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="is_default" :true-value="1" :false-value="0" />
+              <span>{{ $t('setAsDefaultAddress') }}</span>
+            </label>
+          </div>
           <v-btn width='100%' height='48px' class='try-out-bt mt3' @click='handleChangeType(2)'>{{ $t('save') }}
           </v-btn>
         </div>
@@ -55,54 +63,117 @@
 
 <script>
 export default {
-  props: ['type'],
+  props: {
+    type: {
+      type: Number,
+      default: 0
+    },
+    editData: {
+      type: Object,
+      default: null
+    }
+  },
   data() {
     return {
       contact: '',
       mobile: '',
       house: '',
-      addr: '',
+      addr: '马德里',
+      lng: '-3.7160397',
+      lat: '40.4202472',
+      is_default: 0,
+      addr_id: null, // 编辑时的地址ID
       googleMap: null,
       service: '',
       list: '',
       nameId: '',
       marker: null,
-
       city_id: ''
     };
   },
   watch: {
     type(newVal, oldVal) {
       if (newVal === 4) {
+        this.initFormData();
         this.elements();
       }
+    },
+    editData: {
+      handler(newVal) {
+        if (newVal && this.type === 4) {
+          this.initFormData();
+        }
+      },
+      immediate: true
     }
   },
   methods: {
+    /* 初始化表单数据 */
+    initFormData() {
+      if (this.editData) {
+        // 编辑模式：填充已有数据
+        this.contact = this.editData.contact || ''
+        this.mobile = this.editData.mobile || ''
+        this.house = this.editData.house || ''
+        this.addr = this.editData.addr || ''
+        this.lng = this.editData.lng || ''
+        this.lat = this.editData.lat || ''
+        // 确保 is_default 是数字类型
+        this.is_default = this.editData.is_default === 1 || this.editData.is_default === '1' ? 1 : 0
+        this.addr_id = this.editData.addr_id || null
+      } else {
+        // 新增模式：清空数据
+        this.contact = ''
+        this.mobile = ''
+        this.house = ''
+        this.addr = '马德里'
+        this.lng = '-3.7160397'
+        this.lat = '40.4202472'
+        this.is_default = 0
+        this.addr_id = null
+      }
+    },
     elements() {
-      const location = { lat: 40.4202472, lng: -3.7160397 };
+      // 如果有编辑数据，使用编辑数据的经纬度，否则使用默认位置
+      const defaultLat = this.lat ? parseFloat(this.lat) : 40.4202472
+      const defaultLng = this.lng ? parseFloat(this.lng) : -3.7160397
+      const location = { lat: defaultLat, lng: defaultLng };
+      
       this.$nextTick(() => {
         this.googleMap = new window.google.maps.Map(this.$refs.mapContainer, {
           center: location,
-          zoom: 10
+          zoom: 16
         });
 
         this.service = new window.google.maps.places.PlacesService(this.googleMap);
       });
-
     },
     handleSelect(item) {
-
       this.addr = item.value;
-      // 在地图上生成仓库的标记，仓库图标自定义
-      this.marker = new window.google.maps.Marker({
-        position: { lat: Number(item.lat), lng: Number(item.lng) },
-        map: this.googleMap,
-        title: item.value
+      this.lat = item.lat.toString();
+      this.lng = item.lng.toString();
+      
+      // 清除旧标记
+      if (this.marker) {
+        this.marker.setMap(null);
+      }
+      
+      this.$nextTick(() => {
+        let newPyrmont = new window.google.maps.LatLng(item.lat, item.lng);
+        // 在地图上生成标记
+        this.marker = new window.google.maps.Marker({
+          position: newPyrmont,
+          map: this.googleMap,
+          title: item.value || this.$t('marker') || '标记'
+        });
+        
+        // 居中显示
+        this.googleMap.setCenter(newPyrmont);
+        this.googleMap.setZoom(16);
       });
 
     },
-    querySearch(queryString, cb) {
+    handClickSerch(queryString, cb) {
       let request = {};
       let list = [];
       let pyrmont = new window.google.maps.LatLng(40.4202472, -3.7160397);
@@ -155,6 +226,7 @@ export default {
     /** 处理呼叫父级 - 设置type状态 */
     handleChangeType(value) {
       if (value === 2) {
+        // 表单验证
         if (!this.contact) {
           this.$message.info(this.$t('pleaseInput') + this.$t('contactPerson'));
           return;
@@ -163,43 +235,42 @@ export default {
           this.$message.info(this.$t('pleaseInput') + this.$t('phoneNumber'));
           return;
         }
-        if (!this.house) {
-          this.$message.info(this.$t('pleaseInput') + this.$t('houseNumber'));
+        if (!this.addr) {
+          this.$message.info(this.$t('pleaseInput') + this.$t('detailedAddress'));
           return;
         }
-        // if (!this.nameId) {
-        //   this.$message.info(this.$t(`请输入`) + this.$t(`请输入`));
-        //   return;
-        // }
-        // if (!this.city_id) {
-        //   this.$message.info(this.$t(`请输入`) + this.$t(`请输入`));
-        //   return;
-        // }
-        const params = {
-          data: {
-            'contact': this.contact,
-            'mobile': this.mobile,
-            'house': this.house,
-            'city_id': this.city_id,
-            'addr': '',
-            'lng': '',
-            'lat': '',
-            'page': 1,
-            'type': 0
-          }
-        };
-        for (let i in this.list) {
-          if (this.list[i].id == this.nameId) {
-            params.data.addr = this.list[i].name;
-            params.data.lat = this.list[i].lat;
-            params.data.lng = this.list[i].lng;
-          }
+        if (!this.lat || !this.lng) {
+          this.$message.info(this.$t('pleaseSelect') + this.$t('detailedAddress'));
+          return;
         }
-        this.$axios.post('/client/member/addr/create', params).then(res => {
+        
+        // 构建请求参数，字段与接口要求匹配
+        const params = {
+          contact: this.contact,
+          mobile: this.mobile,
+          house: this.house || '',
+          addr: this.addr,
+          lng: this.lng.toString(),
+          lat: this.lat.toString(),
+          is_default: this.is_default === 1 || this.is_default === '1' ? 1 : 0
+        };
+        
+        // 判断是新增还是编辑
+        const isEdit = this.addr_id !== null && this.addr_id !== undefined;
+        const apiUrl = isEdit ? '/staff/jifen/addr/edit' : '/staff/jifen/addr/create';
+        
+        // 编辑时需要传递 addr_id
+        if (isEdit) {
+          params.addr_id = this.addr_id;
+        }
+        
+        this.$axios.post(apiUrl, params).then(res => {
           this.$message.success(this.$t('saveSuccess'));
           this.$emit('handleCloseLoginDialog', -2);
+          // 清空表单
+          this.initFormData();
         }).catch(err => {
-          this.$message.info(err.message);
+          this.$message.error(err.msg || err.message || this.$t('saveError'));
         });
       } else {
         this.$emit('handleCloseLoginDialog', value);
@@ -264,7 +335,7 @@ export default {
 /** 登录卡片样式 */
 .login-tan-card {
   border-radius: 8px;
-  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(238, 128, 128, 0.20) 0%, rgba(10, 218, 254, 0.00) 100%), #FFF;
+  background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.2) 0%, rgba(10, 218, 254, 0) 100%), #fff;
   margin: auto;
   width: 540px;
   height: 740px;
@@ -324,6 +395,24 @@ export default {
         flex-direction: row;
         align-items: center;
         margin-top: 12px;
+        
+        .checkbox-label {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          
+          input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+          }
+          
+          span {
+            font-size: 14px;
+            color: #2C2C2C;
+          }
+        }
 
         .button {
           color: #f9c13e;
@@ -367,6 +456,7 @@ export default {
           display: -webkit-box;
           overflow: hidden;
           -webkit-line-clamp: 3;
+          line-clamp: 3;
           -webkit-box-orient: vertical;
           width: 100%;
 
