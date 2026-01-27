@@ -203,6 +203,7 @@
   "productIdRequired": "El ID del producto no puede estar vacío",
   "loadProductDetailError": "Error al cargar los detalles del producto",
   "price": "Precio",
+  "totalPrice": "Precio Total",
   "selectAddress": "Seleccionar Dirección",
   "pleaseSelectAddress": "Por favor seleccione una dirección",
   "orderSuccess": "Pedido realizado con éxito",
@@ -221,5 +222,17 @@
   "confirmOrderError": "Error al confirmar la recepción",
   "orderNotFound": "Pedido no encontrado",
   "loadOrderDetailError": "Error al cargar los detalles del pedido",
-  "noAddress": "Sin dirección"
+  "noAddress": "Sin dirección",
+  "noOrders": "Sin pedidos",
+  "languageChinese": "Chino",
+  "countryChina": "China",
+  "languageSpanish": "Español",
+  "countrySpain": "España",
+  "languageEnglish": "Inglés",
+  "countryBritain": "Reino Unido",
+  "iconCircle": "Icono de círculo",
+  "iconPoints": "Icono de puntos",
+  "iconCart": "Icono de carrito de compras",
+  "notSelected": "No seleccionado",
+  "loadMore": "Cargar Más"
 }

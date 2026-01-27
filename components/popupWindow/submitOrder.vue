@@ -24,6 +24,7 @@
                 :placeholder="$t('pleaseSelectAddress') || '请选择地址'"
                 style="width: 330px"
                 filterable
+                @change="handleAddressChange"
               >
                 <el-option
                   v-for="addr in addresses"
@@ -39,7 +40,26 @@
               </el-select>
             </div>
             
-            <v-btn width="100%" height="48px" class="try-out-bt mt3" @click="handleSubmitOrder">
+            <!-- 订单信息显示 -->
+            <div v-if="orderPreview" class="order-preview-info">
+              <div class="preview-item">
+                <span class="preview-label">{{ $t('points') || '积分' }}：</span>
+                <span class="preview-value preview-points">
+                  <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="preview-icon" />
+                  {{ orderPreview.totalPoints || 0 }}
+                </span>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">{{ $t('totalPrice') || '总价' }}：</span>
+                <span class="preview-value preview-price">€{{ (orderPreview.totalPrice || 0).toFixed(2) }}</span>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">{{ $t('shippingFee') || '运费' }}：</span>
+                <span class="preview-value preview-freight">€{{ (orderPreview.freight || 0).toFixed(2) }}</span>
+              </div>
+            </div>
+            
+            <v-btn width="100%" height="48px" class="try-out-bt mt3" @click="handleSubmitOrder" :loading="loading">
               {{ $t('placeOrder') || '立即下单' }}
             </v-btn>
           </template>
@@ -60,22 +80,47 @@ export default {
     productIds: {
       type: Array,
       default: () => []
+    },
+    selectedItems: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
       addresses: [],
       selectedAddrId: null,
-      loading: false
+      loading: false,
+      orderPreview: null // 订单预览信息
     }
   },
   watch: {
     visible(newVal) {
       if (newVal) {
         this.fetchAddresses()
+        // 先尝试从购物车数据计算，如果有地址再获取运费
+        this.calculateOrderPreview()
       } else {
         this.selectedAddrId = null
+        this.orderPreview = null
       }
+    },
+    selectedAddrId(newVal) {
+      if (newVal && this.visible) {
+        // 地址改变时，重新获取预览信息（包括运费）
+        this.fetchOrderPreview()
+        if (!this.orderPreview) {
+          this.calculateOrderPreview()
+        }
+      }
+    },
+    selectedItems: {
+      handler() {
+        if (this.visible) {
+          this.calculateOrderPreview()
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -102,6 +147,86 @@ export default {
     /* 获取地址显示标签 */
     getAddressLabel(addr) {
       return `${addr.contact} ${addr.mobile} - ${addr.addr}${addr.house ? '，' + addr.house : ''}`
+    },
+    /* 获取订单预览信息 */
+    async fetchOrderPreview() {
+      if (!this.productIds || this.productIds.length === 0) {
+        return
+      }
+      
+      try {
+        // 调用订单预览接口，获取积分、价格、运费信息
+        const productIdsStr = this.productIds.join(',')
+        const res = await this.$axios.post('/staff/jifen/cart/preview_order', {
+          product_ids: productIdsStr,
+          addr_id: this.selectedAddrId || ''
+        })
+        
+        // 处理返回的数据
+        this.orderPreview = {
+          totalPoints: res.total.jifen,
+          totalPrice: parseFloat(res.total.price),
+          freight: parseFloat(res.total.freight)
+        }
+      } catch (e) {
+        console.error('Fetch order preview error:', e)
+        // 如果接口不存在或失败，使用购物车数据计算
+        this.calculateOrderPreview()
+      }
+    },
+    /* 从购物车数据计算订单预览信息 */
+    calculateOrderPreview() {
+      // 如果没有预览接口，从父组件传递的数据计算
+      if (this.selectedItems && this.selectedItems.length > 0) {
+        let totalPoints = 0
+        let totalPrice = 0
+        
+        this.selectedItems.forEach(item => {
+          const points = parseInt(item.points || 0)
+          const price = parseFloat(item.price || 0)
+          const qty = parseInt(item.qty || 1)
+          totalPoints += points * qty
+          totalPrice += price * qty
+        })
+        
+        this.orderPreview = {
+          totalPoints: totalPoints,
+          totalPrice: totalPrice,
+          freight: 0 // 运费需要从接口获取
+        }
+        
+        // 如果有地址，获取运费
+        if (this.selectedAddrId) {
+          this.fetchFreight()
+        }
+      }
+    },
+    /* 获取运费 */
+    async fetchFreight() {
+      if (!this.productIds || this.productIds.length === 0 || !this.selectedAddrId) {
+        return
+      }
+      
+      try {
+        const productIdsStr = this.productIds.join(',')
+        const res = await this.$axios.post('/staff/jifen/order/get_freight', {
+          product_ids: productIdsStr,
+          addr_id: this.selectedAddrId
+        })
+        
+        if (this.orderPreview) {
+          this.orderPreview.freight = parseFloat(res.freight || res.shipping_fee || res.shipping || 0)
+        }
+      } catch (e) {
+        console.error('Fetch freight error:', e)
+        if (this.orderPreview) {
+          this.orderPreview.freight = 0
+        }
+      }
+    },
+    /* 地址改变时重新获取预览信息 */
+    handleAddressChange() {
+      this.fetchOrderPreview()
     },
     /* 提交订单 */
     async handleSubmitOrder() {
@@ -132,7 +257,7 @@ export default {
         this.$router.push('/my-orders')
       } catch (e) {
         console.error('Submit order error:', e)
-        this.$message.error(e.msg || this.$t('orderError') || '下单失败')
+        this.$message.error(e.message || this.$t('orderError') || '下单失败')
       } finally {
         this.loading = false
       }
@@ -169,7 +294,7 @@ export default {
   background: radial-gradient(50% 26.6% at 50% 3.77%, rgba(249, 193, 62, 0.2) 0%, rgba(10, 218, 254, 0) 100%), #fff;
   margin: auto;
   width: 540px;
-  height: 400px;
+  height: 430px;
   position: relative;
 
   > div {
@@ -250,6 +375,56 @@ export default {
         font-size: 16px;
         color: #666;
         margin-bottom: 24px;
+      }
+    }
+    
+    .order-preview-info {
+      width: 100%;
+      margin-top: 20px;
+      padding: 16px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      
+      .preview-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .preview-label {
+          font-size: 14px;
+          color: #666;
+        }
+        
+        .preview-value {
+          font-size: 16px;
+          font-weight: 600;
+          
+          &.preview-points {
+            color: #7AC554;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            
+            .preview-icon {
+              width: 18px;
+              height: 18px;
+              object-fit: contain;
+            }
+          }
+          
+          &.preview-price {
+            color: #FDB100;
+          }
+          
+          &.preview-freight {
+            color: #333;
+          }
+        }
       }
     }
   }

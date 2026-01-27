@@ -48,14 +48,14 @@
           </tbody>
         </table>
       </div>  
-      <div class="order-summary-box">
+      <!-- <div class="order-summary-box">
         <div class="font18" v-if="orderDetail.totalWeight">{{ $t('totalWeight') }}：{{ orderDetail.totalWeight }}</div>
         <div class="order-summary-right">
           <div class="font18">{{ $t('actualPrice') }}：{{ orderDetail.actualPrice || orderDetail.total_amount }}€</div>
           <div class="font18" v-if="orderDetail.shippingFee">{{ $t('shippingFee') }}：{{ orderDetail.shippingFee }}€</div>
           <div class="font18">{{ $t('payablePrice') }}：<span class="order-summary-pay font20">{{ orderDetail.payablePrice || orderDetail.total_amount }}€</span></div>
         </div>
-      </div>
+      </div> -->
     </template>
   </div>
 </template>
@@ -85,19 +85,23 @@ export default {
         const res = await this.$axios.post('/staff/jifen/order/detail', {
           order_id: orderId
         })
-        
-        // 处理返回数据
-        const data = res.data || res || {}
+        console.log(res)
+        // 处理返回数据：{ order: {...}, order_product: {...}, wuliu: "" }
+        const orderData = res.order || res.data?.order || res.data || res || {}
+        const orderProductData = res.order_product || res.data?.order_product || {}
         const currentLocale = this.$store.getters.getLocale || 'es'
         
-        // 处理地址信息
-        const addr = data.addr || data.address || {}
-        const addressText = addr.addr 
-          ? `${addr.contact || ''} ${addr.mobile || ''} ${addr.addr}${addr.house ? '，' + addr.house : ''}`
+        // 处理地址信息：从 order 对象中获取
+        const addr = orderData.addr || ''
+        const contact = orderData.contact || ''
+        const mobile = orderData.mobile || ''
+        const house = orderData.house || ''
+        const addressText = addr 
+          ? `${contact} ${mobile} ${addr}${house ? '，' + house : ''}`.trim()
           : (this.$t('noAddress') || '暂无地址')
         
-        // 处理订单状态
-        const statusValue = parseInt(data.status || data.order_status || '0')
+        // 处理订单状态：从 order.order_status 获取
+        const statusValue = parseInt(orderData.order_status || orderData.status || '0')
         let statusText = ''
         if (statusValue === 0) {
           statusText = this.$t('pendingShipment') || '待发货'
@@ -109,48 +113,77 @@ export default {
           statusText = this.$t('pendingShipment') || '待发货'
         }
         
-        // 处理商品列表
-        const items = (data.items || data.products || []).map(item => {
-          // 根据当前语言选择商品名称
-          let productName = item.title || item.name || ''
-          if (currentLocale === 'es' && item.title_es) {
-            productName = item.title_es
-          } else if (currentLocale === 'en' && item.title_en) {
-            productName = item.title_en
-          } else if (currentLocale === 'zh' && item.title) {
-            productName = item.title
+        // 处理商品列表：从 order_product 对象中获取
+        // order_product 是一个对象，键可能是 "1", "2" 等，值是商品对象
+        const items = []
+        if (orderProductData && typeof orderProductData === 'object') {
+          // 遍历 order_product 对象的所有键
+          Object.keys(orderProductData).forEach(key => {
+            const product = orderProductData[key]
+            if (product && typeof product === 'object') {
+              // 根据当前语言选择商品名称
+              let productName = product.product_name || product.title || product.name || ''
+              // 如果接口返回的是中文，尝试使用多语言字段
+              if (currentLocale === 'es' && product.product_name_es) {
+                productName = product.product_name_es
+              } else if (currentLocale === 'en' && product.product_name_en) {
+                productName = product.product_name_en
+              } else if (currentLocale === 'zh' && product.product_name) {
+                productName = product.product_name
+              }
+              
+              // 处理图片URL
+              let imageUrl = product.photo || product.image || ''
+              if (imageUrl && !imageUrl.startsWith('http')) {
+                imageUrl = config.URl + imageUrl
+              } else if (!imageUrl) {
+                imageUrl = require('~/assets/images/iconYuan.png')
+              }
+              
+              items.push({
+                name: productName,
+                image: imageUrl,
+                quantity: parseInt(product.product_number || product.quantity || product.num || 1),
+                amount: product.product_price || product.amount || product.price || '0.00',
+                points: parseInt(product.product_jifen || product.jifen || product.integral || 0)
+              })
+            }
+          })
+        }
+        
+        // 处理日期：将时间戳转换为日期格式
+        let dateStr = ''
+        if (orderData.dateline || orderData.lasttime || orderData.create_time || orderData.created_at) {
+          const timestamp = parseInt(orderData.dateline || orderData.lasttime || orderData.create_time || orderData.created_at)
+          if (timestamp) {
+            const date = new Date(timestamp * 1000)
+            dateStr = date.toLocaleDateString(currentLocale === 'zh' ? 'zh-CN' : currentLocale === 'es' ? 'es-ES' : 'en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            })
           }
-          
-          // 处理图片URL
-          let imageUrl = item.photo || item.image || ''
-          if (imageUrl && !imageUrl.startsWith('http')) {
-            imageUrl = config.URl + imageUrl
-          } else if (!imageUrl) {
-            imageUrl = require('~/assets/images/iconYuan.png')
-          }
-          
-          return {
-            name: productName,
-            image: imageUrl,
-            quantity: item.quantity || item.num || 1,
-            amount: item.amount || item.price || '0.00',
-            points: item.points || item.jifen || item.integral || 0
-          }
-        })
+        }
+        if (!dateStr) {
+          dateStr = orderData.date || ''
+        }
+        
+        // 生成订单号
+        const orderNo = orderData.order_id ? `D${orderData.order_id}` : ''
         
         this.orderDetail = {
-          order_no: data.order_no || data.code || data.order_number || '',
-          code: data.code || data.order_no || '',
+          order_no: orderNo,
+          code: orderNo,
           addressText: addressText,
-          supplier: data.supplier || '',
+          supplier: orderData.supplier || '',
           statusText: statusText,
-          date: data.create_time || data.created_at || data.date || '',
+          date: dateStr,
           items: items,
-          totalWeight: data.total_weight || data.weight || '',
-          actualPrice: data.actual_price || data.total_amount || '0.00',
-          shippingFee: data.shipping_fee || data.shipping || '',
-          payablePrice: data.payable_price || data.total_amount || '0.00',
-          total_amount: data.total_amount || '0.00'
+          totalWeight: orderData.total_weight || orderData.weight || '',
+          actualPrice: orderData.amount || orderData.total_price || orderData.product_price || '0.00',
+          shippingFee: orderData.freight || orderData.shipping_fee || orderData.shipping || '0.00',
+          payablePrice: orderData.total_price || orderData.amount || '0.00',
+          total_amount: orderData.total_price || orderData.amount || '0.00'
         }
       } catch (e) {
         console.error('Fetch order detail error:', e)

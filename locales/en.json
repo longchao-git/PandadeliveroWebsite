@@ -203,6 +203,7 @@
   "productIdRequired": "Product ID is required",
   "loadProductDetailError": "Failed to load product details",
   "price": "Price",
+  "totalPrice": "Total Price",
   "selectAddress": "Select Address",
   "pleaseSelectAddress": "Please select an address",
   "orderSuccess": "Order placed successfully",
@@ -221,5 +222,17 @@
   "confirmOrderError": "Failed to confirm receipt",
   "orderNotFound": "Order not found",
   "loadOrderDetailError": "Failed to load order details",
-  "noAddress": "No address"
+  "noAddress": "No address",
+  "noOrders": "No orders",
+  "languageChinese": "Chinese",
+  "countryChina": "China",
+  "languageSpanish": "Spanish",
+  "countrySpain": "Spain",
+  "languageEnglish": "English",
+  "countryBritain": "Britain",
+  "iconCircle": "Circle icon",
+  "iconPoints": "Points icon",
+  "iconCart": "Shopping cart icon",
+  "notSelected": "Not selected",
+  "loadMore": "Load More"
 }

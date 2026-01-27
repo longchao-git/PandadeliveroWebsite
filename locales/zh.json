@@ -203,6 +203,7 @@
   "productIdRequired": "商品ID不能为空",
   "loadProductDetailError": "加载商品详情失败",
   "price": "价格",
+  "totalPrice": "总价",
   "selectAddress": "选择地址",
   "pleaseSelectAddress": "请选择地址",
   "orderSuccess": "下单成功",
@@ -221,5 +222,17 @@
   "confirmOrderError": "确认收货失败",
   "orderNotFound": "订单不存在",
   "loadOrderDetailError": "加载订单详情失败",
-  "noAddress": "暂无地址"
+  "noAddress": "暂无地址",
+  "noOrders": "暂无订单",
+  "languageChinese": "中文",
+  "countryChina": "中国",
+  "languageSpanish": "西班牙语",
+  "countrySpain": "西班牙",
+  "languageEnglish": "英语",
+  "countryBritain": "英国",
+  "iconCircle": "圆形图标",
+  "iconPoints": "积分图标",
+  "iconCart": "购物车图标",
+  "notSelected": "未选择",
+  "loadMore": "加载更多"
 }

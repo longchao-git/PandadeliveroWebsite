@@ -78,9 +78,9 @@ export default {
       contact: '',
       mobile: '',
       house: '',
-      addr: '马德里',
-      lng: '-3.7160397',
-      lat: '40.4202472',
+      addr: '',
+      lng: '',
+      lat: '',
       is_default: 0,
       addr_id: null, // 编辑时的地址ID
       googleMap: null,
@@ -126,9 +126,9 @@ export default {
         this.contact = ''
         this.mobile = ''
         this.house = ''
-        this.addr = '马德里'
-        this.lng = '-3.7160397'
-        this.lat = '40.4202472'
+        this.addr = ''
+        this.lng = ''
+        this.lat = ''
         this.is_default = 0
         this.addr_id = null
       }

@@ -28,16 +28,20 @@
               <div class="item-size">{{ $t('specification') }}</div>
             </div>
           </div>
-          <div class="cart-item-mid">€{{ item.price }}</div>
+         
           <div class="cart-item-qty">
-            <button class="qty-btn">-</button>
+            <!-- <button class="qty-btn" @click="decreaseQty(sidx, idx)" :disabled="item.qty <= 1">-</button> -->
             <span class="qty-num">{{ item.qty }}</span>
-            <button class="qty-btn">+</button>
+            <!-- <button class="qty-btn" @click="increaseQty(sidx, idx)">+</button> -->
           </div>
-          <div class="cart-item-points">
-            <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
-            {{ item.points }}
+          <div>
+            <div class="cart-item-mid" v-if="item.price>0">€{{ item.price }}</div>
+            <div class="cart-item-points">
+              <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
+              {{ item.points * item.qty }}
+            </div>
           </div>
+      
           <div class="cart-item-delete">{{ $t('delete') }}</div>
         </div>
       </div>
@@ -60,8 +64,13 @@
       </div>
       <div class="cart-footer-right">
         <div class="footer-summary-box">
-          <div class="footer-summary">{{ selectedText }}<span class="footer-price">2</span>{{ $t('itemsTotalExclShipping') }}<span class="footer-price">€12.00</span></div>
-          <div class="footer-tip">{{ $t('discount') }}€1</div>
+          <div class="footer-summary">{{ selectedText }}<span class="footer-price">{{ selectedItemsCount }}</span>{{ $t('itemsTotalExclShipping') }}<span class="footer-price footer-points"><img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="points-icon-small" />{{ totalSelectedPoints }}</span></div>
+          <div class="footer-total-price" v-if="totalSelectedPrice > 0">
+            {{ $t('totalPrice') || '总价' }}：<span class="footer-price-value">€{{ totalSelectedPrice.toFixed(2) }}</span>
+          </div>
+          <div class="footer-freight" v-if="freight > 0">
+            {{ $t('shippingFee') || '运费' }}：<span class="footer-price-value">€{{ freight.toFixed(2) }}</span>
+          </div>
         </div>
        
         <button class="footer-checkout-btn" @click="goToOrderPage">{{ $t('checkoutNow') }}</button>
@@ -72,6 +81,7 @@
     <submit-order-popup
       :visible="showOrderDialog"
       :product-ids="selectedProductIds"
+      :selected-items="selectedItemsData"
       @update:visible="showOrderDialog = $event"
       @close="handleOrderDialogClose"
     />
@@ -92,7 +102,9 @@ export default {
       shops: [],
       loading: false,
       showOrderDialog: false,
-      selectedProductIds: []
+      selectedProductIds: [],
+      selectedItemsData: [], // 选中商品的数据
+      freight: 0 // 运费
     }
   },
   async mounted() {
@@ -108,6 +120,46 @@ export default {
     },
     notSelectedText() {
       return this.$t('notSelected')
+    },
+    // 计算选中的商品数量
+    selectedItemsCount() {
+      let count = 0
+      this.shops.forEach(shop => {
+        shop.items.forEach(item => {
+          if (item.checked) {
+            count += item.qty || 1
+          }
+        })
+      })
+      return count
+    },
+    // 计算选中商品的总积分
+    totalSelectedPoints() {
+      let totalPoints = 0
+      this.shops.forEach(shop => {
+        shop.items.forEach(item => {
+          if (item.checked) {
+            const points = parseInt(item.points || 0)
+            const qty = parseInt(item.qty || 1)
+            totalPoints += points * qty
+          }
+        })
+      })
+      return totalPoints
+    },
+    // 计算选中商品的总价格
+    totalSelectedPrice() {
+      let totalPrice = 0
+      this.shops.forEach(shop => {
+        shop.items.forEach(item => {
+          if (item.checked) {
+            const price = parseFloat(item.price || 0)
+            const qty = parseInt(item.qty || 1)
+            totalPrice += price * qty
+          }
+        })
+      })
+      return totalPrice
     }
   },
   methods: {
@@ -169,7 +221,7 @@ export default {
             name: productName,
             image: imageUrl,
             price: item.price || '0.00',
-            qty: parseInt(item.product_num || item.qty || 1),
+            qty: parseInt(item.num),
             points: parseInt(item.jifen || item.points || 0),
             checked: false
           })
@@ -208,13 +260,50 @@ export default {
         });
       });
     },
+    // 减少数量（至少保留1个）
+    async decreaseQty(sidx, idx) {
+      const item = this.shops[sidx].items[idx]
+      if (item.qty <= 1) {
+        return // 至少保留1个
+      }
+      const newQty = item.qty - 1
+      await this.updateCartQty(item, newQty, sidx, idx)
+    },
+    // 增加数量
+    async increaseQty(sidx, idx) {
+      const item = this.shops[sidx].items[idx]
+      const newQty = item.qty + 1
+      await this.updateCartQty(item, newQty, sidx, idx)
+    },
+    // 更新购物车数量
+    async updateCartQty(item, newQty, sidx, idx) {
+      try {
+        // 调用API更新购物车数量
+        await this.$axios.post('/staff/jifen/cart/update', {
+          product_id: item.product_id || item.id,
+          qty: newQty
+        })
+        // 更新本地数据
+        this.$set(this.shops[sidx].items, idx, { ...item, qty: newQty })
+      } catch (e) {
+        console.error('Update cart qty error:', e)
+        this.$message.error(e.msg || '更新数量失败')
+      }
+    },
     goToOrderPage() {
-      // 获取选中的商品ID列表
+      // 获取选中的商品ID列表和商品数据
       const selectedProductIds = []
+      const selectedItems = []
       this.shops.forEach(shop => {
         shop.items.forEach(item => {
           if (item.checked) {
             selectedProductIds.push(item.product_id || item.id)
+            selectedItems.push({
+              product_id: item.product_id || item.id,
+              price: parseFloat(item.price || 0),
+              points: parseInt(item.points || 0),
+              qty: parseInt(item.qty || 1)
+            })
           }
         })
       })
@@ -226,7 +315,25 @@ export default {
       
       // 显示下单弹窗
       this.selectedProductIds = selectedProductIds
+      this.selectedItemsData = selectedItems
       this.showOrderDialog = true
+      
+      // 获取运费信息
+      this.fetchFreight()
+    },
+    /* 获取运费信息 */
+    async fetchFreight() {
+      try {
+        // 调用接口获取运费
+        const res = await this.$axios.post('/staff/jifen/order/get_freight', {
+          product_ids: this.selectedProductIds.join(',')
+        })
+        this.freight = parseFloat(res.freight || res.shipping_fee || res.shipping || 0)
+      } catch (e) {
+        console.error('Fetch freight error:', e)
+        // 如果接口不存在，设置为0
+        this.freight = 0
+      }
     },
     handleOrderDialogClose() {
       this.showOrderDialog = false
@@ -290,12 +397,13 @@ export default {
   color: #383838;
 }
 .cart-item-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 160px 140px 80px;
   align-items: center;
-  justify-content: space-between;
   background: #fff;
   padding: 20px 16px;
   border-bottom: 1px solid #f0f0f0;
+  column-gap: 16px;
 }
 .cart-item-left {
   display: flex;
@@ -332,13 +440,13 @@ export default {
   color: #333;
 }
 .cart-item-qty {
-  flex: 0 0 120px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  border: 1px solid #BCC4D0;
- 
+//  border: 1px solid #BCC4D0;
+  max-width: 120px;
+  margin: 0 auto;
 }
 .qty-btn {
   width: 36px;
@@ -346,23 +454,34 @@ export default {
   font-size: 18px;
   color: #888;
   cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color 0.2s;
+}
+.qty-btn:hover:not(:disabled) {
+  color: #333;
+}
+.qty-btn:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .qty-num {
   width: 72px;
   height: 36px;
   line-height: 36px;
   text-align: center;
-  border-left: 1px solid #BCC4D0;
-  border-right: 1px solid #BCC4D0;
+  // border-left: 1px solid #BCC4D0;
+  // border-right: 1px solid #BCC4D0;
   font-size: 16px;
 }
 .cart-item-points {
   display: flex;
   align-items: center;
-  flex: 0 0 100px;
   color: #7AC554;
   text-align: center;
   font-size: 16px;
+  justify-content: center;
   .price-icon{
     width: 18px;
     height: 18px;
@@ -374,10 +493,9 @@ export default {
   margin-right: 2px;
 }
 .cart-item-delete {
-  flex: 0 0 60px;
   color: #f44336;
   cursor: pointer;
-  text-align: right;
+  text-align: center;
   font-size: 15px;
 }
 .cart-footer {
@@ -424,10 +542,38 @@ export default {
   font-weight: 500;
   font-size: 18px;
 }
+.footer-points {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.points-icon-small {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  vertical-align: middle;
+}
 .footer-tip {
   color: #333;
   margin-top: 4px;
   font-size: 16px;
+}
+.footer-total-price {
+  margin-top: 8px;
+  font-size: 16px;
+  color: #333;
+  text-align: right;
+}
+.footer-price-value {
+  color: #FDB100;
+  font-weight: 600;
+  font-size: 18px;
+}
+.footer-freight {
+  margin-top: 8px;
+  font-size: 16px;
+  color: #333;
+  text-align: right;
 }
 .footer-checkout-btn {
   background: #F9C13E;

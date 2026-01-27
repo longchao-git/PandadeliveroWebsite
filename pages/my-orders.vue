@@ -66,10 +66,21 @@
           </tr>
         </tbody>
       </table>
+      
+      <!-- 加载更多按钮 -->
+      <div v-if="hasNext && !loading && orders.length > 0" class="load-more-wrapper">
+        <button class="load-more-btn" @click="loadMoreOrders">
+          {{ $t('loadMore') || '加载更多' }}
+        </button>
+      </div>
+      <!-- 加载中提示 -->
+      <div v-if="loading && orders.length > 0" class="loading-more-wrapper">
+        <div class="loading-more-text">{{ $t('loading') || '加载中...' }}</div>
+      </div>
     </div>
 
     <!-- Pagination -->
-    <div v-if="!loading && totalPages > 1" class="orders-pagination">
+    <div v-if="!loading && totalPages > 1 && !hasNext" class="orders-pagination">
       <button :disabled="currentPage === 1" @click="currentPage--">&lt;</button>
       <template v-for="(page, index) in visiblePages">
         <button
@@ -98,7 +109,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      loading: false
+      loading: false,
+      page: 1, // 用于加载更多的页码
+      hasNext: false // 是否还有下一页
     }
   },
   computed: {
@@ -160,7 +173,11 @@ export default {
   },
   watch: {
     currentPage() {
-      this.fetchOrders()
+      // 如果使用传统分页器，重置数据并重新加载
+      if (!this.hasNext) {
+        this.page = this.currentPage
+        this.fetchOrders(false)
+      }
     }
   },
   mounted() {
@@ -168,49 +185,95 @@ export default {
   },
   methods: {
     /* 获取订单列表 */
-    async fetchOrders() {
+    async fetchOrders(loadMore = false) {
+      // 如果正在加载或没有下一页且是加载更多，则返回
+      if (this.loading || (!this.hasNext && loadMore)) return
+      
+      // 如果不是加载更多，重置页码
+      if (!loadMore) {
+        this.page = 1
+        this.orders = []
+      }
+      
       this.loading = true
       try {
-        const res = await this.$axios.post('/staff/jifen/cart/preview_order', {
-          page: this.currentPage
+        const res = await this.$axios.post('/staff/jifen/order/loadorder', {
+          page: this.page
         })
-        
+        console.log(res)
         // 处理返回数据，兼容多种返回格式
         let dataList = []
         let totalCount = 0
         
-        if (Array.isArray(res)) {
-          dataList = res
-          totalCount = res.length
-        } else if (res && res.data) {
-          if (Array.isArray(res.data)) {
-            dataList = res.data
-            totalCount = res.total || res.count || res.data.length
-          } else if (res.data.list && Array.isArray(res.data.list)) {
-            dataList = res.data.list
-            totalCount = res.data.total || res.data.count || res.data.list.length
+        // 处理接口返回的数据结构：{ pager: {...}, items: [...] } 或 { data: { pager: {...}, items: [...] } }
+        // 优先处理直接返回的结构
+        if (res && res.items && Array.isArray(res.items)) {
+          dataList = res.items
+          // 从 pager 获取总数和判断是否还有下一页
+          if (res.pager) {
+            const limit = parseInt(res.pager.limit || '10')
+            const page = parseInt(res.pager.page || '1')
+            const isLastPage = res.pager.is_last_page === '1'
+            // is_last_page: "0" 表示还有下一页, "1" 表示最后一页
+            this.hasNext = !isLastPage
+            
+            // 如果是最后一页，总数 = (page - 1) * limit + items.length
+            // 否则，总数至少是 page * limit
+            if (isLastPage) {
+              totalCount = (page - 1) * limit + dataList.length
+            } else {
+              totalCount = page * limit + 1 // 至少还有一页
+            }
+          } else {
+            totalCount = dataList.length
+            this.hasNext = false
           }
-        } else if (res && res.list && Array.isArray(res.list)) {
-          dataList = res.list
-          totalCount = res.total || res.count || res.list.length
-        }
+        } 
         
         const currentLocale = this.$store.getters.getLocale || 'es'
         
         // 转换数据格式
-        this.orders = dataList.map((item, index) => {
-          // 根据当前语言选择商品名称
-          let productName = item.title || item.name || ''
-          if (currentLocale === 'es' && item.title_es) {
-            productName = item.title_es
-          } else if (currentLocale === 'en' && item.title_en) {
-            productName = item.title_en
-          } else if (currentLocale === 'zh' && item.title) {
-            productName = item.title
+        const mappedOrders = dataList.map((item, index) => {
+          // 处理商品信息：从 product_list 数组中获取第一个商品
+          let productName = ''
+          let productImage = ''
+          let productPoints = 0
+          
+          if (item.product_list && Array.isArray(item.product_list) && item.product_list.length > 0) {
+            const firstProduct = item.product_list[0]
+            // 商品名称：优先使用多语言字段
+            productName = firstProduct.product_name || firstProduct.title || ''
+            if (currentLocale === 'es' && firstProduct.product_name_es) {
+              productName = firstProduct.product_name_es
+            } else if (currentLocale === 'en' && firstProduct.product_name_en) {
+              productName = firstProduct.product_name_en
+            } else if (currentLocale === 'zh' && firstProduct.product_name) {
+              productName = firstProduct.product_name
+            }
+            
+            // 商品图片
+            if (firstProduct.photo || firstProduct.image) {
+              productImage = firstProduct.photo || firstProduct.image
+            }
+            
+            // 商品积分
+            productPoints = parseInt(firstProduct.product_jifen || firstProduct.jifen || 0)
+          } else {
+            // 如果没有 product_list，尝试从 item 本身获取
+            productName = item.title || item.name || item.product_name || ''
+            if (currentLocale === 'es' && item.title_es) {
+              productName = item.title_es
+            } else if (currentLocale === 'en' && item.title_en) {
+              productName = item.title_en
+            } else if (currentLocale === 'zh' && item.title) {
+              productName = item.title
+            }
+            productImage = item.photo || item.image || ''
+            productPoints = parseInt(item.product_jifen || item.jifen || item.integral || 0)
           }
           
           // 处理图片URL
-          let imageUrl = item.photo || item.image || ''
+          let imageUrl = productImage
           if (imageUrl && !imageUrl.startsWith('http')) {
             imageUrl = config.URl + imageUrl
           } else if (!imageUrl) {
@@ -218,7 +281,8 @@ export default {
           }
           
           // 处理订单状态：0 待发货，1 已发货，8 确认收货
-          const statusValue = parseInt(item.status || item.order_status || '0')
+          // 不使用接口返回的 order_status_label（可能是中文），而是根据 order_status 值进行翻译
+          const statusValue = parseInt(item.order_status || item.status || '0')
           let statusClass = 'status-pending'
           let statusText = ''
           
@@ -236,28 +300,56 @@ export default {
             statusText = this.$t('pendingShipment') || '待发货'
           }
           
+          // 处理日期：将时间戳转换为日期格式
+          let dateStr = ''
+          if (item.dateline || item.lasttime || item.create_time || item.created_at) {
+            const timestamp = parseInt(item.dateline || item.lasttime || item.create_time || item.created_at)
+            if (timestamp) {
+              const date = new Date(timestamp * 1000)
+              dateStr = date.toLocaleDateString(currentLocale === 'zh' ? 'zh-CN' : currentLocale === 'es' ? 'es-ES' : 'en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+              })
+            }
+          }
+          if (!dateStr) {
+            dateStr = item.date || ''
+          }
+          
           return {
             id: item.id || item.order_id || index + 1,
             order_id: item.order_id || item.id || index + 1, // 保存 order_id 用于接口调用
-            code: item.code || item.order_no || item.order_number || `D${item.id || index + 1}`,
+            code: item.code || item.order_no || item.order_number || `D${item.order_id || item.id || index + 1}`,
             image: imageUrl,
             name: productName,
-            quantity: item.quantity || item.num || 1,
-            amount: item.amount || item.price || item.total_price || '0.00',
-            points: item.points || item.jifen || item.integral || 0,
+            quantity: item.product_number || item.quantity || item.num || 1,
+            amount: item.amount || item.product_price || item.price || item.total_price || '0.00',
+            points: productPoints || parseInt(item.product_jifen || item.jifen || item.integral || 0),
             statusValue: statusValue,
             statusText: statusText,
             statusClass: statusClass,
-            date: item.date || item.create_time || item.created_at || '',
+            date: dateStr,
             checked: false
           }
         })
         
+        // 如果是加载更多，追加数据；否则替换数据
+        this.orders = loadMore ? [...this.orders, ...mappedOrders] : mappedOrders
+        
+        // 如果还有下一页，页码自增
+        if (this.hasNext) {
+          this.page += 1
+        }
+        
         this.total = totalCount
       } catch (error) {
         console.error('获取订单列表失败:', error)
-        this.orders = []
+        if (!loadMore) {
+          this.orders = []
+        }
         this.total = 0
+        this.hasNext = false
       } finally {
         this.loading = false
       }
@@ -284,8 +376,8 @@ export default {
           order_id: order.order_id
         })
         this.$message.success(this.$t('cancelOrderSuccess') || '取消订单成功')
-        // 刷新订单列表
-        await this.fetchOrders()
+        // 刷新订单列表（重置分页）
+        await this.fetchOrders(false)
       } catch (e) {
         console.error('Cancel order error:', e)
         this.$message.error(e.msg || this.$t('cancelOrderError') || '取消订单失败')
@@ -301,8 +393,8 @@ export default {
           order_id: order.order_id
         })
         this.$message.success(this.$t('confirmOrderSuccess') || '确认收货成功')
-        // 刷新订单列表
-        await this.fetchOrders()
+        // 刷新订单列表（重置分页）
+        await this.fetchOrders(false)
       } catch (e) {
         console.error('Confirm order error:', e)
         this.$message.error(e.msg || this.$t('confirmOrderError') || '确认收货失败')
@@ -311,6 +403,7 @@ export default {
     /* 跳转到订单详情页面 */
     goToOrderDetail(orderId) {
       const order = this.orders.find(o => o.id === orderId)
+      
       if (!order) return
       
       this.$router.push({
@@ -319,6 +412,12 @@ export default {
           order_id: order.order_id
         }
       })
+    },
+    /* 加载更多订单 */
+    async loadMoreOrders() {
+      if (this.hasNext && !this.loading) {
+        await this.fetchOrders(true)
+      }
     }
   }
 }
@@ -433,6 +532,51 @@ justify-content: center;
   background: #f5f5f5;
   color: #333;
 }
+// 加载更多按钮
+.load-more-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.load-more-btn {
+  background: linear-gradient(135deg, #FFB84D, #FF9500);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 148, 0, 0.3);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 148, 0, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// 加载中提示
+.loading-more-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.loading-more-text {
+  color: #888;
+  font-size: 16px;
+}
+
 .orders-pagination {
   display: flex;
   justify-content: center;

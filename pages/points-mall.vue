@@ -58,7 +58,7 @@
             <h3 class="product-name">{{ product.name }}</h3>
             <div class="product-desc">
               <div class="product-price">
-                <!-- <span class="price-label">€{{ product.points }}</span> -->
+                <span class="price-label" v-if="product.price>0">€{{ product.price }}</span>
                 <div class="price-amount">
                   <img src="~/assets/images/icon_jfien.png" :alt="$t('iconPoints')" class="price-icon" />
                   {{ product.points }}
@@ -70,6 +70,16 @@
             </div>  
           </div>
         </div>
+      </div>
+      <!-- 加载更多按钮 -->
+      <div v-if="hasNext && !loading" class="load-more-wrapper">
+        <button class="load-more-btn" @click="loadMoreProducts">
+          {{ $t('loadMore') || '加载更多' }}
+        </button>
+      </div>
+      <!-- 加载中提示 -->
+      <div v-if="loading && products.length > 0" class="loading-more-wrapper">
+        <div class="loading-more-text">{{ $t('loading') || '加载中...' }}</div>
       </div>
     </div>
   </div>
@@ -187,6 +197,7 @@ export default {
         const rawItems = (res.items || [])
         const list = rawItems.map(it => ({
           id: it.product_id,
+          price: it.price,
           product_id: it.product_id, // 保存原始 product_id
           name: it.title,
           points: it.jifen,
@@ -233,6 +244,12 @@ export default {
         this.$message.success(this.$t('addToCartSuccess') || '已添加到购物车')
       } catch (e) {
         this.$message.error(e.msg || this.$t('addToCartError') || '添加到购物车失败')
+      }
+    },
+    /* 加载更多商品 */
+    async loadMoreProducts() {
+      if (this.hasNext && !this.loading) {
+        await this.fetchProducts(true)
       }
     }
   }
@@ -691,10 +708,6 @@ export default {
   position: relative;
   cursor: pointer;
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  }
 }
 
 .product-image {
@@ -770,6 +783,51 @@ export default {
     height: 24px;
     object-fit: contain;
   }
+}
+
+// 加载更多按钮
+.load-more-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.load-more-btn {
+  background: linear-gradient(135deg, #FFB84D, #FF9500);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 148, 0, 0.3);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 148, 0, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// 加载中提示
+.loading-more-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.loading-more-text {
+  color: #888;
+  font-size: 16px;
 }
 
 // 响应式设计

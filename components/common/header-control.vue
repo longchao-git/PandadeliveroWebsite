@@ -43,6 +43,9 @@
                 <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
                   {{ $t('points') }}{{ userNewInfo.integral }}
                 </div>
+                <div class='font12' style='color: #909090' v-if='userNewInfo.cash_in_hand'>
+                  {{ $t('balance') }}： {{ userNewInfo.cash_in_hand }}
+                </div>
               </div>
             </div>
           </div>
@@ -179,6 +182,9 @@
                     </div>
                     <div class='font12' style='color: #909090' v-if='userNewInfo.integral'>
                       {{ $t('points') }}： {{ userNewInfo.integral }}
+                    </div>
+                    <div class='font12' style='color: #909090' v-if='userNewInfo.cash_in_hand'>
+                      {{ $t('balance') }}： {{ userNewInfo.cash_in_hand }}
                     </div>
                   </div>
                 </div>

@@ -31,10 +31,7 @@
                   <div class="product-name">{{ product.name }}</div>
                   <div class="product-desc">
                     <div class="product-desc-box">
-                      <div class="product-price">
-                        <span class="price-label">€</span>
-                        <span class="price-amount">{{ product.price }}</span>
-                      </div>
+ 
                       <div class="product-points">
                         <img src="~/assets/images/icon_jfien.png" class="price-icon" />
                         {{ product.points }}
@@ -337,11 +334,6 @@ export default {
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  }
 }
 .product-img {
   width: 100%;
@@ -363,6 +355,7 @@ export default {
   color: #181818;
   font-weight: 400;
   margin-bottom: 0;
+  padding: 0 4px;
 }
 .product-desc {
   display: flex;
