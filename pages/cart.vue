@@ -30,9 +30,9 @@
           </div>
          
           <div class="cart-item-qty">
-            <!-- <button class="qty-btn" @click="decreaseQty(sidx, idx)" :disabled="item.qty <= 1">-</button> -->
+            <button class="qty-btn" @click="decreaseQty(sidx, idx)" :disabled="item.qty <= 1">-</button>
             <span class="qty-num">{{ item.qty }}</span>
-            <!-- <button class="qty-btn" @click="increaseQty(sidx, idx)">+</button> -->
+            <button class="qty-btn" @click="increaseQty(sidx, idx)">+</button>
           </div>
           <div>
             <div class="cart-item-mid" v-if="item.price>0">€{{ item.price }}</div>
@@ -42,7 +42,7 @@
             </div>
           </div>
       
-          <div class="cart-item-delete">{{ $t('delete') }}</div>
+          <div class="cart-item-delete" @click="deleteItem(sidx, idx)">{{ $t('delete') }}</div>
         </div>
       </div>
     </div>
@@ -60,7 +60,7 @@
                class="checkbox-icon" />
         </div>
         <span>{{ $t('selectAll') }}</span>
-        <button class="footer-delete-btn">{{ $t('deleteSelectedItems') }}</button>
+        <button class="footer-delete-btn" @click="deleteSelected">{{ $t('deleteSelectedItems') }}</button>
       </div>
       <div class="cart-footer-right">
         <div class="footer-summary-box">
@@ -288,6 +288,58 @@ export default {
       } catch (e) {
         console.error('Update cart qty error:', e)
         this.$message.error(e.msg || '更新数量失败')
+      }
+    },
+    // 删除单个商品（qty 设为 0）
+    async deleteItem(sidx, idx) {
+      const item = this.shops[sidx].items[idx]
+      try {
+        await this.$axios.post('/staff/jifen/cart/update', {
+          product_id: item.product_id || item.id,
+          qty: 0
+        })
+        // 从本地移除
+        this.shops[sidx].items.splice(idx, 1)
+        // 若店铺商品空了则移除店铺
+        if (this.shops[sidx].items.length === 0) {
+          this.shops.splice(sidx, 1)
+        }
+      } catch (e) {
+        console.error('Delete cart item error:', e)
+        this.$message.error(e.msg || '删除失败')
+      }
+    },
+    // 删除选中的商品
+    async deleteSelected() {
+      const selectedItems = []
+      this.shops.forEach((shop, sidx) => {
+        shop.items.forEach((item, idx) => {
+          if (item.checked) {
+            selectedItems.push({ sidx, idx, item })
+          }
+        })
+      })
+      if (selectedItems.length === 0) {
+        this.$message.info(this.$t('pleaseSelectProducts') || '请选择商品')
+        return
+      }
+      try {
+        await Promise.all(selectedItems.map(({ item }) =>
+          this.$axios.post('/staff/jifen/cart/update', {
+            product_id: item.product_id || item.id,
+            qty: 0
+          })
+        ))
+        // 逆序 splice 避免索引偏移
+        selectedItems.reverse().forEach(({ sidx, idx }) => {
+          this.shops[sidx].items.splice(idx, 1)
+          if (this.shops[sidx] && this.shops[sidx].items.length === 0) {
+            this.shops.splice(sidx, 1)
+          }
+        })
+      } catch (e) {
+        console.error('Delete selected items error:', e)
+        this.$message.error(e.msg || '删除选中商品失败')
       }
     },
     goToOrderPage() {

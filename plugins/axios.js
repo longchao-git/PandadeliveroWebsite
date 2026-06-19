@@ -32,12 +32,11 @@ export default ({redirect, $axios,$cookies}) => {
 
     if (response.status === 200) {
       // 判断登陆是否过期
-      if(response.config.url == "/magic/verify"){
+      if (response.config.url == "/magic/verify") {
         return Promise.resolve(response);
-        return
       }
       // 操作成功
-      if (response.data.error=='0') {
+      if (response.data.error == '0') {
         return Promise.resolve(response.data.data);
       } else {
         return Promise.reject(response.data);
@@ -46,8 +45,9 @@ export default ({redirect, $axios,$cookies}) => {
       return Promise.reject(response.data);
     }
   }, error => {
-    // 请求错误时，抛出异常提示
-    return Promise.reject(error)
+    // 请求错误时，将后端返回的 data 透传出去，而非原始 error 对象
+    const data = error?.response?.data
+    return Promise.reject(data || error)
   })
 
   $axios.defaults.withCredentials = true

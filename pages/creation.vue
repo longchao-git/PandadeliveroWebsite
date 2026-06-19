@@ -39,30 +39,15 @@ export default {
   data() {
     return {
       loginType: 1,
-
-      // 是否显示底部内容
-      isShowFooterContent: 0,
       context: '',
       page: 1
     };
   },
 
   methods: {
-    // 滚动事件
-    scrollEvent() {
-      const oTop = document.body.scrollTop || document.documentElement.scrollTop;
-      if (oTop + 50 >= window.screen.height && this.isShowFooterContent === 0) {
-        this.isShowFooterContent = 1;
-      } else if (oTop + 50 < window.screen.height) {
-        this.isShowFooterContent = 0;
-      }
-    },
     handleCloseLoginDialog(){
       // window.location.href = '/';
     },
-
-
-
   },
 
   mounted() {
@@ -79,11 +64,13 @@ export default {
     // } else {
     //   console.log('Geolocation is not supported by this browser.');
     // }
-    window.addEventListener('scroll', this.scrollEvent.bind(this));
     // this.$nextTick(() => {
     //   this.loginType = 4
     // })
+  },
 
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.scrollEvent)
   }
 };
 </script>
@@ -216,10 +203,6 @@ export default {
     left: 0;
     bottom: 0;
     right: 0;
-
-    .h-conte {
-
-    }
   }
 }
 

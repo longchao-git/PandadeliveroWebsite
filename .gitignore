@@ -86,3 +86,5 @@ sw.*
 
 # Vim swap files
 *.swp
+
+pandadelivero_ui_with_chat/
