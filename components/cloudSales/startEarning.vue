@@ -30,7 +30,7 @@ export default {
   props: ['type'],
   methods: {
     bingTapClick() {
-      window.location.href = '/creation';
+      window.location.href = '/rider';
     }
   }
 };

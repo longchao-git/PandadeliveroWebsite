@@ -77,3 +77,77 @@ $ yarn generate
 2. 复制本地 docker-compose.yml Dockerfile static nuxt.config.js serverMiddleware .nuxt  config package.json 到服务器。 
 3. 赋值完成后 执行 docker build -t dqsite1 . // 注意结尾有个小点
 4. 执行完成后， docker-compose up -d  // 完成更新。
+
+---
+
+> **骑手申请 & 聊天系统后端接口文档**：请参考 `骑手申请聊天系统_后端接口文档.md`
+
+---
+
+## 骑手申请 & 聊天系统 — 功能说明
+
+### 业务流程总览
+
+```
+用户入口
+  │
+  ├─ /collab                      （合作入口页，三按钮引导）
+  │    ├─ 「申请成为骑手」→ /rider     （个人骑手申请）
+  │    ├─ 「配送小队合作」→ /team      （团队申请）
+  │    └─ 「个人骑手」→ /rider
+  │
+  ├─ /rider                       （个人骑手申请表单页）
+  │    └─ 提交成功 → /success         （展示申请编号 + 打开聊天入口）
+  │              └─ 打开聊天 → /chat  （骑手与运营人员实时聊天）
+  │
+  ├─ /team                        （配送小队申请表单页）
+  │    └─ 提交成功 → 停留本页 + 提示    （无聊天流程）
+  │
+  └─ /admin                       （运营人员后台 — 需登录）
+       └─ 点击「聊天」→ /admin-chat   （运营人员与骑手聊天，需 token）
+```
+
+### 页面说明
+
+| 页面 | 路由 | 访问条件 | 说明 |
+|---|---|---|---|
+| 合作入口 | `/collab` | 公开 | 三个入口按钮，引导用户选择申请类型 |
+| 骑手申请 | `/rider` | 公开 | 个人骑手申请表，提交后自动创建聊天会话 |
+| 申请成功 | `/success` | 需 sessionStorage 数据 | 展示申请编号，提供打开聊天入口 |
+| 骑手聊天 | `/chat` | 需申请编号（URL参数或 sessionStorage） | 骑手发送消息，运营人员回复，西语界面 |
+| 小队申请 | `/team` | 公开 | 配送小队申请表，进入线索池，无聊天流程 |
+| 运营后台 | `/admin` | 需 staff_id 登录 | 申请列表、筛选、导出、状态管理 |
+| 运营聊天 | `/admin-chat` | 需 token + application_id | 运营人员与骑手聊天，中文输入 + AI 翻译发送 |
+
+### 运营人员后台（/admin）
+
+1. 查看所有申请（个人 + 团队）的筛选、搜索、分页
+2. 点击「联系」生成 token 并打开 `/admin-chat` 新标签页
+3. 在 `/admin-chat` 中：
+   - 查看骑手申请资料（姓名、城市、车辆、自雇状态等）
+   - 输入中文 → 点击「生成西语」预览 → 确认发送
+   - 更新申请状态（new / contacted / approved / rejected）
+4. 导出 Excel（所有申请数据）
+
+### API 响应约定
+
+所有后端接口响应统一包装为 `{ error, data }` 格式：
+
+```json
+// 成功
+{ "error": "0", "data": { ... } }
+
+// 失败
+{ "error": "1", "message": "错误信息" }
+```
+
+前端 axios 拦截器行为请参考 `骑手申请聊天系统_后端接口文档.md` 中的"响应字段路径约定"章节。
+
+### 环境变量（需后端配置）
+
+| 变量名 | 说明 | 示例 |
+|---|---|---|
+| `OPENAI_API_KEY` | GPT API Key（用于翻译服务） | `sk-xxx` |
+| `CHAT_SECRET_KEY` | Chat 模块签名密钥 | `your-server-secret-key` |
+| `API_BASE_URL` | 后端服务地址 | `https://demo.pandadelivero.com` |
+

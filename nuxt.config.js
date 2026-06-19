@@ -139,7 +139,7 @@ export default {
     treeShake: true
   },
   generate: {
-    routes: ['/', '/about']
+    routes: ['/', '/about', '/rider', '/team', '/chat', '/success', '/admin', '/admin-chat']
   },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {

@@ -57,11 +57,8 @@
             class='phone-menu-list max-width'
           >
             <v-list dense>
-              <v-list-item link href='/creation'>
-                <v-list-item-title
-                >{{ $t('becomeARider') }}
-                </v-list-item-title
-                >
+              <v-list-item link href='/rider'>
+                <v-list-item-title>{{ $t('riderPageTitle') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item target='_blank' href='/about'>
@@ -118,33 +115,56 @@
         <div style='display: flex;align-items: center'>
           <v-tab
             :class="{
+                            'v-tab--active': getActiveMenuInx === 0,
+                            inactive: getActiveMenuInx !== 0,
+                        }"
+            @click.prevent="$router.push('/')"
+          >{{ $t('joinUs') }}
+          </v-tab>
+
+          <v-tab
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 1,
+                            inactive: getActiveMenuInx !== 1,
+                        }"
+            @click.prevent="$router.push('/about')"
+          >{{ $t('aboutUs') }}
+          </v-tab>
+          <v-tab  v-if="userNewInfo.staff_id"
+            :class="{
                             'v-tab--active': getActiveMenuInx === 2,
                             inactive: getActiveMenuInx !== 2,
                         }"
-            link
-            href='/creation'
-          >{{ $t('becomeARider') }}
+            @click.prevent="$router.push('/points-mall')"
+          >{{ $t('pointsMall') }}
           </v-tab>
-
           <v-tab
             :class="{
                             'v-tab--active': getActiveMenuInx === 3,
                             inactive: getActiveMenuInx !== 3,
                         }"
-            link
-            href='/about'
-          >{{ $t('aboutUs') }}
+            @click.prevent="$router.push('/rider')"
+          >{{ $t('riderPageTitle') }}
           </v-tab>
-          <v-tab  v-if="userNewInfo.staff_id"
+
+          <v-tab
             :class="{
                             'v-tab--active': getActiveMenuInx === 4,
                             inactive: getActiveMenuInx !== 4,
                         }"
-            link
-            href='/points-mall'
-          >{{ $t('pointsMall') }}
+            @click.prevent="$router.push('/team')"
+          >{{ $t('teamTitle') }}
           </v-tab>
-    
+
+          <v-tab  v-if="userNewInfo.staff_id"
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 5,
+                            inactive: getActiveMenuInx !== 5,
+                        }"
+            @click.prevent="$router.push('/admin')"
+          >{{ $t('leadManagement') }}
+          </v-tab>
+
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
                      style='margin-right: 20px;margin-left: 16px'>{{ $t('languageSwitch') }}
           </el-button>
@@ -286,14 +306,16 @@ export default {
     // 获取菜单选中下标
     getActiveMenuInx() {
       const activeMenus = [
-        [],
-        ['/', ''],
-        ['/creation'],
-        ['/about'],
-        ['/points-mall']
+        ['/'],          // 0: join us
+        ['/about'],     // 1: about us
+        ['/points-mall'], // 2: points mall
+        ['/rider'],     // 3: rider
+        ['/team'],      // 4: team
+        ['/admin'],     // 5: admin
+        ['/chat'],      // 6: chat
+        ['/success'],   // 7: success
+        ['/admin-chat'] // 8: admin chat
       ];
-      // console.log(this.getUrlPath)
-      console.log(activeMenus.findIndex(item => item.includes(this.getUrlPath)));
       return activeMenus.findIndex(item => item.includes(this.getUrlPath));
     }
   },
