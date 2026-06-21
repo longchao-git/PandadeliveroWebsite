@@ -50,31 +50,41 @@
 
       <!-- 消息列表 -->
       <div class="messages-list">
-        <div
-          v-for="(msg, idx) in messages"
-          :key="msg.message_id || idx"
-          class="message-item"
-          :class="msg.sender_type === 'rider' ? 'message-mine' : 'message-other'"
-        >
-          <div class="message-avatar">
-            <div class="avatar-circle" :class="msg.sender_type">
-              {{ msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?' }}
+        <template v-for="(msg, idx) in messages">
+          <div
+            v-if="msg.sender_type === 'system'"
+            :key="'sys-' + (msg.message_id || idx)"
+            class="system-message"
+          >
+            <span class="system-message-text">{{ msg.content_es || msg.content }}</span>
+            <span class="system-message-time">{{ formatTime(msg.created_at) }}</span>
+          </div>
+          <div
+            v-else
+            :key="msg.message_id || idx"
+            class="message-item"
+            :class="msg.sender_type === 'rider' ? 'message-mine' : 'message-other'"
+          >
+            <div class="message-avatar">
+              <div class="avatar-circle" :class="msg.sender_type">
+                {{ msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?' }}
+              </div>
+            </div>
+            <div class="message-content-wrap">
+              <div class="message-sender-name">{{ msg.sender_name }}</div>
+              <div class="message-bubble">
+                <p class="message-text">{{ msg.sender_type === 'rider' ? msg.content : displayMessageContent(msg) }}</p>
+              </div>
+              <div v-if="msg.sender_type === 'rider' && msg.content_es && msg.content_es !== msg.content" class="message-translation">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z" fill="#9E9E9E"/>
+                </svg>
+                <span>{{ msg.content_es }}</span>
+              </div>
+              <div class="message-time">{{ formatTime(msg.created_at) }}</div>
             </div>
           </div>
-          <div class="message-content-wrap">
-            <div class="message-sender-name">{{ msg.sender_name }}</div>
-            <div class="message-bubble">
-              <p class="message-text">{{ msg.content }}</p>
-            </div>
-            <div v-if="msg.translated_content && msg.sender_type === 'rider'" class="message-translation">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z" fill="#9E9E9E"/>
-              </svg>
-              <span>{{ msg.translated_content }}</span>
-            </div>
-            <div class="message-time">{{ formatTime(msg.created_at) }}</div>
-          </div>
-        </div>
+        </template>
 
         <!-- 加载中 -->
         <div v-if="loading" class="message-loading">
@@ -135,7 +145,11 @@ export default {
       messages: [],
       sending: false,
       loading: false,
-      pollingTimer: null
+      socket: null,
+      reconnectTimer: null,
+      reconnectAttempts: 0,
+      socketManuallyClosed: false,
+      pingTimer: null
     };
   },
   mounted() {
@@ -176,13 +190,15 @@ export default {
     } catch (e) {
       this.formSummary = null;
     }
-    this.loadMessages();
-    this.startPolling();
+    this.connectSocket();
   },
   beforeDestroy() {
-    this.stopPolling();
+    this.closeSocket();
   },
   methods: {
+    unwrapData(res) {
+      return res && res.data ? res.data : res;
+    },
     getCityName(cityId) {
       const lang = this.$i18n.locale;
       return CITY_NAMES[cityId]?.[lang] || cityId;
@@ -199,20 +215,19 @@ export default {
         return ts;
       }
     },
+    displayMessageContent(msg) {
+      if (!msg) return '';
+      return msg.client_content || msg.content_es || msg.content || '';
+    },
     async loadMessages() {
+      if (!this.applicationId) return;
       this.loading = true;
       try {
-        const res = await this.$axios.get(`/api/v1/chat/conversations/${this.applicationId}/messages`);
-        let msgs = null;
-        if (res && res.data) {
-          if (Array.isArray(res.data.messages)) msgs = res.data.messages;
-          else if (Array.isArray(res.data)) msgs = res.data;
-        } else if (res && Array.isArray(res.messages)) {
-          msgs = res.messages;
-        } else if (Array.isArray(res)) {
-          msgs = res;
+        const res = await this.$axios.get(`/chat/conversations-messages-${this.applicationId}`);
+        const data = this.unwrapData(res);
+        if (Array.isArray(data.messages)) {
+          this.messages = data.messages.map(item => this.normalizeMessage(item)).filter(Boolean);
         }
-        if (msgs) this.messages = msgs;
         this.$nextTick(() => this.scrollToBottom());
       } catch (err) {
         console.error('loadMessages error:', err);
@@ -226,11 +241,11 @@ export default {
       this.inputText = '';
       this.sending = true;
       try {
-        const res = await this.$axios.post(`/api/v1/chat/conversations/${this.applicationId}/messages`, {
+        await this.$axios.post(`/chat/conversations-messages-${this.applicationId}`, {
           content: text,
-          sender_type: 'rider'
+          sender_type: 'rider',
+          sender_id: this.applicationId
         });
-        await this.loadMessages();
       } catch (err) {
         this.$message.error(this.$t('messageSendError'));
         this.inputText = text;
@@ -238,15 +253,151 @@ export default {
         this.sending = false;
       }
     },
-    startPolling() {
-      this.pollingTimer = setInterval(() => {
-        this.loadMessages();
-      }, 5000);
+    normalizeMessage(message) {
+      if (!message || typeof message !== 'object') return null;
+      return {
+        message_id: String(message.message_id || ''),
+        sender_type: message.sender_type || 'system',
+        sender_name: message.sender_name || '',
+        content: message.content || '',
+        content_es: message.content_es || message.client_content || message.content || '',
+        client_content: message.client_content || message.content_es || message.content || '',
+        content_zh: message.content_zh || '',
+        created_at: message.created_at || new Date().toISOString()
+      };
     },
-    stopPolling() {
-      if (this.pollingTimer) {
-        clearInterval(this.pollingTimer);
-        this.pollingTimer = null;
+    appendMessage(message) {
+      const normalized = this.normalizeMessage(message);
+      if (!normalized) return;
+      if (normalized.message_id && this.messages.some(item => String(item.message_id) === normalized.message_id)) {
+        return;
+      }
+      if (!normalized.content && !normalized.content_es && normalized.sender_type !== 'system') return;
+      this.messages.push(normalized);
+      this.$nextTick(() => this.scrollToBottom());
+    },
+    async socketUrl() {
+      const res = await this.$axios.get('/chat/socket-address', {
+        params: { application_id: this.applicationId }
+      });
+      return this.unwrapData(res).url;
+    },
+    async connectSocket() {
+      if (!process.client || !this.applicationId) return;
+      this.socketManuallyClosed = false;
+      this.clearReconnectTimer();
+      this.clearSocketPing();
+      if (this.socket) {
+        this.socket.onclose = null;
+        this.socket.close();
+      }
+
+      let url = '';
+      try {
+        url = await this.socketUrl();
+      } catch (e) {
+        console.error('get socket url error:', e);
+        this.scheduleReconnect();
+        return;
+      }
+      const socket = new WebSocket(url);
+      this.socket = socket;
+      socket.onopen = () => {
+        this.reconnectAttempts = 0;
+      };
+      socket.onmessage = (event) => {
+        this.handleSocketMessage(event.data);
+      };
+      socket.onerror = () => {};
+      socket.onclose = () => {
+        this.clearSocketPing();
+        if (!this.socketManuallyClosed) {
+          this.scheduleReconnect();
+        }
+      };
+    },
+    startSocketPing() {
+      this.clearSocketPing();
+      this.pingTimer = setInterval(() => {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+          this.socket.send(this.buildSocketPingMessage());
+        }
+      }, 10000);
+    },
+    buildSocketPingMessage() {
+      return JSON.stringify({
+        type: 'message',
+        event: 'socket.ping',
+        data: {},
+        time: Math.floor(Date.now() / 1000)
+      });
+    },
+    clearSocketPing() {
+      if (this.pingTimer) {
+        clearInterval(this.pingTimer);
+        this.pingTimer = null;
+      }
+    },
+    handleSocketMessage(raw) {
+      let payload = null;
+      try {
+        payload = JSON.parse(raw);
+      } catch (e) {
+        return;
+      }
+
+      const event = payload.event;
+      const data = payload.data || {};
+
+      if (event === 'socket.pong') {
+        return;
+      }
+
+      if (event === 'socket.connected') {
+        this.startSocketPing();
+        this.loadMessages();
+        return;
+      }
+
+      if (event === 'chat.conversation.claimed' || event === 'chat.conversation.transferred') {
+        return;
+      }
+
+      if (event !== 'chat.message') {
+        return;
+      }
+
+      if (String(data.application_id || data.conversation_id || '') !== String(this.applicationId)) {
+        return;
+      }
+
+      if (data.message) {
+        this.appendMessage(data.message);
+      }
+    },
+    scheduleReconnect() {
+      this.clearReconnectTimer();
+      const delays = [1000, 2000, 5000, 10000, 30000];
+      const delay = delays[Math.min(this.reconnectAttempts, delays.length - 1)];
+      this.reconnectAttempts += 1;
+      this.reconnectTimer = setTimeout(() => {
+        this.connectSocket();
+      }, delay);
+    },
+    clearReconnectTimer() {
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+    },
+    closeSocket() {
+      this.socketManuallyClosed = true;
+      this.clearReconnectTimer();
+      this.clearSocketPing();
+      if (this.socket) {
+        this.socket.onclose = null;
+        this.socket.close();
+        this.socket = null;
       }
     },
     scrollToBottom() {
@@ -434,6 +585,31 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.system-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.system-message-text {
+  display: inline-block;
+  max-width: 85%;
+  padding: 6px 14px;
+  background: #EEEEEE;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #757575;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.system-message-time {
+  font-size: 11px;
+  color: #BDBDBD;
 }
 
 .message-item {

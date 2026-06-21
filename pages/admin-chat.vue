@@ -29,7 +29,7 @@
             <img src="@/assets/images/cloudSales/header2-logo.png" alt="Pandadelivero" class="header-logo" />
             <div class="header-title-group">
               <span class="header-title">{{ $t('recruiterChat') }}</span>
-              <span class="header-sub">{{ $t('online') }}</span>
+              <span class="header-sub">{{ socketReady ? $t('online') : $t('socketConnecting') }}</span>
             </div>
           </div>
           <div class="header-right">
@@ -63,13 +63,18 @@
               v-for="conv in conversationList"
               :key="conv.conversation_id"
               class="conv-item"
-              :class="{ active: conv.conversation_id === applicationId }"
+              :class="{ active: String(conv.conversation_id) === String(applicationId), disabled: !socketReady }"
               @click="switchConversation(conv.conversation_id)"
             >
               <div class="conv-avatar">{{ (conv.rider_name || conv.uname || '?').charAt(0).toUpperCase() }}</div>
               <div class="conv-info">
                 <div class="conv-name">{{ conv.rider_name || conv.uname || '—' }}</div>
-                <div class="conv-meta">{{ conv.city_name || '' }} · {{ conv.vehicle_type ? $t(getVehicleLabel(conv.vehicle_type)) : '' }}</div>
+                <div class="conv-meta">
+                  <span class="conv-handler-tag" :class="handlerTagClass(conv)">{{ handlerLabel(conv) }}</span>
+                  <span v-if="conv.city_name || conv.vehicle_type" class="conv-meta-text">
+                    {{ conv.city_name || '' }}<template v-if="conv.city_name && conv.vehicle_type"> · </template>{{ conv.vehicle_type ? $t(getVehicleLabel(conv.vehicle_type)) : '' }}
+                  </span>
+                </div>
               </div>
               <div class="conv-status">
                 <span class="conv-badge" :class="conv.latest_status || 'new'">
@@ -178,6 +183,20 @@
               <span class="chat-with-name">{{ applicationDetail ? (applicationDetail.uname + ' ' + applicationDetail.last_name) : '' }}</span>
               <span class="chat-with-city">{{ applicationDetail ? applicationDetail.city_name : '' }}</span>
             </div>
+            <div v-if="applicationId" class="handler-bar">
+              <span class="handler-text">
+                <template v-if="chatMode === 'active'">{{ $t('handlingByYou') }}</template>
+                <template v-else-if="handlerAdminName">{{ $t('handlingByOther', { name: handlerAdminName }) }}</template>
+                <template v-else>{{ $t('unassignedConversation') }}</template>
+              </span>
+              <button
+                v-if="chatMode === 'active'"
+                class="btn-transfer"
+                @click="openTransferModal"
+              >
+                {{ $t('transferConversation') }}
+              </button>
+            </div>
           </div>
 
           <!-- 消息列表 -->
@@ -189,37 +208,47 @@
               <p>{{ $t('noMessages') }}</p>
             </div>
             <template v-else>
-              <div
-                v-for="(msg, idx) in messages"
-                :key="msg.message_id || idx"
-                class="chat-message"
-                :class="msg.sender_type"
-              >
-                <div class="msg-avatar" :class="msg.sender_type">
-                  {{ msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?' }}
+              <template v-for="(msg, idx) in messages">
+                <div
+                  v-if="msg.sender_type === 'system'"
+                  :key="'sys-' + (msg.message_id || idx)"
+                  class="system-message"
+                >
+                  <span class="system-message-text">{{ msg.content }}</span>
+                  <span class="system-message-time">{{ formatTime(msg.created_at) }}</span>
                 </div>
-                <div class="msg-body">
-                  <div class="msg-header">
-                    <span class="msg-name">{{ msg.sender_name }}</span>
-                    <span class="msg-time">{{ formatTime(msg.created_at) }}</span>
+                <div
+                  v-else
+                  :key="msg.message_id || idx"
+                  class="chat-message"
+                  :class="msg.sender_type"
+                >
+                  <div class="msg-avatar" :class="msg.sender_type">
+                    {{ msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?' }}
                   </div>
-                  <div class="msg-bubble">
-                    <p>{{ msg.content }}</p>
-                  </div>
-                  <!-- 骑手消息显示中文翻译 -->
-                  <div v-if="msg.translated_content && msg.sender_type === 'rider'" class="msg-translation">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                      <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z" fill="#9E9E9E"/>
-                    </svg>
-                    {{ msg.translated_content }}
+                  <div class="msg-body">
+                    <div class="msg-header">
+                      <span class="msg-name">{{ msg.sender_name }}</span>
+                      <span class="msg-time">{{ formatTime(msg.created_at) }}</span>
+                    </div>
+                    <div class="msg-bubble">
+                      <p>{{ msg.content }}</p>
+                    </div>
+                    <div v-if="msg.content_es && msg.sender_type !== 'system'" class="msg-translation">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                        <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z" fill="#9E9E9E"/>
+                      </svg>
+                      {{ msg.sender_type === 'recruiter' ? msg.content_es : msg.content_zh }}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </template>
             </template>
           </div>
 
           <!-- 输入区 -->
-          <div class="input-area">
+          <div class="input-area" :class="{ readonly: chatMode === 'readonly' }">
+            <div v-if="chatMode === 'readonly'" class="readonly-tip">{{ $t('readonlyConversationTip', { name: handlerAdminName || '—' }) }}</div>
             <div class="input-section-label">{{ $t('recruiterInput') }}</div>
             <div class="input-row">
               <textarea
@@ -227,6 +256,7 @@
                 :placeholder="$t('recruiterInput')"
                 class="cn-textarea"
                 rows="3"
+                :disabled="!canSend"
               />
             </div>
 
@@ -243,16 +273,35 @@
 
             <!-- 按钮行 -->
             <div class="input-actions">
-              <button class="btn-translate" :disabled="!cnInput.trim() || translating" @click="handleTranslate">
+              <button class="btn-translate" :disabled="!canSend || !cnInput.trim() || translating" @click="handleTranslate">
                 {{ translating ? $t('sending') + '...' : $t('generateSpanish') }}
               </button>
-              <button class="btn-send" :disabled="!cnInput.trim() || sending" @click="handleSend">
+              <button class="btn-send" :disabled="!canSend || !cnInput.trim() || sending" @click="handleSend">
                 {{ sending ? $t('sending') : $t('confirmSend') }}
               </button>
             </div>
           </div>
         </div>
 
+      </div>
+
+      <div v-if="showTransferModal" class="transfer-modal-mask" @click.self="showTransferModal = false">
+        <div class="transfer-modal">
+          <h3>{{ $t('transferConversation') }}</h3>
+          <button class="transfer-option" @click="handleTransfer(0)">{{ $t('releaseConversation') }}</button>
+          <div class="transfer-list">
+            <button
+              v-for="admin in adminList"
+              :key="admin.admin_id"
+              class="transfer-option"
+              :disabled="String(admin.admin_id) === String(adminId)"
+              @click="handleTransfer(admin.admin_id, admin.admin_name)"
+            >
+              {{ admin.admin_name }}
+            </button>
+          </div>
+          <button class="transfer-cancel" @click="showTransferModal = false">{{ $t('cancel') }}</button>
+        </div>
       </div>
     </template>
   </div>
@@ -277,6 +326,7 @@ export default {
   layout: 'default',
   data() {
     return {
+      adminId: '',
       token: '',
       applicationId: '',
       verifying: true,
@@ -291,7 +341,19 @@ export default {
       translatedPreview: '',
       translating: false,
       sending: false,
-      pollingTimer: null,
+      socket: null,
+      reconnectTimer: null,
+      reconnectAttempts: 0,
+      socketManuallyClosed: false,
+      pingTimer: null,
+      socketReady: false,
+      socketReadyPromise: null,
+      socketReadyResolve: null,
+      chatMode: '',
+      handlerAdminName: '',
+      showTransferModal: false,
+      adminList: [],
+      pendingInitialClaim: false,
       statusOptions: [
         { value: 'new', labelKey: 'new' },
         { value: 'contacted', labelKey: 'contacted' },
@@ -301,35 +363,82 @@ export default {
       quickReplies: QUICK_REPLIES
     };
   },
+  computed: {
+    canSend() {
+      return this.socketReady && this.chatMode === 'active' && !!this.applicationId;
+    }
+  },
   mounted() {
+    this.adminId = this.$route.query.admin_id || '';
     this.token = this.$route.query.token || '';
     this.applicationId = this.$route.query.application_id || '';
-    if (!this.token || !this.applicationId) {
-      this.verifyError = this.$t('missingTokenOrApplicationId');
+    if (!this.adminId || !this.token) {
+      this.verifyError = this.$t('missingAdminChatParams');
       this.verifying = false;
       return;
     }
+    this.pendingInitialClaim = !!this.applicationId;
+    this.configureAdminApi();
     this.verifyAndLoad();
   },
   beforeDestroy() {
-    this.stopPolling();
+    this.closeSocket();
   },
   methods: {
+    configureAdminApi() {
+      this.$axios.defaults.headers.common['Api'] = 'ADMIN';
+      this.$axios.defaults.headers.common['TOKEN'] = this.token;
+    },
+    adminParams(extra = {}) {
+      return { admin_id: this.adminId, ...extra };
+    },
+    adminHeaders() {
+      return { Api: 'ADMIN', TOKEN: this.token };
+    },
+    adminRequestConfig(extra = {}) {
+      return {
+        params: this.adminParams(extra),
+        headers: this.adminHeaders()
+      };
+    },
+    unwrapData(res) {
+      return res && res.data ? res.data : res;
+    },
+    unwrapList(res, key = 'list') {
+      const data = this.unwrapData(res);
+      if (Array.isArray(data[key])) return data[key];
+      if (Array.isArray(data)) return data;
+      return [];
+    },
+    mapConversationItem(item) {
+      return {
+        conversation_id: String(item.application_id),
+        rider_name: item.rider_name || `${item.uname || ''} ${item.last_name || ''}`.trim(),
+        uname: item.uname,
+        last_name: item.last_name,
+        city_name: item.city_name,
+        vehicle_type: item.vehicle_type,
+        latest_status: item.status || item.latest_status,
+        handler_admin_id: Number(item.handler_admin_id || 0),
+        handler_admin_name: item.handler_admin_name || '',
+        last_message_at: item.last_message_at || ''
+      };
+    },
     async verifyAndLoad() {
       this.verifying = true;
       this.verifyError = '';
       try {
-        const res = await this.$axios.get(`/staff/chat/verify-token`, {
-          params: { token: this.token, application_id: this.applicationId }
-        });
-        const d = res && res.data ? res.data : res;
-        this.recruiterName = (d.recruiter_name || this.$t('recruiter'));
-        this.applicationDetail = d.application || d || null;
-        await Promise.all([
-          this.loadMessages(),
-          this.loadConversationList()
-        ]);
-        this.startPolling();
+        const res = await this.$axios.get('/admin/chat/verify', this.adminRequestConfig(
+          this.applicationId ? { application_id: this.applicationId } : {}
+        ));
+        const d = this.unwrapData(res);
+        this.recruiterName = d.recruiter_name || this.$t('recruiter');
+        if (d.application) {
+          this.applicationDetail = d.application;
+        }
+        await this.loadConversationList();
+        this.resetSocketReadyState();
+        await this.connectSocket();
       } catch (err) {
         this.verifyError = err.message || this.$t('tokenInvalid');
       } finally {
@@ -337,19 +446,17 @@ export default {
       }
     },
     async loadMessages() {
+      if (!this.applicationId) return;
       this.loadingMessages = true;
       try {
-        const res = await this.$axios.get(`/api/v1/chat/conversations/${this.applicationId}/messages`);
-        let msgs = null;
-        if (res && res.data) {
-          if (Array.isArray(res.data.messages)) msgs = res.data.messages;
-          else if (Array.isArray(res.data)) msgs = res.data;
-        } else if (res && Array.isArray(res.messages)) {
-          msgs = res.messages;
-        } else if (Array.isArray(res)) {
-          msgs = res;
+        const res = await this.$axios.get(`/admin/chat/conversations-messages-${this.applicationId}`, this.adminRequestConfig());
+        const data = this.unwrapData(res);
+        if (Array.isArray(data.messages)) {
+          this.messages = data.messages;
         }
-        if (msgs) this.messages = msgs;
+        if (data.claim) {
+          this.applyClaimState(data.claim);
+        }
         this.$nextTick(() => this.scrollToBottom());
       } catch (err) {
         console.error('loadMessages error:', err);
@@ -357,60 +464,208 @@ export default {
         this.loadingMessages = false;
       }
     },
+    appendMessage(message) {
+      if (!message || !message.message_id) return;
+      if (this.messages.some(item => String(item.message_id) === String(message.message_id))) {
+        return;
+      }
+      this.messages.push(message);
+      this.$nextTick(() => this.scrollToBottom());
+    },
     async loadConversationList() {
       this.loadingConversations = true;
       try {
-        const res = await this.$axios.get('/staff/applications', { params: { page: 1, page_size: 50 } });
-        let list = [];
-        if (res && res.data && Array.isArray(res.data.list)) {
-          list = res.data.list;
-        } else if (Array.isArray(res)) {
-          list = res;
-        } else if (Array.isArray(res.data)) {
-          list = res.data;
-        }
-        this.conversationList = list.filter(item => item.application_id).map(item => ({
-          conversation_id: item.application_id,
-          rider_name: `${item.uname || ''} ${item.last_name || ''}`.trim(),
-          uname: item.uname,
-          last_name: item.last_name,
-          city_name: item.city_name,
-          vehicle_type: item.vehicle_type,
-          latest_status: item.status
-        }));
+        const res = await this.$axios.get('/admin/chat/conversations', this.adminRequestConfig({ page: 1, page_size: 50 }));
+        const list = this.unwrapList(res);
+        this.conversationList = list
+          .filter(item => item.application_id)
+          .map(item => this.mapConversationItem(item));
       } catch (err) {
         console.error('loadConversationList error:', err);
       } finally {
         this.loadingConversations = false;
       }
     },
-    async switchConversation(convId) {
-      if (convId === this.applicationId) return;
-      this.applicationId = convId;
-      const conv = this.conversationList.find(c => c.conversation_id === convId);
-      if (conv) {
-        this.applicationDetail = {
-          application_id: convId,
-          uname: conv.uname,
-          last_name: conv.last_name,
-          city_name: conv.city_name,
-          vehicle_type: conv.vehicle_type,
-          status: conv.latest_status
-        };
+    setApplicationPreview(convId) {
+      const conv = this.conversationList.find(c => String(c.conversation_id) === String(convId));
+      if (!conv) return;
+      this.applicationDetail = {
+        application_id: convId,
+        uname: conv.uname,
+        last_name: conv.last_name,
+        city_name: conv.city_name,
+        vehicle_type: conv.vehicle_type,
+        status: conv.latest_status
+      };
+    },
+    async loadApplicationDetail(convId) {
+      if (!convId) return;
+      const conv = this.conversationList.find(c => String(c.conversation_id) === String(convId));
+      if (conv && this.applicationDetail && this.applicationDetail.mobile) return;
+      try {
+        const res = await this.$axios.get(`/admin/chat/applications-detail-${convId}`, this.adminRequestConfig());
+        this.applicationDetail = this.unwrapData(res);
+      } catch (err) {
+        console.error('loadApplicationDetail error:', err);
       }
+    },
+    async switchConversation(convId) {
+      if (String(convId) === String(this.applicationId)) return;
+      if (!(await this.ensureSocketReady())) {
+        this.$message.warning(this.$t('socketNotReady'));
+        return;
+      }
+
+      const previousApplicationId = this.chatMode === 'active' ? this.applicationId : '';
+      this.applicationId = String(convId);
+      this.setApplicationPreview(convId);
       this.messages = [];
+      await this.claimAndLoad(convId, previousApplicationId);
+    },
+    async claimAndLoad(applicationId, previousApplicationId = '') {
+      await this.claimConversation(applicationId, previousApplicationId);
       await this.loadMessages();
+      await this.loadApplicationDetail(applicationId);
+    },
+    async claimConversation(applicationId, previousApplicationId = '') {
+      if (!applicationId || !this.socketReady) {
+        return false;
+      }
+      try {
+        const res = await this.$axios.post(`/admin/chat/conversations-claim-${applicationId}`, {
+          previous_application_id: previousApplicationId
+        }, {
+          headers: this.adminHeaders()
+        });
+        const data = this.unwrapData(res);
+        this.applyClaimState(data);
+        return data.mode !== 'active' || data.joined_group === '1';
+      } catch (err) {
+        this.$message.error(err.message || this.$t('claimFailed'));
+        return false;
+      }
+    },
+    resetSocketReadyState() {
+      this.socketReady = false;
+      this.clearSocketPing();
+      this.socketReadyPromise = new Promise((resolve) => {
+        this.socketReadyResolve = resolve;
+      });
+    },
+    markSocketReady() {
+      this.socketReady = true;
+      if (this.socketReadyResolve) {
+        this.socketReadyResolve(true);
+        this.socketReadyResolve = null;
+      }
+    },
+    async ensureSocketReady(timeout = 15000) {
+      if (!process.client) {
+        return false;
+      }
+      if (!this.socketReadyPromise) {
+        this.resetSocketReadyState();
+      }
+      if (this.socketReady) {
+        return true;
+      }
+      if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+        await this.connectSocket();
+      }
+      try {
+        return !!(await Promise.race([
+          this.socketReadyPromise,
+          new Promise((resolve) => setTimeout(() => resolve(false), timeout))
+        ]));
+      } catch (e) {
+        return false;
+      }
+    },
+    applyClaimState(data) {
+      if (!data) return;
+      this.chatMode = data.mode || '';
+      this.handlerAdminName = data.handler_admin_name || '';
+      if (data.conversation) {
+        this.upsertConversationItem(data.conversation);
+      }
+    },
+    upsertConversationItem(item) {
+      if (!item || !item.application_id) return;
+      const mapped = this.mapConversationItem(item);
+      const idx = this.conversationList.findIndex(c => String(c.conversation_id) === mapped.conversation_id);
+      if (idx >= 0) {
+        this.$set(this.conversationList, idx, { ...this.conversationList[idx], ...mapped });
+      } else {
+        this.conversationList.unshift(mapped);
+      }
+    },
+    handlerLabel(conv) {
+      const handlerId = Number(conv.handler_admin_id || 0);
+      if (!handlerId) {
+        return this.$t('unassignedConversation');
+      }
+      if (String(handlerId) === String(this.adminId)) {
+        return this.$t('handlingByYouShort');
+      }
+      return conv.handler_admin_name || this.$t('recruiter');
+    },
+    handlerTagClass(conv) {
+      const handlerId = Number(conv.handler_admin_id || 0);
+      if (!handlerId) return 'unassigned';
+      if (String(handlerId) === String(this.adminId)) return 'mine';
+      return 'other';
+    },
+    async openTransferModal() {
+      this.showTransferModal = true;
+      if (this.adminList.length) return;
+      try {
+        const res = await this.$axios.get('/admin/chat/admins', this.adminRequestConfig());
+        const data = this.unwrapData(res);
+        this.adminList = Array.isArray(data.list) ? data.list : [];
+      } catch (err) {
+        console.error('loadAdmins error:', err);
+      }
+    },
+    async handleTransfer(targetAdminId, targetAdminName = '') {
+      if (!this.applicationId) return;
+      if (!(await this.ensureSocketReady())) {
+        this.$message.warning(this.$t('socketNotReady'));
+        return;
+      }
+      try {
+        await this.$axios.post(`/admin/chat/conversations-transfer-${this.applicationId}`, {
+          target_admin_id: targetAdminId,
+          target_admin_name: targetAdminName
+        }, {
+          headers: this.adminHeaders()
+        });
+        this.showTransferModal = false;
+        if (targetAdminId > 0 && String(targetAdminId) !== String(this.adminId)) {
+          this.chatMode = 'readonly';
+          this.handlerAdminName = targetAdminName;
+        } else {
+          this.chatMode = '';
+          this.handlerAdminName = '';
+        }
+        this.$message.success(this.$t('transferSuccess'));
+        await this.loadConversationList();
+      } catch (err) {
+        this.$message.error(err.message || this.$t('transferFailed'));
+      }
     },
     async handleTranslate() {
-      if (!this.cnInput.trim() || this.translating) return;
+      if (!this.canSend || !this.cnInput.trim() || this.translating) return;
       this.translating = true;
       try {
-        const res = await this.$axios.post('/api/v1/chat/translate', {
+        const res = await this.$axios.post('/admin/chat/translate', {
           text: this.cnInput.trim(),
           source_lang: 'zh',
-          target_lang: 'es'
+          target_lang: 'es',
+          admin_id: this.adminId
+        }, {
+          headers: this.adminHeaders()
         });
-        this.translatedPreview = res.translated_text || '';
+        this.translatedPreview = this.unwrapData(res).translated_text || res.translated_text || '';
       } catch (err) {
         this.$message.error(this.$t('translationFailed'));
       } finally {
@@ -418,7 +673,7 @@ export default {
       }
     },
     async handleSend() {
-      if (!this.cnInput.trim() || this.sending) return;
+      if (!this.canSend || !this.cnInput.trim() || this.sending) return;
       if (!this.translatedPreview) {
         this.$message.warning(this.$t('pleaseTranslateFirst'));
         return;
@@ -429,11 +684,17 @@ export default {
       this.translatedPreview = '';
       this.sending = true;
       try {
-        await this.$axios.post(`/api/v1/chat/conversations/${this.applicationId}/messages`, {
-          content: translated,
-          sender_type: 'recruiter'
-        });
-        await this.loadMessages();
+        const message = this.unwrapData(await this.$axios.post(`/admin/chat/conversations-messages-${this.applicationId}`, {
+          content: text,
+          content_es: translated,
+          source_lang: 'zh',
+          target_lang: 'es',
+          sender_type: 'recruiter',
+          admin_id: this.adminId
+        }, {
+          headers: this.adminHeaders()
+        }));
+        this.appendMessage(message);
       } catch (err) {
         this.$message.error(this.$t('messageSendError'));
         this.cnInput = text;
@@ -445,8 +706,11 @@ export default {
     async updateStatus(status) {
       if (!this.applicationDetail) return;
       try {
-        await this.$axios.put(`/staff/applications/${this.applicationId}/status`, {
-          status
+        await this.$axios.post(`/admin/chat/applications-status-${this.applicationId}`, {
+          status,
+          admin_id: this.adminId
+        }, {
+          headers: this.adminHeaders()
         });
         this.$set(this.applicationDetail, 'status', status);
         this.$message.success(this.$t('statusUpdated'));
@@ -458,15 +722,169 @@ export default {
       this.cnInput = cn;
       this.translatedPreview = '';
     },
-    startPolling() {
-      this.pollingTimer = setInterval(() => {
-        this.loadMessages();
-      }, 5000);
+    async socketUrl() {
+      const res = await this.$axios.get('/admin/chat/socket-address', this.adminRequestConfig());
+      const data = this.unwrapData(res);
+      if (!data || !data.url) {
+        throw new Error('socket address unavailable');
+      }
+      return data.url;
     },
-    stopPolling() {
-      if (this.pollingTimer) {
-        clearInterval(this.pollingTimer);
-        this.pollingTimer = null;
+    async connectSocket() {
+      if (!process.client) return;
+      if (this.socket && this.socket.readyState === WebSocket.OPEN && this.socketReady) {
+        return;
+      }
+      this.socketManuallyClosed = false;
+      this.clearReconnectTimer();
+      if (this.socket) {
+        this.socket.onclose = null;
+        this.socket.close();
+      }
+      this.resetSocketReadyState();
+
+      let url = '';
+      try {
+        url = await this.socketUrl();
+      } catch (err) {
+        console.error('socketUrl error:', err);
+        this.scheduleReconnect();
+        return;
+      }
+      const socket = new WebSocket(url);
+      this.socket = socket;
+      socket.onopen = () => {
+        this.reconnectAttempts = 0;
+      };
+      socket.onmessage = (event) => {
+        this.handleSocketMessage(event.data);
+      };
+      socket.onerror = () => {
+        // Reconnect is scheduled by onclose.
+      };
+      socket.onclose = () => {
+        this.clearSocketPing();
+        this.resetSocketReadyState();
+        if (!this.socketManuallyClosed) {
+          this.scheduleReconnect();
+        }
+      };
+    },
+    startSocketPing() {
+      this.clearSocketPing();
+      this.pingTimer = setInterval(() => {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+          this.socket.send(this.buildSocketPingMessage());
+        }
+      }, 10000);
+    },
+    buildSocketPingMessage() {
+      return JSON.stringify({
+        type: 'message',
+        event: 'socket.ping',
+        data: {},
+        time: Math.floor(Date.now() / 1000)
+      });
+    },
+    clearSocketPing() {
+      if (this.pingTimer) {
+        clearInterval(this.pingTimer);
+        this.pingTimer = null;
+      }
+    },
+    async onSocketReady() {
+      if (!this.socketReady || !this.applicationId) return;
+      if (this.pendingInitialClaim) {
+        this.pendingInitialClaim = false;
+        await this.claimAndLoad(this.applicationId);
+        return;
+      }
+      await this.claimConversation(this.applicationId);
+    },
+    handleSocketMessage(raw) {
+      let payload = null;
+      try {
+        payload = JSON.parse(raw);
+      } catch (e) {
+        return;
+      }
+
+      const event = payload.event;
+      const data = payload.data || {};
+
+      if (event === 'socket.pong') {
+        return;
+      }
+
+      if (event === 'socket.connected') {
+        this.markSocketReady();
+        this.startSocketPing();
+        this.onSocketReady();
+        return;
+      }
+
+      if (event === 'chat.conversation.new') {
+        this.upsertConversationItem(data.conversation || data);
+        return;
+      }
+
+      if (event === 'chat.conversation.claimed' || event === 'chat.conversation.transferred') {
+        const conversation = data.conversation || data;
+        this.upsertConversationItem(conversation);
+        if (String(conversation.application_id) !== String(this.applicationId)) {
+          return;
+        }
+        this.applyClaimState({
+          mode: String(conversation.handler_admin_id) === String(this.adminId) ? 'active' : (conversation.handler_admin_id ? 'readonly' : ''),
+          handler_admin_name: conversation.handler_admin_name,
+          conversation
+        });
+        return;
+      }
+
+      if (event !== 'chat.message') {
+        return;
+      }
+
+      const incomingId = String(data.application_id || data.conversation_id || '');
+      if (incomingId === String(this.applicationId)) {
+        if (data.message) {
+          this.appendMessage(data.message);
+        }
+        return;
+      }
+
+      const conv = this.conversationList.find(c => String(c.conversation_id) === incomingId);
+      if (conv) {
+        conv.last_message_at = new Date().toISOString();
+      } else {
+        this.loadConversationList();
+      }
+    },
+    scheduleReconnect() {
+      this.clearReconnectTimer();
+      const delays = [1000, 2000, 5000, 10000, 30000];
+      const delay = delays[Math.min(this.reconnectAttempts, delays.length - 1)];
+      this.reconnectAttempts += 1;
+      this.reconnectTimer = setTimeout(() => {
+        this.connectSocket();
+      }, delay);
+    },
+    clearReconnectTimer() {
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+    },
+    closeSocket() {
+      this.socketManuallyClosed = true;
+      this.clearReconnectTimer();
+      this.clearSocketPing();
+      this.resetSocketReadyState();
+      if (this.socket) {
+        this.socket.onclose = null;
+        this.socket.close();
+        this.socket = null;
       }
     },
     scrollToBottom() {
@@ -715,6 +1133,11 @@ export default {
     border-left: 3px solid #FABE1D;
     padding-left: 13px;
   }
+
+  &.disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
 }
 
 .conv-avatar {
@@ -746,12 +1169,48 @@ export default {
 }
 
 .conv-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+  overflow: hidden;
+}
+
+.conv-meta-text {
   font-size: 11px;
   color: #9E9E9E;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-top: 2px;
+}
+
+.conv-handler-tag {
+  display: inline-block;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.mine {
+    background: #FFFBEB;
+    color: #B45309;
+  }
+
+  &.other {
+    background: #EFF6FF;
+    color: #2563EB;
+  }
+
+  &.unassigned {
+    background: #F3F4F6;
+    color: #6B7280;
+  }
 }
 
 .conv-badge {
@@ -909,6 +1368,85 @@ export default {
   color: #9E9E9E;
 }
 
+.handler-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #F0F0F0;
+}
+
+.handler-text {
+  font-size: 12px;
+  color: #616161;
+}
+
+.btn-transfer {
+  padding: 6px 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 16px;
+  background: #FFFFFF;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.input-area.readonly {
+  opacity: 0.85;
+}
+
+.readonly-tip {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: #FFF8E1;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #8D6E00;
+}
+
+.transfer-modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.transfer-modal {
+  width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.transfer-modal h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+.transfer-option,
+.transfer-cancel {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  background: #FFFFFF;
+  text-align: left;
+  cursor: pointer;
+}
+
+.transfer-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .messages-area {
   flex: 1;
   overflow-y: auto;
@@ -926,6 +1464,31 @@ export default {
   flex: 1;
   color: #BDBDBD;
   font-size: 14px;
+}
+
+.system-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.system-message-text {
+  display: inline-block;
+  max-width: 85%;
+  padding: 6px 14px;
+  background: #EEEEEE;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #757575;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.system-message-time {
+  font-size: 11px;
+  color: #BDBDBD;
 }
 
 .chat-message {

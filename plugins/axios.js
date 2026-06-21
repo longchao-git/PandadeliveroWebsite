@@ -14,14 +14,18 @@ export default ({redirect, $axios,$cookies}) => {
     config.timeout = 1000 * 60
     config.data = objToFormData(config.data)
 
-    config.headers['Access-Control-Allow-Origin'] =  '*';
-    config.headers['System'] = 'IOS';
+    config.headers['System'] = config.headers['System'] || 'IOS';
     // config.headers['token'] =  localStorage.getItem('token') || '';
-    config.headers['TOKEN'] =  localStorage.getItem('token') || '';
-    config.headers['CITY_ID'] = 2
-    config.headers['Api'] = 'STAFF'
-    config.headers['Version'] = '4.3.20190404'
-    config.headers['content-type'] =  'application/x-www-form-urlencoded';
+    config.headers['TOKEN'] = config.headers['TOKEN'] || localStorage.getItem('token') || '';
+    config.headers['CITY_ID'] = config.headers['CITY_ID'] || 2
+    config.headers['Api'] = config.headers['Api'] || 'STAFF'
+    config.headers['Version'] = config.headers['Version'] || '4.3.20190404'
+    if (!(config.data instanceof FormData)) {
+      config.headers['content-type'] = config.headers['content-type'] || 'application/x-www-form-urlencoded';
+    } else if (config.headers['content-type']) {
+      delete config.headers['content-type']
+      delete config.headers['Content-Type']
+    }
     return config
   }, error => {
     return Promise.reject(error)
@@ -50,7 +54,7 @@ export default ({redirect, $axios,$cookies}) => {
     return Promise.reject(data || error)
   })
 
-  $axios.defaults.withCredentials = true
+  $axios.defaults.withCredentials = false
 
 
 
