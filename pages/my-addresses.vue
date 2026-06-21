@@ -387,7 +387,7 @@ export default {
 
 @media (max-width: 768px) {
   .my-addresses {
-    padding: 100px 20px 60px;
+    padding: 130px 20px 60px;
   }
 
   .addresses-header {

@@ -407,8 +407,14 @@ export default {
   color: #999;
   font-size: 16px;
 }
-.empty-text,
-.loading-text {
+.empty-text {
   margin-top: 20px;
 }
-</style> 
+
+@media (max-width: 1200px) {
+  .category-list-page { padding: 130px 0; }
+}
+@media (max-width: 768px) {
+  .category-list-page { padding: 130px 0; }
+}
+</style>
