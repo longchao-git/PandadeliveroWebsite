@@ -426,7 +426,7 @@ export default {
 /* Hero 区域 */
 .rider-hero {
   background: linear-gradient(135deg, #FFF8E2 0%, #FEF3C7 50%, #FDE68A 100%);
-  padding: 80px 0 60px;
+  padding: 120px 0 60px;
   border-bottom: 1px solid #F3E8C0;
 }
 
@@ -599,6 +599,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  padding-left: 16px;
 }
 
 .vehicle-chip {
@@ -633,6 +634,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  padding-left: 16px;
 }
 
 .autonomo-chip {
@@ -667,6 +669,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  padding-left: 16px;
 }
 
 .availability-chip {
@@ -941,9 +944,15 @@ export default {
   }
 }
 
+@media screen and (max-width: $pad-max-width) {
+  .rider-hero {
+    padding: 160px 0 40px;
+  }
+}
+
 @media screen and (max-width: $phone-max-width) {
   .rider-hero {
-    padding: 60px 0 40px;
+    padding: 140px 0 40px;
   }
 
   .rider-hero-title {
