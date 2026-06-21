@@ -70,12 +70,19 @@ export default {
     };
   },
   mounted() {
-    this.applicationId = sessionStorage.getItem('rider_application_id') || '';
+    if (!process.client) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    this.applicationId = urlParams.get('app_id') || sessionStorage.getItem('rider_application_id') || '';
     try {
       const summary = sessionStorage.getItem('rider_form_summary');
       this.formSummary = summary ? JSON.parse(summary) : null;
     } catch (e) {
       this.formSummary = null;
+    }
+
+    if (this.applicationId) {
+      sessionStorage.setItem('rider_application_id', this.applicationId);
     }
 
     if (!this.applicationId && !this.formSummary) {

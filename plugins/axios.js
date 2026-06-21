@@ -41,7 +41,7 @@ export default ({redirect, $axios,$cookies}) => {
       }
       // 操作成功
       if (response.data.error == '0') {
-        return Promise.resolve(response.data.data);
+        return Promise.resolve(response.data.data ?? response.data);
       } else {
         return Promise.reject(response.data);
       }

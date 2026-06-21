@@ -360,6 +360,21 @@ export default {
         this.form.availability.push(val);
       }
     },
+    unwrapRegisterResponse(res) {
+      if (!res) return {};
+      if (res.application_id || res.staff_id || res.app_id || res.id) {
+        return res;
+      }
+      if (res.data && typeof res.data === 'object') {
+        if (res.data.application_id || res.data.staff_id || res.data.app_id || res.data.id) {
+          return res.data;
+        }
+        if (res.data.data && typeof res.data.data === 'object') {
+          return res.data.data;
+        }
+      }
+      return res;
+    },
     handleSubmit() {
       this.$refs.riderForm.validate(async (valid) => {
         if (!valid) return;
@@ -387,12 +402,13 @@ export default {
           }
 
           const res = await this.$axios.post('/staff/entry/register', params);
-          const resData = res && res.data ? res.data : res;
-          const appId = resData.application_id || resData.app_id || resData.id;
+          const resData = this.unwrapRegisterResponse(res);
+          const appId = String(
+            resData.application_id || resData.staff_id || resData.app_id || resData.id || ''
+          ).trim();
 
           if (!appId) {
             this.$message.error(this.$t('applicationFailed'));
-            this.submitting = false;
             return;
           }
 
@@ -400,12 +416,13 @@ export default {
           sessionStorage.setItem('rider_form_summary', JSON.stringify({
             uname: this.form.uname,
             last_name: this.form.last_name,
+            mobile: this.form.mobile,
             city_id: this.form.city_id,
             vehicle_type: this.form.vehicle_type,
             created_at: resData.created_at || new Date().toLocaleString()
           }));
 
-          this.$router.push('/success');
+          await this.$router.push({ path: '/success', query: { app_id: appId } });
         } catch (err) {
           this.$message.error(err.message || this.$t('applicationFailed'));
         } finally {
