@@ -345,6 +345,8 @@
   "adminTip1": "Enter Chinese here, the system auto-translates to Spanish before sending",
   "adminTip2": "Rider messages are automatically translated to Chinese",
   "adminTip3": "You can update the application status to track progress",
+  "techInfo": "Chinese for tech · 中文给技术",
+  "techInfoText": "Rider messages are automatically translated to Chinese, the recruiter enters Chinese which is automatically translated to Spanish",
   "collaborationPortal": "Collaboration Portal",
   "collabHeroTitle": "Local Urban Delivery Network in Spain",
   "collabHeroDesc": "We collaborate with independent riders, delivery teams and local operators to provide fast, flexible and professional delivery services.",

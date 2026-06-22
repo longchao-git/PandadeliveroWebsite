@@ -665,4 +665,11 @@ export default {
 .empty-text {
   margin-top: 20px;
 }
-</style> 
+
+@media (max-width: 1200px) {
+  .cart-page { padding: 120px 40px 40px; }
+}
+@media (max-width: 768px) {
+  .cart-page { padding: 130px 16px 40px; }
+}
+</style>

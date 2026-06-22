@@ -599,6 +599,13 @@ justify-content: center;
   border-color: #FFB84D;
 }
 
+@media (max-width: 1200px) {
+  .my-orders { padding: 120px 100px; }
+}
+@media (max-width: 768px) {
+  .my-orders { padding: 130px 20px; }
+}
+
 .custom-checkbox {
   cursor: pointer;
   display: flex;

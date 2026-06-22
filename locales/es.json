@@ -345,6 +345,8 @@
   "adminTip1": "El reclutador escribe en chino aquí, el sistema traduce automáticamente al español antes de enviar",
   "adminTip2": "Los mensajes del repartidor se traducen automáticamente al chino",
   "adminTip3": "Puedes actualizar el estado de la solicitud para hacer seguimiento",
+  "techInfo": "Chinese for tech · 中文给技术",
+  "techInfoText": "Los mensajes del repartidor se traducen automáticamente al chino, el reclutador escribe en chino y se traduce automáticamente al español",
   "collaborationPortal": "Portal de colaboración · 运力合作入口",
   "collabHeroTitle": "Red local de reparto urbano en España",
   "collabHeroDesc": "Colaboramos con repartidores autónomos, equipos de reparto y operadores locales para ofrecer servicios de entrega rápidos, flexibles y profesionales.",

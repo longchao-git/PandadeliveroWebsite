@@ -194,7 +194,7 @@ export default {
 .collab-hero {
   background: linear-gradient(135deg, #FFF8E2 0%, #FEF3C7 100%);
   border-bottom: 1px solid #F3E8C0;
-  padding: 60px 0;
+  padding: 120px 0 60px;
 }
 
 .collab-hero-inner {
@@ -581,6 +581,8 @@ export default {
 
 /* 响应式 */
 @media screen and (max-width: $pad-max-width) {
+  .collab-hero { padding: 160px 0 40px; }
+
   .collab-hero-inner {
     flex-direction: column;
     padding: 0 24px;
@@ -596,7 +598,7 @@ export default {
 }
 
 @media screen and (max-width: $phone-max-width) {
-  .collab-hero { padding: 40px 0; }
+  .collab-hero { padding: 140px 0 40px; }
   .collab-cards-section,
   .cities-section { padding: 60px 0; }
   .section-inner { padding: 0 20px; }

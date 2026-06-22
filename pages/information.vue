@@ -176,6 +176,10 @@ export default {
 }
 
 @media screen and (max-width: $phone-max-width) {
+  .personal_information {
+    padding: 130px 16px 120px;
+  }
+
   .information_title {
     margin-bottom: 12px;
 
