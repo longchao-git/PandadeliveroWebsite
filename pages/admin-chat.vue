@@ -227,15 +227,12 @@
 </template>
 
 <script>
-const VEHICLE_MAP = { moto: 'moto', bici_electrica: 'biciElectrica', bici: 'bici', coche: 'coche' }
-const AUTONOMO_MAP = { 1: 'autonomoYes', 0: 'autonomoNo', 2: 'autonomoInProcess' }
-const AVAILABILITY_MAP = {
-  comidas: 'comidas', cenas: 'cenas', fines_semana: 'finesSemana', lluvia: 'lluvia'
-}
+import { getVehicleLabel, getAutonomoLabel, AVAILABILITY_MAP } from '@/utils/rider';
+import { unwrapData, unwrapList } from '@/utils/api';
 
 export default {
   name: 'admin-chat',
-  layout: 'default',
+  layout: 'header-only',
   data () {
     return {
       adminId: '',
@@ -306,15 +303,6 @@ export default {
         headers: this.adminHeaders()
       }
     },
-    unwrapData (res) {
-      return res && res.data ? res.data : res
-    },
-    unwrapList (res, key = 'list') {
-      const data = this.unwrapData(res)
-      if (Array.isArray(data[key])) return data[key]
-      if (Array.isArray(data)) return data
-      return []
-    },
     mapConversationItem (item) {
       return {
         conversation_id: String(item.application_id),
@@ -336,7 +324,7 @@ export default {
         const res = await this.$axios.get('/admin/chat/verify', this.adminRequestConfig(
           this.applicationId ? { application_id: this.applicationId } : {}
         ))
-        const d = this.unwrapData(res)
+        const d = unwrapData(res)
         this.recruiterName = (d.recruiter_name || this.$t('recruiter'))
         if (d.application) {
           this.applicationDetail = d.application
@@ -355,14 +343,24 @@ export default {
       this.loadingMessages = true
       try {
         const res = await this.$axios.get(`/admin/chat/conversations-messages-${this.applicationId}`, this.adminRequestConfig())
-        const data = this.unwrapData(res)
+        const data = unwrapData(res)
         if (Array.isArray(data.messages)) {
-          this.messages = data.messages
+          this.messages = data.messages.map(msg => ({
+            message_id: String(msg.message_id || ''),
+            sender_type: msg.sender_type || 'system',
+            sender_name: msg.sender_name || '',
+            content: msg.content || '',
+            content_es: msg.content_es || '',
+            content_zh: msg.content_zh || '',
+            created_at: msg.created_at || ''
+          }))
         }
         if (data.claim) {
           this.applyClaimState(data.claim)
         }
-        this.$nextTick(() => this.scrollToBottom())
+        this.$nextTick(() => {
+          this.$nextTick(() => this.scrollToBottom())
+        })
       } catch (err) {
         console.error('loadMessages error:', err)
       } finally {
@@ -381,7 +379,7 @@ export default {
       this.loadingConversations = true
       try {
         const res = await this.$axios.get('/admin/chat/conversations', this.adminRequestConfig({ page: 1, page_size: 50 }))
-        const list = this.unwrapList(res)
+        const list = unwrapList(res)
         this.conversationList = list
           .filter(item => item.application_id)
           .map(item => this.mapConversationItem(item))
@@ -409,7 +407,7 @@ export default {
       if (conv && this.applicationDetail && this.applicationDetail.mobile) return
       try {
         const res = await this.$axios.get(`/admin/chat/applications-detail-${convId}`, this.adminRequestConfig())
-        this.applicationDetail = this.unwrapData(res)
+        this.applicationDetail = unwrapData(res)
       } catch (err) {
         console.error('loadApplicationDetail error:', err)
       }
@@ -442,7 +440,7 @@ export default {
         }, {
           headers: this.adminHeaders()
         })
-        const data = this.unwrapData(res)
+        const data = unwrapData(res)
         this.applyClaimState(data)
         return data.mode !== 'active' || data.joined_group === '1'
       } catch (err) {
@@ -499,7 +497,7 @@ export default {
       const mapped = this.mapConversationItem(item)
       const idx = this.conversationList.findIndex(c => String(c.conversation_id) === mapped.conversation_id)
       if (idx >= 0) {
-        this.$set(this.conversationList, idx, { ...this.conversationList[idx], ...mapped })
+        this.conversationList[idx] = { ...this.conversationList[idx], ...mapped }
       } else {
         this.conversationList.unshift(mapped)
       }
@@ -525,7 +523,7 @@ export default {
       if (this.adminList.length) return
       try {
         const res = await this.$axios.get('/admin/chat/admins', this.adminRequestConfig())
-        const data = this.unwrapData(res)
+        const data = unwrapData(res)
         this.adminList = Array.isArray(data.list) ? data.list : []
       } catch (err) {
         console.error('loadAdmins error:', err)
@@ -570,7 +568,7 @@ export default {
         }, {
           headers: this.adminHeaders()
         })
-        this.translatedPreview = this.unwrapData(res).translated_text || res.translated_text || ''
+        this.translatedPreview = unwrapData(res).translated_text || res.translated_text || ''
       } catch (err) {
         this.$message.error(this.$t('translationFailed'))
       } finally {
@@ -589,7 +587,7 @@ export default {
       this.translatedPreview = ''
       this.sending = true
       try {
-        const message = this.unwrapData(await this.$axios.post(`/admin/chat/conversations-messages-${this.applicationId}`, {
+        const message = unwrapData(await this.$axios.post(`/admin/chat/conversations-messages-${this.applicationId}`, {
           content: text,
           content_es: translated,
           source_lang: 'zh',
@@ -609,9 +607,13 @@ export default {
       }
     },
     async socketUrl () {
-      const res = await this.$axios.get('/admin/chat/socket-address', this.adminRequestConfig())
-      const data = this.unwrapData(res)
-      if (!data || !data.url) {
+      const params = new URLSearchParams({ admin_id: this.adminId })
+      const res = await fetch(`https://demo.pandadelivero.com/api/v1/admin/chat/socket-address?${params}`, {
+        headers: { Api: 'ADMIN', TOKEN: this.token }
+      })
+      const json = await res.json()
+      const data = json.data || {}
+      if (!data.url) {
         throw new Error('socket address unavailable')
       }
       return data.url
@@ -788,12 +790,8 @@ export default {
         return ts
       }
     },
-    getVehicleLabel (type) {
-      return VEHICLE_MAP[type] || type || ''
-    },
-    getAutonomoLabel (val) {
-      return AUTONOMO_MAP[val] || 'autonomoUnknown'
-    },
+    getVehicleLabel,
+    getAutonomoLabel,
     formatAvailability (av) {
       if (!av) return ''
       return av.split(',').map(a => this.$t(AVAILABILITY_MAP[a] || a)).join(', ')
@@ -813,7 +811,8 @@ $bg-page: #F0F2F5;
 $bg-card: #FFFFFF;
 
 .admin-chat-page {
-  min-height: calc(100vh - 80px);
+  height: calc(100vh - 80px);
+  overflow: hidden;
   background: $bg-page;
 }
 
@@ -877,20 +876,23 @@ $bg-card: #FFFFFF;
 
 /* ========== 主内容区 ========== */
 .chat-main {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 120px 24px 40px;
+  padding: 0 24px 16px;
 }
 
 /* ========== 三栏主体 ========== */
 .chat-body {
+  flex: 1;
   background: $bg-card;
   border: 1.5px solid $border;
   border-radius: 16px;
   overflow: hidden;
   display: grid;
   grid-template-columns: 260px 1fr 360px;
-  height: calc(100vh - 120px - 40px);
 }
 
 /* ========== 左栏：会话列表 ========== */
