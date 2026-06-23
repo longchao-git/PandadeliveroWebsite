@@ -232,10 +232,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-
-const AVATYPE_MAP = {
-  1: 'moto', bici_electrica: 'biciElectrica', bici: 'bici', coche: 'coche'
-};
+import { getVehicleLabel } from '@/utils/rider';
 
 export default {
   name: 'admin-page',
@@ -337,7 +334,7 @@ export default {
           const isNew = item.status === 'new';
           const vehicleOrCount = item.type === 'team'
             ? (item.rider_count ? `${item.rider_count} ${this.$t('riders')}` : '—')
-            : (item.vehicle_type ? this.$t(VEHICLE_MAP[item.vehicle_type] || item.vehicle_type) : '—');
+            : (item.vehicle_type ? this.$t(getVehicleLabel(item.vehicle_type)) : '—');
           return {
             ...item,
             type: item.type || 'individual',
@@ -365,16 +362,21 @@ export default {
     handleSearch() {
       this.currentPage = 1;
     },
-    openChat(item) {
-      // TODO: 后端需先实现 /staff/chat/generate-token 接口（见 API 文档 2.6）
-      // 正式流程：GET /staff/chat/generate-token?application_id=xxx → 返回 token
-      //          → 拼接 /admin-chat?token=xxx&application_id=xxx 打开新标签
-      // 临时方案（当前）：只带 application_id 跳转，admin-chat 端显示提示引导重新获取
+    async openChat(item) {
       if (!item || !item.application_id) {
         this.$message.error(this.$t('applicationFailed'));
         return;
       }
-      window.open(`/admin-chat?application_id=${item.application_id}`, '_blank');
+      try {
+        const data = await this.$axios.post('/staff/chat/generate-token', {
+          application_id: item.application_id
+        });
+        const token = data && data.token;
+        if (!token) throw new Error('no token');
+        window.open(`/admin-chat?token=${encodeURIComponent(token)}&application_id=${item.application_id}`, '_blank');
+      } catch {
+        this.$message.error(this.$t('generateTokenFailed'));
+      }
     },
     openStatusPicker(item) {
       this.statusPickerItem = item;
@@ -391,7 +393,7 @@ export default {
         );
         const idx = this.list.findIndex(i => i.application_id === this.statusPickerItem.application_id);
         if (idx > -1) {
-          this.$set(this.list[idx], 'status', this.newStatus);
+          this.list[idx] = { ...this.list[idx], status: this.newStatus };
         }
         this.$message.success(this.$t('statusUpdated'));
         this.showStatusPicker = false;

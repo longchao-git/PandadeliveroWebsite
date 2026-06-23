@@ -1,124 +1,117 @@
 <template>
   <div class="chat-page">
-    <!-- 顶部导航 -->
-    <div class="chat-header">
-      <div class="chat-header-inner">
-        <button class="back-btn" @click="goBack">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <div class="chat-header-center">
-          <img src="@/assets/images/cloudSales/header2-logo.png" alt="Pandadelivero" class="chat-logo" />
-          <div class="chat-header-info">
-            <span class="chat-title">{{ $t('chatTitle') }}</span>
-            <span class="chat-subtitle">Pandadelivero</span>
-          </div>
-        </div>
-        <div class="chat-header-right">
-          <span v-if="applicationId" class="app-id-tag">{{ applicationId }}</span>
-        </div>
+    <!-- 顶部 Banner -->
+    <div class="chat-banner">
+      <div class="banner-inner">
+        <div class="banner-tag">{{ $t('bannerTag') || '运力合作入口' }}</div>
+        <h1 class="banner-title">{{ $t('bannerTitle') || '西班牙同城配送本地网络' }}</h1>
+        <p class="banner-desc">{{ $t('bannerDesc') || '骑手申请后即可通过平台与运营团队实时沟通，获取接单指导、区域政策与专属福利支持。' }}</p>
       </div>
     </div>
 
-    <!-- 聊天内容区 -->
-    <div class="chat-body" ref="chatBody">
-      <!-- 欢迎消息 -->
-      <div class="welcome-section">
-        <div class="welcome-icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="#FABE1D"/>
-          </svg>
-        </div>
-        <h3>{{ $t('chatTitle') }}</h3>
-        <p>{{ $t('chatIntroDesc') }}</p>
-        <div v-if="formSummary" class="welcome-summary">
-          <div class="summary-item">
-            <span class="s-label">{{ $t('name') }}</span>
-            <span class="s-val">{{ formSummary.uname }} {{ formSummary.last_name }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="s-label">{{ $t('city') }}</span>
-            <span class="s-val">{{ getCityName(formSummary.city_id) }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="s-label">{{ $t('vehicleType') }}</span>
-            <span class="s-val">{{ $t(getVehicleLabel(formSummary.vehicle_type)) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 消息列表 -->
-      <div class="messages-list">
-        <template v-for="(msg, idx) in messages">
-          <div
-            v-if="msg.sender_type === 'system'"
-            :key="'sys-' + (msg.message_id || idx)"
-            class="system-message"
-          >
-            <span class="system-message-text">{{ msg.content_es || msg.content }}</span>
-            <span class="system-message-time">{{ formatTime(msg.created_at) }}</span>
-          </div>
-          <div
-            v-else
-            :key="msg.message_id || idx"
-            class="message-item"
-            :class="msg.sender_type === 'rider' ? 'message-mine' : 'message-other'"
-          >
-            <div class="message-avatar">
-              <div class="avatar-circle" :class="msg.sender_type">
-                {{ msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?' }}
-              </div>
-            </div>
-            <div class="message-content-wrap">
-              <div class="message-sender-name">{{ msg.sender_name }}</div>
-              <div class="message-bubble">
-                <p class="message-text">{{ msg.sender_type === 'rider' ? msg.content : displayMessageContent(msg) }}</p>
-              </div>
-              <div v-if="msg.sender_type === 'rider' && msg.content_es && msg.content_es !== msg.content" class="message-translation">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z" fill="#9E9E9E"/>
-                </svg>
-                <span>{{ msg.content_es }}</span>
-              </div>
-              <div class="message-time">{{ formatTime(msg.created_at) }}</div>
-            </div>
-          </div>
-        </template>
-
-        <!-- 加载中 -->
-        <div v-if="loading" class="message-loading">
-          <div class="loading-dots">
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 底部输入区 -->
-    <div class="chat-footer">
-      <div class="chat-footer-inner">
-        <div class="input-wrap">
-          <textarea
-            ref="inputArea"
-            v-model="inputText"
-            :placeholder="$t('writeMessage')"
-            class="chat-input"
-            rows="1"
-            @keydown.enter.exact.prevent="handleSend"
-            @input="autoResize"
-          />
-          <button
-            class="send-btn"
-            :disabled="!inputText.trim() || sending"
-            :class="{ active: inputText.trim() }"
-            @click="handleSend"
-          >
-            <svg v-if="!sending" width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- 聊天区域 -->
+    <div class="chat-body-wrapper" ref="chatBody">
+      <!-- 可滚动区域：欢迎区 + 消息 -->
+      <div class="chat-scroll-area" ref="messagesArea">
+        <!-- 欢迎区 -->
+        <div v-if="formSummary" class="welcome-section">
+          <div class="welcome-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="#FABE1D"/>
             </svg>
-            <span v-else class="sending-spinner"></span>
-          </button>
+          </div>
+          <div class="welcome-right">
+            <h3>{{ $t('chatTitle') }}</h3>
+            <p>{{ $t('chatIntroDesc') }}</p>
+            <div class="welcome-summary">
+              <div class="summary-row">
+                <span class="s-label">{{ $t('name') }}</span>
+                <span class="s-val">{{ formSummary.uname }} {{ formSummary.last_name }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">{{ $t('city') }}</span>
+                <span class="s-val">{{ getCityName(formSummary.city_id) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">{{ $t('vehicleType') }}</span>
+                <span class="s-val">{{ $t(getVehicleLabel(formSummary.vehicle_type)) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="messages-list">
+          <template v-for="(msg, idx) in messages">
+            <div
+              v-if="msg.sender_type === 'system'"
+              :key="'sys-' + (msg.message_id || idx)"
+              class="system-message"
+            >
+              <span class="system-message-text">{{ msg.content_es || msg.content }}</span>
+              <span class="system-message-time">{{ formatTime(msg.created_at) }}</span>
+            </div>
+            <div
+              v-else
+              :key="msg.message_id || idx"
+              class="message-item"
+              :class="msg.sender_type === 'rider' ? 'message-mine' : 'message-other'"
+            >
+              <div class="message-avatar">
+                <div class="avatar-circle" :class="msg.sender_type">
+                  {{ msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?' }}
+                </div>
+              </div>
+              <div class="message-content-wrap">
+                <div class="message-sender-name">{{ msg.sender_name }}</div>
+                <div class="message-bubble">
+                  <p class="message-text">{{ msg.sender_type === 'rider' ? msg.content : displayMessageContent(msg) }}</p>
+                </div>
+                <div v-if="msg.sender_type === 'rider' && msg.content_es && msg.content_es !== msg.content" class="message-translation">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                    <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z" fill="#9E9E9E"/>
+                  </svg>
+                  <span>{{ msg.content_es }}</span>
+                </div>
+                <div class="message-time">{{ formatTime(msg.created_at) }}</div>
+              </div>
+            </div>
+          </template>
+
+          <!-- 加载中 -->
+          <div v-if="loading" class="message-loading">
+            <div class="loading-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部输入区 -->
+      <div class="chat-footer">
+        <div class="chat-footer-inner">
+          <div class="input-wrap">
+            <textarea
+              ref="inputArea"
+              v-model="inputText"
+              :placeholder="$t('writeMessage')"
+              class="chat-input"
+              rows="1"
+              @keydown.enter.exact.prevent="handleSend"
+              @input="autoResize"
+            />
+            <button
+              class="send-btn"
+              :disabled="!inputText.trim() || sending"
+              :class="{ active: inputText.trim() }"
+              @click="handleSend"
+            >
+              <svg v-if="!sending" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span v-else class="sending-spinner"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -126,17 +119,12 @@
 </template>
 
 <script>
-const CITY_NAMES = {
-  1: { es: 'Valencia', zh: '瓦伦西亚', en: 'Valencia' },
-  2: { es: 'Madrid', zh: '马德里', en: 'Madrid' },
-  3: { es: 'Barcelona', zh: '巴塞罗那', en: 'Barcelona' },
-  4: { es: 'Otra ciudad', zh: '其他城市', en: 'Other city' }
-};
-const VEHICLE_MAP = { moto: 'moto', bici_electrica: 'biciElectrica', bici: 'bici', coche: 'coche' };
+import { getVehicleLabel, CITY_NAMES } from '@/utils/rider';
+import { unwrapData } from '@/utils/api';
 
 export default {
   name: 'rider-chat',
-  layout: 'default',
+  layout: 'header-only',
   data() {
     return {
       applicationId: '',
@@ -196,16 +184,11 @@ export default {
     this.closeSocket();
   },
   methods: {
-    unwrapData(res) {
-      return res && res.data ? res.data : res;
-    },
     getCityName(cityId) {
       const lang = this.$i18n.locale;
       return CITY_NAMES[cityId]?.[lang] || cityId;
     },
-    getVehicleLabel(type) {
-      return VEHICLE_MAP[type] || type || '';
-    },
+    getVehicleLabel,
     formatTime(ts) {
       if (!ts) return '';
       try {
@@ -224,7 +207,7 @@ export default {
       this.loading = true;
       try {
         const res = await this.$axios.get(`/chat/conversations-messages-${this.applicationId}`);
-        const data = this.unwrapData(res);
+        const data = unwrapData(res);
         if (Array.isArray(data.messages)) {
           this.messages = data.messages.map(item => this.normalizeMessage(item)).filter(Boolean);
         }
@@ -276,11 +259,11 @@ export default {
       this.messages.push(normalized);
       this.$nextTick(() => this.scrollToBottom());
     },
-    async socketUrl() {
+    async getSocketUrl() {
       const res = await this.$axios.get('/chat/socket-address', {
         params: { application_id: this.applicationId }
       });
-      return this.unwrapData(res).url;
+      return unwrapData(res).url;
     },
     async connectSocket() {
       if (!process.client || !this.applicationId) return;
@@ -291,10 +274,9 @@ export default {
         this.socket.onclose = null;
         this.socket.close();
       }
-
       let url = '';
       try {
-        url = await this.socketUrl();
+        url = await this.getSocketUrl();
       } catch (e) {
         console.error('get socket url error:', e);
         this.scheduleReconnect();
@@ -302,93 +284,50 @@ export default {
       }
       const socket = new WebSocket(url);
       this.socket = socket;
-      socket.onopen = () => {
-        this.reconnectAttempts = 0;
-      };
-      socket.onmessage = (event) => {
-        this.handleSocketMessage(event.data);
-      };
+      socket.onopen = () => { this.reconnectAttempts = 0; };
+      socket.onmessage = (event) => { this.handleSocketMessage(event.data); };
       socket.onerror = () => {};
       socket.onclose = () => {
         this.clearSocketPing();
-        if (!this.socketManuallyClosed) {
-          this.scheduleReconnect();
-        }
+        if (!this.socketManuallyClosed) this.scheduleReconnect();
       };
     },
     startSocketPing() {
       this.clearSocketPing();
       this.pingTimer = setInterval(() => {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-          this.socket.send(this.buildSocketPingMessage());
+          this.socket.send(JSON.stringify({ type: 'message', event: 'socket.ping', data: {}, time: Math.floor(Date.now() / 1000) }));
         }
       }, 10000);
     },
-    buildSocketPingMessage() {
-      return JSON.stringify({
-        type: 'message',
-        event: 'socket.ping',
-        data: {},
-        time: Math.floor(Date.now() / 1000)
-      });
-    },
     clearSocketPing() {
-      if (this.pingTimer) {
-        clearInterval(this.pingTimer);
-        this.pingTimer = null;
-      }
+      if (this.pingTimer) { clearInterval(this.pingTimer); this.pingTimer = null; }
     },
     handleSocketMessage(raw) {
       let payload = null;
-      try {
-        payload = JSON.parse(raw);
-      } catch (e) {
-        return;
-      }
-
+      try { payload = JSON.parse(raw); } catch { return; }
       const event = payload.event;
       const data = payload.data || {};
-
-      if (event === 'socket.pong') {
-        return;
-      }
-
+      if (event === 'socket.pong') return;
       if (event === 'socket.connected') {
         this.startSocketPing();
         this.loadMessages();
         return;
       }
-
-      if (event === 'chat.conversation.claimed' || event === 'chat.conversation.transferred') {
-        return;
-      }
-
-      if (event !== 'chat.message') {
-        return;
-      }
-
-      if (String(data.application_id || data.conversation_id || '') !== String(this.applicationId)) {
-        return;
-      }
-
-      if (data.message) {
-        this.appendMessage(data.message);
-      }
+      if (event === 'chat.conversation.claimed' || event === 'chat.conversation.transferred') return;
+      if (event !== 'chat.message') return;
+      if (String(data.application_id || data.conversation_id || '') !== String(this.applicationId)) return;
+      if (data.message) this.appendMessage(data.message);
     },
     scheduleReconnect() {
       this.clearReconnectTimer();
       const delays = [1000, 2000, 5000, 10000, 30000];
       const delay = delays[Math.min(this.reconnectAttempts, delays.length - 1)];
       this.reconnectAttempts += 1;
-      this.reconnectTimer = setTimeout(() => {
-        this.connectSocket();
-      }, delay);
+      this.reconnectTimer = setTimeout(() => { this.connectSocket(); }, delay);
     },
     clearReconnectTimer() {
-      if (this.reconnectTimer) {
-        clearTimeout(this.reconnectTimer);
-        this.reconnectTimer = null;
-      }
+      if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
     },
     closeSocket() {
       this.socketManuallyClosed = true;
@@ -401,8 +340,8 @@ export default {
       }
     },
     scrollToBottom() {
-      if (this.$refs.chatBody) {
-        this.$refs.chatBody.scrollTop = this.$refs.chatBody.scrollHeight;
+      if (this.$refs.messagesArea) {
+        this.$refs.messagesArea.scrollTop = this.$refs.messagesArea.scrollHeight;
       }
     },
     autoResize(e) {
@@ -421,170 +360,158 @@ export default {
 .chat-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 100px);
-  background: #FAFAFA;
+  /* 偏移 header-control 的高度，让 chat-header 出现在它下方 */
+  padding-top: 100px;
+  /* 撑满 header-control 下方到屏幕底部的空间 */
+  height: 100vh;
+  overflow: hidden;
+  background: #F0F2F5;
 }
 
-/* 顶部导航 */
-.chat-header {
-  background: #FFFFFF;
-  border-bottom: 1px solid #EEEEEE;
+/* 顶部 Banner */
+.chat-banner {
   flex-shrink: 0;
-  padding: 0 20px;
-  height: 70px;
-  display: flex;
-  align-items: center;
+  background: #fff7d8;
+  border-bottom: 2px solid #f0e0a0;
+  padding: 16px 16px 14px;
 }
 
-.chat-header-inner {
+.banner-inner {
   max-width: 800px;
   margin: 0 auto;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 16px;
 }
 
-.back-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1.5px solid #EEEEEE;
-  background: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #616161;
-  flex-shrink: 0;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #F5F5F5;
-    border-color: #FABE1D;
-    color: #FABE1D;
-  }
+.banner-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+  background: #FABE1D;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 8px;
 }
 
-.chat-header-center {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.banner-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #8b6a2a;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.banner-desc {
+  font-size: 12px;
+  color: #b09060;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* 聊天主体 */
+.chat-body-wrapper {
   flex: 1;
-}
-
-.chat-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-.chat-header-info {
   display: flex;
   flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  background: #FFFFFF;
+  border-left: 1.5px solid #F0E8C0;
+  border-right: 1.5px solid #F0E8C0;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.chat-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1A1A1A;
-}
-
-.chat-subtitle {
-  font-size: 12px;
-  color: #9E9E9E;
-}
-
-.chat-header-right {
-  flex-shrink: 0;
-}
-
-.app-id-tag {
-  font-size: 11px;
-  color: #9E9E9E;
-  background: #F5F5F5;
-  padding: 4px 10px;
-  border-radius: 12px;
-}
-
-/* 聊天内容 */
-.chat-body {
+/* 可滚动区域 */
+.chat-scroll-area {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  background: #fff7d8;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-thumb { background: #F0E8C0; border-radius: 3px; }
 }
 
 /* 欢迎区 */
 .welcome-section {
-  text-align: center;
-  padding: 32px 20px;
   background: #FFFFFF;
-  border-radius: 20px;
-  border: 1px solid #F0E8C0;
-  margin-bottom: 8px;
-
-  h3 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1A1A1A;
-    margin: 16px 0 8px;
-  }
-
-  p {
-    font-size: 14px;
-    color: #757575;
-    max-width: 400px;
-    margin: 0 auto 20px;
-    line-height: 1.6;
-  }
+  padding: 14px 16px;
+  border-bottom: 1px solid #F0E8C0;
+  flex-shrink: 0;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
 }
 
 .welcome-icon {
-  display: inline-block;
-  width: 72px;
-  height: 72px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #FFFBEB;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.welcome-right {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin: 0 0 4px;
+  }
+
+  p {
+    font-size: 12px;
+    color: #757575;
+    margin: 0 0 10px;
+    line-height: 1.5;
+  }
 }
 
 .welcome-summary {
   background: #FAFAFA;
-  border-radius: 14px;
-  padding: 16px 20px;
-  display: inline-flex;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
   flex-direction: column;
-  gap: 8px;
-  text-align: left;
+  gap: 6px;
 }
 
-.summary-item {
+.summary-row {
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  align-items: center;
 }
 
 .s-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #9E9E9E;
-  min-width: 60px;
+  min-width: 40px;
+  flex-shrink: 0;
 }
 
 .s-val {
-  font-size: 13px;
+  font-size: 12px;
   color: #424242;
   font-weight: 600;
 }
 
 /* 消息列表 */
 .messages-list {
+  flex: 1;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .system-message {
@@ -614,7 +541,7 @@ export default {
 
 .message-item {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-end;
 
   &.message-mine {
@@ -626,17 +553,9 @@ export default {
       color: #FFFFFF;
     }
 
-    .message-translation {
-      text-align: right;
-    }
-
-    .message-time {
-      text-align: right;
-    }
-
-    .message-sender-name {
-      text-align: right;
-    }
+    .message-translation { text-align: right; }
+    .message-time { text-align: right; }
+    .message-sender-name { text-align: right; }
   }
 
   &.message-other {
@@ -654,30 +573,25 @@ export default {
 }
 
 .avatar-circle {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #FFFFFF;
 
-  &.rider {
-    background: #FABE1D;
-  }
-
-  &.recruiter {
-    background: #2DC15C;
-  }
+  &.rider { background: #FABE1D; }
+  &.recruiter { background: #2DC15C; }
 }
 
 .message-content-wrap {
   max-width: 70%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .message-sender-name {
@@ -687,14 +601,15 @@ export default {
 }
 
 .message-bubble {
-  padding: 12px 16px;
+  padding: 10px 14px;
   display: inline-block;
 }
 
 .message-text {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   word-break: break-word;
+  margin: 0;
 }
 
 .message-translation {
@@ -706,10 +621,7 @@ export default {
   color: #9E9E9E;
   line-height: 1.4;
 
-  svg {
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
+  svg { flex-shrink: 0; margin-top: 2px; }
 }
 
 .message-time {
@@ -722,7 +634,6 @@ export default {
 .message-loading {
   display: flex;
   justify-content: flex-start;
-  padding: 0 4px;
 }
 
 .loading-dots {
@@ -754,8 +665,8 @@ export default {
 .chat-footer {
   flex-shrink: 0;
   background: #FFFFFF;
-  border-top: 1px solid #EEEEEE;
-  padding: 16px 20px;
+  border-top: 1.5px solid #F0E8C0;
+  padding: 10px 16px;
 }
 
 .chat-footer-inner {
@@ -773,9 +684,7 @@ export default {
   border: 1.5px solid transparent;
   transition: border-color 0.2s;
 
-  &:focus-within {
-    border-color: #FABE1D;
-  }
+  &:focus-within { border-color: #FABE1D; }
 }
 
 .chat-input {
@@ -791,9 +700,7 @@ export default {
   overflow-y: auto;
   padding: 6px 0;
 
-  &::placeholder {
-    color: #BDBDBD;
-  }
+  &::placeholder { color: #BDBDBD; }
 }
 
 .send-btn {
@@ -815,9 +722,7 @@ export default {
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(250, 190, 29, 0.4);
 
-    &:hover {
-      background: #E5A60C;
-    }
+    &:hover { background: #E5A60C; }
   }
 }
 
@@ -831,17 +736,16 @@ export default {
   display: inline-block;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 @media screen and (max-width: $phone-max-width) {
   .chat-page {
     height: calc(100vh - 120px);
   }
 
-  .message-content-wrap {
-    max-width: 82%;
+  .chat-body-wrapper {
+    border-left: none;
+    border-right: none;
   }
 }
 </style>
