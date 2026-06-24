@@ -309,7 +309,7 @@ export default {
 
   min-width: 100vw;
   width: 100%;
-  z-index: 100;
+  z-index: 200;
   display: flex;
 }
 

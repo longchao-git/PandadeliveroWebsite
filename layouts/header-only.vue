@@ -24,5 +24,6 @@ export default {
 .main-content {
   padding-top: 100px;
   min-height: 100vh;
+  overflow: hidden;
 }
 </style>

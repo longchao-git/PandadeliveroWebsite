@@ -6,7 +6,7 @@
       <div class="loading-spinner"></div>
       <p>{{ $t('loading') }}</p>
     </div>
-<div v-else-if="verifyError" class="page-error">
+    <div v-else-if="verifyError" class="page-error">
       <div class="error-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="#EF4444" stroke-width="2"/>
@@ -24,11 +24,11 @@
 
         <!-- 聊天区：左会话列表 + 中聊天 + 右申请资料 -->
         <div class="chat-body">
-
           <!-- 左栏：对话列表 -->
           <div class="conv-sidebar">
             <div class="conv-sidebar-header">
               <h3>{{ $t('conversationList') }}</h3>
+              <button class="btn-logout" @click="logoutAdmin">{{ $t('logOut') }}</button>
             </div>
             <div v-if="loadingConversations" class="conv-loading">
               <div class="loading-spinner small"></div>
@@ -262,7 +262,8 @@ export default {
       handlerAdminName: '',
       showTransferModal: false,
       adminList: [],
-      pendingInitialClaim: false
+      pendingInitialClaim: false,
+      recruiterAvatar: ''
     }
   },
   computed: {
@@ -280,17 +281,12 @@ export default {
       return
     }
     this.pendingInitialClaim = !!this.applicationId
-    this.configureAdminApi()
     this.verifyAndLoad()
   },
   beforeDestroy () {
     this.closeSocket()
   },
   methods: {
-    configureAdminApi () {
-      this.$axios.defaults.headers.common.Api = 'ADMIN'
-      this.$axios.defaults.headers.common.TOKEN = this.token
-    },
     adminParams (extra = {}) {
       return { admin_id: this.adminId, ...extra }
     },
@@ -326,6 +322,9 @@ export default {
         ))
         const d = unwrapData(res)
         this.recruiterName = (d.recruiter_name || this.$t('recruiter'))
+        this.$store.commit('SET_IS_ADMIN_SESSION', true)
+        if (d.admin_id) this.adminId = d.admin_id
+        this.recruiterAvatar = (d.recruiter_name || this.$t('recruiter')).charAt(0).toUpperCase()
         if (d.application) {
           this.applicationDetail = d.application
         }
@@ -798,6 +797,11 @@ export default {
     },
     goHome () {
       window.location.href = '/'
+    },
+    logoutAdmin () {
+      this.closeSocket()
+      this.$store.commit('SET_IS_ADMIN_SESSION', false)
+      window.location.href = '/'
     }
   }
 }
@@ -811,9 +815,12 @@ $bg-page: #F0F2F5;
 $bg-card: #FFFFFF;
 
 .admin-chat-page {
-  height: calc(100vh - 80px);
+  height: calc(100vh - 110px);
   overflow: hidden;
   background: $bg-page;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ========== 加载 ========== */
@@ -876,12 +883,13 @@ $bg-card: #FFFFFF;
 
 /* ========== 主内容区 ========== */
 .chat-main {
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px 16px;
+  min-height: 0;
 }
 
 /* ========== 三栏主体 ========== */
@@ -906,6 +914,9 @@ $bg-card: #FFFFFF;
 .conv-sidebar-header {
   padding: 14px 18px 12px;
   border-bottom: 1.5px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   h3 {
     font-size: 13px;
     font-weight: 700;
@@ -913,6 +924,21 @@ $bg-card: #FFFFFF;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin: 0;
+  }
+}
+
+.btn-logout {
+  border: 1px solid #DC2626;
+  background: #FFFFFF;
+  color: #DC2626;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 200ms;
+  &:hover {
+    background: #DC2626;
+    color: #FFFFFF;
   }
 }
 
@@ -1155,6 +1181,7 @@ $bg-card: #FFFFFF;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 600PX;
   &::-webkit-scrollbar { width: 5px; }
   &::-webkit-scrollbar-thumb { background: $border; border-radius: 3px; }
 }

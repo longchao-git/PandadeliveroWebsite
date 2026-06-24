@@ -195,6 +195,12 @@ export default {
               localStorage.setItem('userInfo', JSON.stringify(res));
               this.$store.commit('SET_USERINFO', res);
               this.$message.success(this.$t('loginSuccessful'));
+              this.$axios.post('/staff/account/profile', {}, {
+                headers: { TOKEN: res.token }
+              }).then(profile => {
+                this.$store.commit('SET_USERINFO', profile);
+                localStorage.setItem('userInfo', JSON.stringify(profile));
+              });
               setTimeout(()=>{
                 window.location.href = '/';
               },1500)
@@ -240,7 +246,7 @@ export default {
 
   min-width: 100vw;
   width: 100%;
-  z-index: 100;
+  z-index: 200;
   display: flex;
 }
 

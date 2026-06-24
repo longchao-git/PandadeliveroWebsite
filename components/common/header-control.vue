@@ -2,7 +2,7 @@
   <div>
     <v-overlay class='phone-menu-mask' @click.native='isShowPhoneMenu = false' :value='isShowPhoneMenu'></v-overlay>
 
-    <v-app-bar fixed :flat='true' class='header-app-bar top-app-bar' color='transparent'>
+    <v-app-bar fixed :flat='true' elevation="2" class='header-app-bar top-app-bar' color='transparent'>
       <!--手机端-->
       <div class='phone-menu-box max-width'>
         <div class='disflex al-center phone-menu-bar max-width'>
@@ -26,7 +26,7 @@
                  alt='' />
 
           </v-app-bar-nav-icon>
-          <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
+          <div v-if='!isAdminSession && (userNewInfo.staff_id || userNewInfo.uid)' style='margin-left: 32px'>
             <div class='flex flex-a-c'>
               <el-image v-if="userNewInfo.face"
                 style='width: 60px; height: 60px;border-radius: 60px'
@@ -57,49 +57,58 @@
             class='phone-menu-list max-width'
           >
             <v-list dense>
-              <v-list-item link href='/rider'>
+              <v-list-item link href='/rider' v-if='!isAdminSession'>
                 <v-list-item-title>{{ $t('riderPageTitle') }}</v-list-item-title>
               </v-list-item>
-              <v-divider />
-              <v-list-item target='_blank' href='/about'>
+              <v-divider v-if='!isAdminSession' />
+              <v-list-item target='_blank' href='/about' v-if='!isAdminSession'>
                 <v-list-item-title>{{ $t('aboutUs') }}</v-list-item-title>
               </v-list-item>
-              <v-divider />
-              <v-list-item target='_blank' href='/points-mall' v-if="userNewInfo.staff_id">
+              <v-divider v-if='!isAdminSession' />
+              <v-list-item target='_blank' href='/points-mall' v-if="userNewInfo.staff_id && !isAdminSession">
                 <v-list-item-title>{{ $t('pointsMall') }}</v-list-item-title>
               </v-list-item>
-              <v-divider />
-              <v-list-item target='_blank' href='/cart' v-if="userNewInfo.staff_id">
+              <v-divider v-if="userNewInfo.staff_id && !isAdminSession" />
+              <v-list-item target='_blank' href='/cart' v-if="userNewInfo.staff_id && !isAdminSession">
                 <v-list-item-title>{{ $t('shoppingCart') }}</v-list-item-title>
               </v-list-item>
-              <v-divider />
-              <v-list-item target='_blank' href='/my-orders' v-if="userNewInfo.staff_id">
+              <v-divider v-if="userNewInfo.staff_id && !isAdminSession" />
+              <v-list-item target='_blank' href='/my-orders' v-if="userNewInfo.staff_id && !isAdminSession">
                 <v-list-item-title>{{ $t('myOrders') }}</v-list-item-title>
               </v-list-item>
-              <v-divider />
-              <v-list-item target='_blank' href='/my-addresses' v-if="userNewInfo.staff_id">
+              <v-divider v-if="userNewInfo.staff_id && !isAdminSession" />
+              <v-list-item target='_blank' href='/my-addresses' v-if="userNewInfo.staff_id && !isAdminSession">
                 <v-list-item-title>{{ $t('myAddresses') }}</v-list-item-title>
               </v-list-item>
-              <v-divider />
-              
+              <v-divider v-if="userNewInfo.staff_id && !isAdminSession" />
+
+              <v-list-item target='_blank' href='/admin' v-if='isAdminSession'>
+                <v-list-item-title>{{ $t('leadManagement') }}</v-list-item-title>
+              </v-list-item>
+              <v-divider v-if='isAdminSession' />
+              <v-list-item @click='goToAdminChat' v-if='isAdminSession'>
+                <v-list-item-title>{{ $t('chatManagement') }}</v-list-item-title>
+              </v-list-item>
+              <v-divider v-if='isAdminSession' />
+
               <v-list-item @click='handleInfoWindowState(true)'>
                 <v-list-item-title>{{ $t('languageSwitch') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
-              <v-list-item @click='handleClick(1)' v-if='!userNewInfo.staff_id&&!userNewInfo.uid'>
+              <v-list-item @click='handleClick(1)' v-if='!isAdminSession && !userNewInfo.staff_id && !userNewInfo.uid'>
                 <v-list-item-title>{{ $t('login') }}</v-list-item-title>
               </v-list-item>
-              <v-list-item @click='handleClick(2)' v-if='userNewInfo.uid'>
+              <v-list-item @click='handleClick(2)' v-if='!isAdminSession && userNewInfo.uid'>
                 <v-list-item-title>{{ $t('invitationCodeRedemption') }}</v-list-item-title>
               </v-list-item>
-              <v-list-item @click='handleClick(3)' v-if='userNewInfo.integral'>
+              <v-list-item @click='handleClick(3)' v-if='!isAdminSession && userNewInfo.integral'>
                 <v-list-item-title>{{ $t('luckyDraw') }}</v-list-item-title>
               </v-list-item>
-              <v-list-item target='_blank' href='/information' v-if='userNewInfo.uid'>
+              <v-list-item target='_blank' href='/information' v-if='!isAdminSession && userNewInfo.uid'>
                 <v-list-item-title>{{ $t('personalInformation') }}</v-list-item-title>
               </v-list-item>
               <v-divider />
-              <v-list-item @click='bingOutLogin' v-if='userNewInfo.staff_id||userNewInfo.uid'>
+              <v-list-item @click='bingOutLogin' v-if='!isAdminSession && (userNewInfo.staff_id || userNewInfo.uid)'>
                 <v-list-item-title>{{ $t('logOut') }}</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -113,7 +122,7 @@
              alt='' />
         <!-- 登录样式 -->
         <div style='display: flex;align-items: center'>
-          <v-tab
+          <v-tab v-if="!isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 0,
                             inactive: getActiveMenuInx !== 0,
@@ -122,7 +131,7 @@
           >{{ $t('joinUs') }}
           </v-tab>
 
-          <v-tab
+          <v-tab v-if="!isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 1,
                             inactive: getActiveMenuInx !== 1,
@@ -130,7 +139,7 @@
             @click.prevent="$router.push('/about')"
           >{{ $t('aboutUs') }}
           </v-tab>
-          <v-tab  v-if="userNewInfo.staff_id"
+          <v-tab  v-if="userNewInfo.staff_id && !isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 2,
                             inactive: getActiveMenuInx !== 2,
@@ -138,7 +147,7 @@
             @click.prevent="$router.push('/points-mall')"
           >{{ $t('pointsMall') }}
           </v-tab>
-          <v-tab
+          <v-tab v-if="!isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 3,
                             inactive: getActiveMenuInx !== 3,
@@ -147,7 +156,7 @@
           >{{ $t('riderPageTitle') }}
           </v-tab>
 
-          <v-tab
+          <v-tab v-if="!isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 4,
                             inactive: getActiveMenuInx !== 4,
@@ -156,35 +165,44 @@
           >{{ $t('teamTitle') }}
           </v-tab>
 
-          <v-tab  v-if="userNewInfo.staff_id"
+          <v-tab  v-if="isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 5,
                             inactive: getActiveMenuInx !== 5,
                         }"
-            @click.prevent="$router.push('/admin')"
+            @click.prevent="goToAdminLead"
           >{{ $t('leadManagement') }}
+          </v-tab>
+
+          <v-tab  v-if="isAdminSession"
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 8,
+                            inactive: getActiveMenuInx !== 8,
+                        }"
+            @click.prevent="goToAdminChat"
+          >{{ $t('chatManagement') }}
           </v-tab>
 
           <el-button @click='handleInfoWindowState(true)' class='login-bt try-out-bt' height='50px'
                      style='margin-right: 20px;margin-left: 16px'>{{ $t('languageSwitch') }}
           </el-button>
 
-          <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!userNewInfo.staff_id&&!userNewInfo.uid'
+          <el-button @click='handleClick(1)' class='login-bt try-out-bt' v-if='!isAdminSession && !userNewInfo.staff_id && !userNewInfo.uid'
                      style='margin-left: 16px;'
                      height='50px'>{{ $t('login') }}
           </el-button>
 
-          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='userNewInfo.uid'
+          <el-button @click='handleClick(2)' class='login-bt try-out-bt' v-if='!isAdminSession && userNewInfo.uid'
                      style='margin-left: 16px;'
                      height='50px'>{{ $t('invitationCodeRedemption') }}
           </el-button>
 
-          <el-button @click='handleClick(3)' class='login-bt try-out-bt' v-if='userNewInfo.integral'
+          <el-button @click='handleClick(3)' class='login-bt try-out-bt' v-if='!isAdminSession && userNewInfo.integral'
                      style='margin-left: 16px;'
                      height='50px'>{{ $t('luckyDraw') }}
           </el-button>
 
-          <div v-if='userNewInfo.staff_id||userNewInfo.uid' style='margin-left: 32px'>
+          <div v-if='!isAdminSession && (userNewInfo.staff_id || userNewInfo.uid)' style='margin-left: 32px'>
             <v-menu eager bottom offset-y left open-on-hover>
               <template #activator='{ attrs, on }'>
                 <div class='flex flex-a-c' v-bind='attrs' v-on='on'>
@@ -277,18 +295,26 @@ export default {
       loginType: -1,
       userNewInfo: {},
       // 是否显示联系方式弹框
-      isShowContactInfoDialog: false
+      isShowContactInfoDialog: false,
     };
   },
   watch: {
     $route() {
       this.isShowPhoneMenu = false;
+    },
+    isAdminSession(val) {
+      if (val) {
+        return;
+      }
+      if (this.getUserInfo.staff_id || this.getUserInfo.uid) {
+        this.accountProfile();
+      }
     }
 
   },
   mounted() {
     this.userNewInfo = this.getUserInfo;
-    if (this.getUserInfo.staff_id || this.getUserInfo.uid) {
+    if (!this.isAdminSession && (this.getUserInfo.staff_id || this.getUserInfo.uid)) {
       this.accountProfile();
 
     }
@@ -296,6 +322,9 @@ export default {
   computed: {
     ...mapGetters({
       getUserInfo: 'getUserInfo'
+    }),
+    ...mapState({
+      isAdminSession: state => state.isAdminSession
     }),
 
     // 获取url 路径
@@ -336,10 +365,20 @@ export default {
         localStorage.removeItem('token');
         localStorage.removeItem('userInfo');
         this.$store.commit('SET_USERINFO', {});
+        this.$store.commit('SET_IS_ADMIN_SESSION', false);
         window.location.href = '/';
       });
     },
     handleHome() {
+      if (this.isAdminSession) {
+        const adminId = this.$route.query.admin_id || this.getUserInfo.staff_id;
+        const token = this.$route.query.token || this.getUserInfo.token;
+        const params = [];
+        if (adminId) params.push(`admin_id=${encodeURIComponent(adminId)}`);
+        if (token) params.push(`token=${encodeURIComponent(token)}`);
+        window.location.href = '/admin' + (params.length ? '?' + params.join('&') : '');
+        return;
+      }
       window.location.href = '/';
     },
     bingCart(){
@@ -351,7 +390,44 @@ export default {
     bingAddresses(){
       window.location.href = '/my-addresses';
     },
+    goToAdminChat() {
+      if (this.$route.path === '/admin-chat') {
+        return;
+      }
+      if (this.isAdminSession) {
+        const adminId = this.$route.query.admin_id || this.getUserInfo.staff_id;
+        const token = this.$route.query.token || this.getUserInfo.token;
+        if (adminId && token) {
+          window.location.href = `/admin-chat?admin_id=${adminId}&token=${encodeURIComponent(token)}`;
+        }
+        return;
+      }
+      const userInfo = this.getUserInfo;
+      if (!userInfo.staff_id || !userInfo.token) {
+        this.$message.error(this.$t('pleaseLoginFirst'));
+        return;
+      }
+      window.location.href = `/admin-chat?admin_id=${userInfo.staff_id}&token=${encodeURIComponent(userInfo.token)}`;
+    },
+    goToAdminLead() {
+      if (this.$route.path === '/admin') {
+        return;
+      }
+      if (this.isAdminSession) {
+        const adminId = this.$route.query.admin_id || this.getUserInfo.staff_id;
+        const token = this.$route.query.token || this.getUserInfo.token;
+        const params = [];
+        if (adminId) params.push(`admin_id=${encodeURIComponent(adminId)}`);
+        if (token) params.push(`token=${encodeURIComponent(token)}`);
+        window.location.href = '/admin' + (params.length ? '?' + params.join('&') : '');
+        return;
+      }
+      this.$router.push('/admin');
+    },
     handleClick(type) {
+      if (this.isAdminSession) {
+        this.$store.commit('SET_IS_ADMIN_SESSION', false);
+      }
       if (type === 1) {
         this.handleCloseLoginDialog(1);
       } else if (type === 2) {
@@ -373,7 +449,9 @@ export default {
       }else {
         this.loginType = value;
       }
-
+      if (this.isAdminSession) {
+        this.$store.commit('SET_IS_ADMIN_SESSION', false);
+      }
 
     }
   }
@@ -405,6 +483,8 @@ export default {
   .header-app-bar {
     transition: all 500ms ease-in-out;
     height: 100px !important;
+    z-index: 9999 !important;
+    box-shadow: none;
     background: linear-gradient(0deg, rgba(37, 37, 37, 0) 83.5%, rgba(37, 37, 37, 0.5) 100%);
 
     .pc-menu-box {

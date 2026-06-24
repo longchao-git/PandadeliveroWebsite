@@ -258,7 +258,6 @@ export default {
 
 <style lang="scss" scoped>
 .points-mall {
-    padding: 100px 0;
   min-height: 100vh;
   background-color: #fff; 
 }

@@ -5,6 +5,7 @@ export const state = () => ({
   locale: 'es',
   userInfo: {},
   searchKeywords: '',
+  isAdminSession: false,
 });
 
 export const getters = {
@@ -25,6 +26,9 @@ export const mutations = {
   },
   SET_USERINFO(state, userInfo) {
     state.userInfo = userInfo
+  },
+  SET_IS_ADMIN_SESSION(state, val) {
+    state.isAdminSession = val
   },
 };
 

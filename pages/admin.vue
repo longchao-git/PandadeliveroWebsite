@@ -231,7 +231,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import { getVehicleLabel } from '@/utils/rider';
 
 export default {
@@ -267,6 +267,7 @@ export default {
   },
   computed: {
     ...mapGetters(['getUserInfo']),
+    ...mapState({ isAdminSession: state => state.isAdminSession }),
     filteredList() {
       let result = this.list;
       if (this.activeFilter === 'individual') {
@@ -308,11 +309,18 @@ export default {
     }
   },
   mounted() {
-    if (!this.getUserInfo.staff_id) {
-      this.$router.replace('/');
+    const adminId = this.$route.query.admin_id;
+    const token = this.$route.query.token;
+    if (adminId && token) {
+      this.$store.commit('SET_IS_ADMIN_SESSION', true);
+      this.loadList();
       return;
     }
-    this.loadList();
+    if (this.isAdminSession || this.getUserInfo.staff_id) {
+      this.loadList();
+      return;
+    }
+    this.$router.replace('/');
   },
   methods: {
     async loadList() {

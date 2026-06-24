@@ -443,7 +443,7 @@ export default {
 /* Hero 区域 */
 .rider-hero {
   background: linear-gradient(135deg, #FFF8E2 0%, #FEF3C7 50%, #FDE68A 100%);
-  padding: 120px 0 60px;
+  padding: 60px 0 60px;
   border-bottom: 1px solid #F3E8C0;
 }
 

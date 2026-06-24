@@ -82,8 +82,10 @@ export default {
         avatar: this.imageUrl,
         nick_name: this.nickname
       };
-      this.$axios.post('/client/member/member/edit', data).then(res => {
-        this.$axios.post('/client/member/member/index', data).then(res => {
+      this.$axios.post('/client/member/member/edit', data).then(() => {
+        this.$axios.post('/client/member/member/index', data, {
+          headers: { TOKEN: localStorage.getItem('token') }
+        }).then(res => {
           localStorage.setItem('userInfo', JSON.stringify(res));
           this.$store.commit('SET_USERINFO', res);
           this.$message.success(this.$t('saveSuccess'));
