@@ -209,17 +209,17 @@ export default {
         privacy_agreed: false
       },
       rules: {
-        uname: [{ required: true, message: this.$t('pleaseInput'), trigger: 'blur' }],
-        team_name: [{ required: true, message: this.$t('pleaseInput'), trigger: 'blur' }],
-        mobile: [{ required: true, message: this.$t('pleaseInput'), trigger: 'blur' }],
+        uname: [{ required: true, message: '', trigger: 'blur' }],
+        team_name: [{ required: true, message: '', trigger: 'blur' }],
+        mobile: [{ required: true, message: '', trigger: 'blur' }],
         email: [
-          { required: true, message: this.$t('pleaseInput'), trigger: 'blur' },
-          { type: 'email', message: this.$t('invalidEmail'), trigger: 'blur' }
+          { required: true, message: '', trigger: 'blur' },
+          { type: 'email', message: '', trigger: 'blur' }
         ],
-        city_id: [{ required: true, message: this.$t('pleaseSelect'), trigger: 'change' }],
-        rider_count: [{ required: true, message: this.$t('pleaseSelect'), trigger: 'change' }],
-        can_invoice: [{ required: true, message: this.$t('pleaseSelect'), trigger: 'change' }],
-        availability: [{ required: true, message: this.$t('selectAvailability'), trigger: 'change' }]
+        city_id: [{ required: true, message: '', trigger: 'change' }],
+        rider_count: [{ required: true, message: '', trigger: 'change' }],
+        can_invoice: [{ required: true, message: '', trigger: 'change' }],
+        availability: [{ required: true, message: '', trigger: 'change' }]
       },
       invoiceOptions: [
         { value: 'yes', labelKey: 'yes' },
@@ -234,6 +234,17 @@ export default {
         { value: 'eventos', labelKey: 'events' }
       ]
     };
+  },
+  created() {
+    this.rules.uname[0].message = this.$t('pleaseInput');
+    this.rules.team_name[0].message = this.$t('pleaseInput');
+    this.rules.mobile[0].message = this.$t('pleaseInput');
+    this.rules.email[0].message = this.$t('pleaseInput');
+    this.rules.email[1].message = this.$t('invalidEmail');
+    this.rules.city_id[0].message = this.$t('pleaseSelect');
+    this.rules.rider_count[0].message = this.$t('pleaseSelect');
+    this.rules.can_invoice[0].message = this.$t('pleaseSelect');
+    this.rules.availability[0].message = this.$t('selectAvailability');
   },
   methods: {
     toggleAvail(val) {

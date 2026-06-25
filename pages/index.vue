@@ -33,31 +33,7 @@
           </div>
         </div>
         <div class="hero-map">
-          <div class="map-visual">
-            <div class="map-overlay">
-              <div class="city-pin pin-madrid">
-                <div class="pin-dot"></div>
-                <div class="pin-label">
-                  <strong>{{ $t('madrid') }}</strong>
-                  <small>{{ $t('highDemand') }}</small>
-                </div>
-              </div>
-              <div class="city-pin pin-bcn">
-                <div class="pin-dot"></div>
-                <div class="pin-label">
-                  <strong>{{ $t('barcelona') }}</strong>
-                  <small>{{ $t('localTeams') }}</small>
-                </div>
-              </div>
-              <div class="city-pin pin-valencia">
-                <div class="pin-dot"></div>
-                <div class="pin-label">
-                  <strong>{{ $t('valencia') }}</strong>
-                  <small>{{ $t('newCapacity') }}</small>
-                </div>
-              </div>
-            </div>
-          </div>
+          <img src="@/assets/images/creaTionIcon.png" alt="" class="rider-hero-img" />
         </div>
       </div>
     </div>
@@ -298,58 +274,14 @@ export default {
 /* Map */
 .hero-map {
   flex-shrink: 0;
-  width: 420px;
 }
 
-.map-visual {
-  background: #FFFFFF;
+.rider-hero-img {
+  width: 600px;
+  height: 300px;
+  object-fit: cover;
   border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  border: 1.5px solid #F3E8C0;
-  height: 320px;
-  position: relative;
-}
-
-.map-overlay {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-}
-
-.city-pin {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 12px 18px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border: 1px solid #F0E8C0;
-  width: 220px;
-}
-
-.pin-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.pin-madrid .pin-dot { background: #EF4444; }
-.pin-bcn .pin-dot { background: #3B82F6; }
-.pin-valencia .pin-dot { background: #FABE1D; }
-
-.pin-label {
-  display: flex;
-  flex-direction: column;
-
-  strong { font-size: 14px; color: #1A1A1A; }
-  small { font-size: 11px; color: #9E9E9E; }
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
 }
 
 /* Cards Section */
@@ -591,7 +523,12 @@ export default {
   .hero-title { font-size: 28px; }
 
   .hero-map { width: 100%; }
-  .map-visual { height: auto; }
+
+  .rider-hero-img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+  }
 
   .collab-cards { grid-template-columns: 1fr; }
   .city-cards { grid-template-columns: 1fr; }

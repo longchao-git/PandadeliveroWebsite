@@ -292,29 +292,32 @@ export default {
       },
       rules: {
         uname: [
-          { required: true, message: this.$t('pleaseEnterFirstName'), trigger: 'blur' }
+          { required: true, message: '', trigger: 'blur' }
         ],
         last_name: [
-          { required: true, message: this.$t('pleaseEnterLastName'), trigger: 'blur' }
+          { required: true, message: '', trigger: 'blur' }
         ],
         mobile: [
-          { required: true, message: this.$t('pleaseEnterPhoneNumber'), trigger: 'blur' },
-          { pattern: /^[0-9]{6,12}$/, message: this.$t('invalidPhoneNumber'), trigger: 'blur' }
+          { required: true, message: '', trigger: 'blur' },
+          { pattern: /^[0-9]{6,12}$/, message: '', trigger: 'blur' }
         ],
         contact_type: [
-          { required: true, message: this.$t('selectContactType'), trigger: 'change' }
+          { required: true, message: '', trigger: 'change' }
         ],
         city_id: [
-          { required: true, message: this.$t('pleaseSelect'), trigger: 'change' }
+          { required: true, message: '', trigger: 'change' }
         ],
         vehicle_type: [
-          { required: true, message: this.$t('selectVehicleType'), trigger: 'change' }
+          { required: true, message: '', trigger: 'change' }
         ],
         is_autonomo: [
-          { required: true, message: this.$t('selectAutonomoStatus'), trigger: 'change' }
+          { required: true, message: '', trigger: 'change' }
         ],
         availability: [
           { required: true, validator: validateAvailability, trigger: 'change' }
+        ],
+        privacy_agreed: [
+          { required: true, validator: validatePrivacy, trigger: 'change' }
         ]
       },
       vehicleTypes: [
@@ -335,6 +338,16 @@ export default {
         { value: 'lluvia', labelKey: 'lluvia' }
       ]
     };
+  },
+  created() {
+    this.rules.uname[0].message = this.$t('pleaseEnterFirstName');
+    this.rules.last_name[0].message = this.$t('pleaseEnterLastName');
+    this.rules.mobile[0].message = this.$t('pleaseEnterPhoneNumber');
+    this.rules.mobile[1].message = this.$t('invalidPhoneNumber');
+    this.rules.contact_type[0].message = this.$t('selectContactType');
+    this.rules.city_id[0].message = this.$t('pleaseSelect');
+    this.rules.vehicle_type[0].message = this.$t('selectVehicleType');
+    this.rules.is_autonomo[0].message = this.$t('selectAutonomoStatus');
   },
   computed: {
     steps() {

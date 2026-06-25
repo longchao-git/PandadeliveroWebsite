@@ -112,6 +112,9 @@
               <span v-else class="sending-spinner"></span>
             </button>
           </div>
+          <button class="exit-chat-btn" @click="handleExitChat">
+            {{ $t('exitChat') }}
+          </button>
         </div>
       </div>
     </div>
@@ -141,17 +144,49 @@ export default {
     };
   },
   mounted() {
-    // 优先级：URL参数 > sessionStorage
+    // 优先级：URL参数 > sessionStorage > localStorage
     const urlParams = new URLSearchParams(window.location.search);
-    this.applicationId = urlParams.get('app_id') || sessionStorage.getItem('rider_application_id') || '';
+    let appId = urlParams.get('app_id') || sessionStorage.getItem('rider_application_id') || '';
+
+    // 如果 URL 和 sessionStorage 都没有，从 localStorage 读取
+    if (!appId) {
+      try {
+        const pendingChat = localStorage.getItem('rider_pending_chat');
+        if (pendingChat) {
+          const chatData = JSON.parse(pendingChat);
+          if (chatData.application_id) {
+            appId = chatData.application_id;
+          }
+        }
+      } catch (e) {
+        console.error('Parse localStorage pending chat error:', e);
+      }
+    }
+
+    this.applicationId = appId;
+
     if (!this.applicationId) {
       this.$message.error(this.$t('noApplicationIdRedirect'));
       setTimeout(() => { window.location.href = '/rider'; }, 1500);
       return;
     }
+
+    // 保存到 sessionStorage
+    sessionStorage.setItem('rider_application_id', this.applicationId);
+
     // JSON schema校验，防止XSS注入
     try {
-      const s = sessionStorage.getItem('rider_form_summary');
+      let s = sessionStorage.getItem('rider_form_summary');
+      // 如果 sessionStorage 没有，尝试从 localStorage 读取
+      if (!s) {
+        const pendingChat = localStorage.getItem('rider_pending_chat');
+        if (pendingChat) {
+          const chatData = JSON.parse(pendingChat);
+          if (chatData.formSummary) {
+            s = JSON.stringify(chatData.formSummary);
+          }
+        }
+      }
       if (s) {
         const raw = JSON.parse(s);
         const schema = {
@@ -179,6 +214,10 @@ export default {
       this.formSummary = null;
     }
     this.connectSocket();
+
+    this.$once('hook:destroyed', () => {
+      this.closeSocket();
+    });
   },
   beforeDestroy() {
     this.closeSocket();
@@ -205,11 +244,19 @@ export default {
     async loadMessages() {
       if (!this.applicationId) return;
       this.loading = true;
+      // 重置已显示消息 ID 集合
+      this._displayedMessageIds = new Set();
       try {
         const res = await this.$axios.get(`/chat/conversations-messages-${this.applicationId}`);
         const data = unwrapData(res);
         if (Array.isArray(data.messages)) {
           this.messages = data.messages.map(item => this.normalizeMessage(item)).filter(Boolean);
+          // 预填充已显示的消息 ID
+          this.messages.forEach(msg => {
+            if (msg.message_id) {
+              this._displayedMessageIds.add(msg.message_id);
+            }
+          });
         }
         this.$nextTick(() => this.scrollToBottom());
       } catch (err) {
@@ -252,8 +299,16 @@ export default {
     appendMessage(message) {
       const normalized = this.normalizeMessage(message);
       if (!normalized) return;
-      if (normalized.message_id && this.messages.some(item => String(item.message_id) === normalized.message_id)) {
+      // 使用 Set 来跟踪已显示的消息 ID
+      if (!this._displayedMessageIds) {
+        this._displayedMessageIds = new Set();
+      }
+      const msgId = normalized.message_id;
+      if (msgId && this._displayedMessageIds.has(msgId)) {
         return;
+      }
+      if (msgId) {
+        this._displayedMessageIds.add(msgId);
       }
       if (!normalized.content && !normalized.content_es && normalized.sender_type !== 'system') return;
       this.messages.push(normalized);
@@ -321,8 +376,10 @@ export default {
     },
     scheduleReconnect() {
       this.clearReconnectTimer();
-      const delays = [1000, 2000, 5000, 10000, 30000];
-      const delay = delays[Math.min(this.reconnectAttempts, delays.length - 1)];
+      // 指数退避策略：1s, 2s, 4s, 8s, 16s, 32s (最大 30s)
+      const baseDelay = 1000;
+      const maxDelay = 30000;
+      const delay = Math.min(baseDelay * Math.pow(2, this.reconnectAttempts), maxDelay);
       this.reconnectAttempts += 1;
       this.reconnectTimer = setTimeout(() => { this.connectSocket(); }, delay);
     },
@@ -333,9 +390,19 @@ export default {
       this.socketManuallyClosed = true;
       this.clearReconnectTimer();
       this.clearSocketPing();
+
       if (this.socket) {
+        this.socket.onopen = null;
+        this.socket.onmessage = null;
+        this.socket.onerror = null;
         this.socket.onclose = null;
-        this.socket.close();
+        try {
+          if (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING) {
+            this.socket.close();
+          }
+        } catch (e) {
+          console.warn('WebSocket close error:', e);
+        }
         this.socket = null;
       }
     },
@@ -351,6 +418,21 @@ export default {
     },
     goBack() {
       window.location.href = '/';
+    },
+    handleExitChat() {
+      this.$confirm(this.$t('confirmExitChat'), this.$t('prompt'), {
+        confirmButtonText: this.$t('confirm'),
+        cancelButtonText: this.$t('cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.clearChatData();
+        window.location.href = '/';
+      }).catch(() => {});
+    },
+    clearChatData() {
+      localStorage.removeItem('rider_pending_chat');
+      sessionStorage.removeItem('rider_application_id');
+      sessionStorage.removeItem('rider_form_summary');
     }
   }
 };
@@ -360,10 +442,8 @@ export default {
 .chat-page {
   display: flex;
   flex-direction: column;
-  /* 偏移 header-control 的高度，让 chat-header 出现在它下方 */
-  padding-top: 100px;
-  /* 撑满 header-control 下方到屏幕底部的空间 */
-  height: 100vh;
+
+  height: calc(100vh - 100px);
   overflow: hidden;
   background: #F0F2F5;
 }
@@ -672,9 +752,13 @@ export default {
 .chat-footer-inner {
   max-width: 800px;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .input-wrap {
+  flex: 1;
   display: flex;
   align-items: flex-end;
   gap: 12px;
@@ -685,6 +769,25 @@ export default {
   transition: border-color 0.2s;
 
   &:focus-within { border-color: #FABE1D; }
+}
+
+.exit-chat-btn {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  border-radius: 24px;
+  border: 1.5px solid #E0E0E0;
+  background: #FFFFFF;
+  color: #757575;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #F56C66;
+    color: #F56C6C;
+    background: #FFF5F5;
+  }
 }
 
 .chat-input {
@@ -746,6 +849,20 @@ export default {
   .chat-body-wrapper {
     border-left: none;
     border-right: none;
+  }
+
+  .chat-footer-inner {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .input-wrap {
+    width: 100%;
+  }
+
+  .exit-chat-btn {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>

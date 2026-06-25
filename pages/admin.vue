@@ -140,13 +140,13 @@
                   :key="av"
                   class="avail-chip"
                 >
-                  {{ $t('avail_' + av) }}
+                  {{ $t(availKeyMap[av] || 'avail_' + av) }}
                 </span>
               </div>
             </div>
             <div class="td td-status">
               <span class="status-badge" :class="item.status">
-                {{ $t('status_' + item.status) }}
+                {{ $t(statusKeyMap[item.status] || 'status_' + item.status) }}
               </span>
             </div>
             <div class="td td-date">{{ formatDate(item.created_at) }}</div>
@@ -233,6 +233,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import { getVehicleLabel } from '@/utils/rider';
+import { debounce } from '@/utils/utils';
 
 export default {
   name: 'admin-page',
@@ -244,7 +245,7 @@ export default {
       activeFilter: 'all',
       searchKeyword: '',
       currentPage: 1,
-      pageSize: 20,
+      pageSize: 10,
       stats: {
         newToday: 0,
         individual: 0,
@@ -258,11 +259,24 @@ export default {
       newStatus: '',
       updating: false,
       statusOptions: [
-        { value: 'new', labelKey: 'new' },
-        { value: 'contacted', labelKey: 'contacted' },
-        { value: 'approved', labelKey: 'approved' },
-        { value: 'rejected', labelKey: 'rejected' }
-      ]
+        { value: 'new', labelKey: 'status_new' },
+        { value: 'contacted', labelKey: 'status_contacted' },
+        { value: 'approved', labelKey: 'status_approved' },
+        { value: 'rejected', labelKey: 'status_rejected' }
+      ],
+      // 国际化键名映射
+      availKeyMap: {
+        comidas: 'avail_comidas',
+        cenas: 'avail_cenas',
+        fines_semana: 'avail_fines_semana',
+        lluvia: 'avail_lluvia'
+      },
+      statusKeyMap: {
+        new: 'status_new',
+        contacted: 'status_contacted',
+        approved: 'status_approved',
+        rejected: 'status_rejected'
+      }
     };
   },
   computed: {
@@ -293,10 +307,20 @@ export default {
       return this.filteredList.slice(start, start + this.pageSize);
     },
     filterTabs() {
+      // 单次遍历计算所有计数，避免多次 filter
+      let individualCount = 0;
+      let teamCount = 0;
+      for (const item of this.list) {
+        if (item.type === 'individual') {
+          individualCount++;
+        } else if (item.type === 'team') {
+          teamCount++;
+        }
+      }
       return [
         { value: 'all', labelKey: 'allApplications', count: this.list.length },
-        { value: 'individual', labelKey: 'individualRiders', count: this.list.filter(i => i.type === 'individual').length },
-        { value: 'team', labelKey: 'teams', count: this.list.filter(i => i.type === 'team').length }
+        { value: 'individual', labelKey: 'individualRiders', count: individualCount },
+        { value: 'team', labelKey: 'teams', count: teamCount }
       ];
     }
   },
@@ -309,6 +333,11 @@ export default {
     }
   },
   mounted() {
+    // 初始化防抖搜索
+    this.debouncedSearch = debounce(() => {
+      this.currentPage = 1;
+    }, 300);
+
     const adminId = this.$route.query.admin_id;
     const token = this.$route.query.token;
     if (adminId && token) {
@@ -322,7 +351,15 @@ export default {
     }
     this.$router.replace('/');
   },
+  beforeDestroy() {
+    if (this.debouncedSearch && this.debouncedSearch.cancel) {
+      this.debouncedSearch.cancel();
+    }
+  },
   methods: {
+    /**
+     * 加载申请列表数据
+     */
     async loadList() {
       this.loading = true;
       try {
@@ -357,19 +394,34 @@ export default {
         this.loading = false;
       }
     },
+    /**
+     * 格式化日期显示
+     * @param {string|number} ts - 时间戳或日期字符串
+     * @returns {string} 格式化后的日期
+     */
     formatDate(ts) {
       if (!ts) return '—';
       try {
-        return new Date(ts).toLocaleDateString(this.$i18n.locale, {
-          month: 'short', day: 'numeric', year: 'numeric'
-        });
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return ts;
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        return d.toLocaleDateString(this.$i18n.locale, options);
       } catch {
         return ts;
       }
     },
+    /**
+     * 防抖搜索处理
+     */
     handleSearch() {
-      this.currentPage = 1;
+      if (this.debouncedSearch) {
+        this.debouncedSearch();
+      }
     },
+    /**
+     * 打开聊天窗口
+     * @param {Object} item - 申请项
+     */
     async openChat(item) {
       if (!item || !item.application_id) {
         this.$message.error(this.$t('applicationFailed'));
@@ -386,11 +438,18 @@ export default {
         this.$message.error(this.$t('generateTokenFailed'));
       }
     },
+    /**
+     * 打开状态选择弹窗
+     * @param {Object} item - 申请项
+     */
     openStatusPicker(item) {
       this.statusPickerItem = item;
       this.newStatus = item.status || '';
       this.showStatusPicker = true;
     },
+    /**
+     * 确认更新申请状态
+     */
     async confirmStatusUpdate() {
       if (!this.newStatus || !this.statusPickerItem) return;
       this.updating = true;
@@ -411,14 +470,17 @@ export default {
         this.updating = false;
       }
     },
+    /**
+     * 导出列表为 CSV 文件
+     */
     handleExport() {
       const rows = this.filteredList.map(item => [
         item.uname + ' ' + item.last_name,
         item.type === 'individual' ? this.$t('individual') : this.$t('team'),
         item.city_name || '',
         item.vehicle_or_count,
-        item.availability_arr.map(a => this.$t('avail_' + a)).join(', '),
-        this.$t('status_' + item.status),
+        item.availability_arr.map(a => this.$t(availKeyMap[a] || 'avail_' + a)).join(', '),
+        this.$t(statusKeyMap[item.status] || 'status_' + item.status),
         this.formatDate(item.created_at)
       ]);
       const headers = [

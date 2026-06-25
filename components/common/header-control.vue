@@ -165,6 +165,16 @@
           >{{ $t('teamTitle') }}
           </v-tab>
 
+          <v-tab v-if="hasPendingChat && !isAdminSession"
+            :class="{
+                            'v-tab--active': getActiveMenuInx === 6,
+                            inactive: getActiveMenuInx !== 6,
+                        }"
+            @click.prevent="goToChat"
+          >
+            {{ $t('continueChat') }}
+          </v-tab>
+
           <v-tab  v-if="isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 5,
@@ -231,7 +241,7 @@
                 <v-list-item href='/information' v-if='userNewInfo.uid'>
                   <v-list-item-title>{{ $t('personalInformation') }}</v-list-item-title>
                 </v-list-item>
-    
+
                 <v-list-item @click='bingCart' v-if="userNewInfo.staff_id">
                   <v-list-item-title>{{ $t('shoppingCart') }}</v-list-item-title>
                 </v-list-item>
@@ -296,6 +306,8 @@ export default {
       userNewInfo: {},
       // 是否显示联系方式弹框
       isShowContactInfoDialog: false,
+      // 聊天相关
+      hasPendingChat: false,
     };
   },
   watch: {
@@ -310,14 +322,14 @@ export default {
         this.accountProfile();
       }
     }
-
   },
   mounted() {
     this.userNewInfo = this.getUserInfo;
     if (!this.isAdminSession && (this.getUserInfo.staff_id || this.getUserInfo.uid)) {
       this.accountProfile();
-
     }
+    // 检查是否有待处理的聊天会话
+    this.checkPendingChat();
   },
   computed: {
     ...mapGetters({
@@ -453,6 +465,38 @@ export default {
         this.$store.commit('SET_IS_ADMIN_SESSION', false);
       }
 
+    },
+    /** 检查是否有待处理的聊天会话 */
+    checkPendingChat() {
+      const pendingChat = localStorage.getItem('rider_pending_chat');
+      if (!pendingChat) {
+        this.hasPendingChat = false;
+        return;
+      }
+      try {
+        const chatData = JSON.parse(pendingChat);
+        this.hasPendingChat = !!chatData.application_id;
+      } catch (e) {
+        this.hasPendingChat = false;
+      }
+    },
+    /** 跳转到聊天页面 */
+    goToChat() {
+      const pendingChat = localStorage.getItem('rider_pending_chat');
+      if (pendingChat) {
+        try {
+          const chatData = JSON.parse(pendingChat);
+          if (chatData.application_id) {
+            window.location.href = `/chat?app_id=${encodeURIComponent(chatData.application_id)}`;
+            return;
+          }
+        } catch (e) {
+          console.error('Parse pending chat error:', e);
+        }
+      }
+      // 如果没有待处理聊天，跳转到首页
+      this.$message.warning(this.$t('noPendingChat'));
+      window.location.href = '/';
     }
   }
 };
@@ -483,8 +527,8 @@ export default {
   .header-app-bar {
     transition: all 500ms ease-in-out;
     height: 100px !important;
-    z-index: 9999 !important;
-    box-shadow: none;
+    z-index: 1000 !important;
+    box-shadow: none !important;
     background: linear-gradient(0deg, rgba(37, 37, 37, 0) 83.5%, rgba(37, 37, 37, 0.5) 100%);
 
     .pc-menu-box {
@@ -665,4 +709,6 @@ export default {
     }
   }
 }
+
+/* 继续聊天样式 */
 </style>

@@ -60,6 +60,8 @@
 </template>
 
 <script>
+import { CITY_NAMES, getVehicleLabel } from '@/utils/rider';
+
 export default {
   name: 'success-page',
   layout: 'default',
@@ -90,27 +92,41 @@ export default {
     }
   },
   methods: {
+    /**
+     * 根据城市ID获取多语言城市名称
+     * @param {number|string} cityId - 城市ID
+     * @returns {string} 多语言城市名称
+     */
     getCityName(cityId) {
       const lang = this.$i18n.locale;
-      const cityNames = {
-        1: { es: 'Valencia', zh: '瓦伦西亚', en: 'Valencia' },
-        2: { es: 'Madrid', zh: '马德里', en: 'Madrid' },
-        3: { es: 'Barcelona', zh: '巴塞罗那', en: 'Barcelona' },
-        4: { es: 'Otra ciudad', zh: '其他城市', en: 'Other city' }
+      return CITY_NAMES[cityId]?.[lang] || cityId;
+    },
+    /**
+     * 获取车辆类型的国际化key
+     * @param {string} type - 车辆类型
+     * @returns {string} 国际化key
+     */
+    getVehicleLabel,
+    /**
+     * 打开聊天窗口
+     */
+    openChat() {
+      if (!this.applicationId) {
+        this.$message.error(this.$t('noApplicationId'));
+        return;
+      }
+      // 保存到 localStorage，以便后续可以从 header 返回继续聊天
+      const chatData = {
+        application_id: this.applicationId,
+        formSummary: this.formSummary,
+        created_at: Date.now()
       };
-      return cityNames[cityId]?.[lang] || cityId;
+      localStorage.setItem('rider_pending_chat', JSON.stringify(chatData));
+      window.open(`/chat?app_id=${encodeURIComponent(this.applicationId)}`, '_blank');
     },
-    getVehicleLabel(type) {
-      const MAP = { moto: 'moto', bici_electrica: 'biciElectrica', bici: 'bici', coche: 'coche' };
-      return MAP[type] || type || '';
-    },
-        openChat() {
-          if (!this.applicationId) {
-            this.$message.error(this.$t('noApplicationId'));
-            return;
-          }
-          window.open(`/chat?app_id=${encodeURIComponent(this.applicationId)}`, '_blank');
-    },
+    /**
+     * 返回首页
+     */
     goHome() {
       window.location.href = '/';
     }

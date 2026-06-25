@@ -108,7 +108,7 @@ export function throttle (func, wait = 1000) {
  */
 export function debounce (func, wait = 1000) {
 	let _lastTime = null
-	return function () {
+	const debounced = function () {
 		const context = this
 		const args = arguments
 		if (_lastTime) {
@@ -118,6 +118,13 @@ export function debounce (func, wait = 1000) {
 			func.apply(context, args)
 		}, wait)
 	}
+	debounced.cancel = function () {
+		if (_lastTime) {
+			clearTimeout(_lastTime)
+			_lastTime = null
+		}
+	}
+	return debounced
 }
 
 /**
