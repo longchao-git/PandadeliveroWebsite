@@ -471,5 +471,13 @@
   "riderLegalText": "Submission of this application does not constitute an employment relationship and does not guarantee immediate activation as a collaborator. Pandadelivero does not require exclusivity. Service opportunities may vary by city, demand, location, availability and service quality.",
   "conversationList": "Conversation List",
   "noConversations": "No conversations yet",
-  "riders": "riders"
+  "riders": "riders",
+  "continueChat": "Continue Chat",
+  "clearChatSession": "Clear Chat",
+  "noPendingChat": "No pending chat session",
+  "confirmClearChatSession": "Are you sure you want to clear the chat session? This will remove your pending chat history.",
+  "chatSessionCleared": "Chat session cleared",
+  "exitChat": "Exit Chat",
+  "confirmExitChat": "Are you sure you want to exit the chat? You can return to continue chatting later.",
+  "confirmExitAdminChat": "Are you sure you want to exit the admin chat?"
 }

@@ -471,5 +471,13 @@
   "riderLegalText": "El envío de esta solicitud no constituye una relación laboral ni garantiza la activación inmediata como colaborador. Pandadelivero no exige exclusividad. Las oportunidades de servicio pueden variar según ciudad, demanda, ubicación, disponibilidad y calidad del servicio.",
   "conversationList": "Lista de conversaciones",
   "noConversations": "Sin conversaciones",
-  "riders": "repartidores"
+  "riders": "repartidores",
+  "continueChat": "Continuar chat",
+  "clearChatSession": "Limpiar chat",
+  "noPendingChat": "Sin sesión de chat pendiente",
+  "confirmClearChatSession": "¿Está seguro de que desea limpiar la sesión de chat? Esto eliminará su historial de chat pendiente.",
+  "chatSessionCleared": "Sesión de chat limpiada",
+  "exitChat": "Salir del chat",
+  "confirmExitChat": "¿Está seguro de que desea salir del chat? Puede volver más tarde para continuar chateando.",
+  "confirmExitAdminChat": "¿Está seguro de que desea salir del chat de administración?"
 }

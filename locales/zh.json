@@ -470,5 +470,13 @@
   "riderLegalText": "提交申请不构成劳动关系，不保证立即激活或固定订单量。合作骑手非独家，可同时服务其他平台。",
   "conversationList": "会话列表",
   "noConversations": "暂无会话",
-  "riders": "名骑手"
+  "riders": "名骑手",
+  "continueChat": "继续聊天",
+  "clearChatSession": "清除聊天",
+  "noPendingChat": "没有待处理的聊天会话",
+  "confirmClearChatSession": "确定要清除聊天会话吗？这将删除您待处理的聊天记录。",
+  "chatSessionCleared": "聊天会话已清除",
+  "exitChat": "退出聊天",
+  "confirmExitChat": "确定要退出聊天吗？您可以稍后返回继续聊天。",
+  "confirmExitAdminChat": "确定要退出管理员聊天吗？"
 }

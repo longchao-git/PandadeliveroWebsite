@@ -263,7 +263,8 @@ export default {
       showTransferModal: false,
       adminList: [],
       pendingInitialClaim: false,
-      recruiterAvatar: ''
+      recruiterAvatar: '',
+      _isSocketInitialized: false
     }
   },
   computed: {
@@ -272,6 +273,9 @@ export default {
     }
   },
   mounted () {
+    if (this._isSocketInitialized) return
+    this._isSocketInitialized = true
+
     this.adminId = this.$route.query.admin_id || ''
     this.token = this.$route.query.token || ''
     this.applicationId = this.$route.query.application_id || ''
@@ -282,6 +286,10 @@ export default {
     }
     this.pendingInitialClaim = !!this.applicationId
     this.verifyAndLoad()
+
+    this.$once('hook:destroyed', () => {
+      this.closeSocket()
+    })
   },
   beforeDestroy () {
     this.closeSocket()
@@ -340,19 +348,27 @@ export default {
     async loadMessages () {
       if (!this.applicationId) return
       this.loadingMessages = true
+      // 重置已显示消息 ID 集合
+      this._displayedMessageIds = new Set()
       try {
         const res = await this.$axios.get(`/admin/chat/conversations-messages-${this.applicationId}`, this.adminRequestConfig())
         const data = unwrapData(res)
         if (Array.isArray(data.messages)) {
-          this.messages = data.messages.map(msg => ({
-            message_id: String(msg.message_id || ''),
-            sender_type: msg.sender_type || 'system',
-            sender_name: msg.sender_name || '',
-            content: msg.content || '',
-            content_es: msg.content_es || '',
-            content_zh: msg.content_zh || '',
-            created_at: msg.created_at || ''
-          }))
+          this.messages = data.messages.map(msg => {
+            // 预填充已显示的消息 ID
+            if (msg.message_id) {
+              this._displayedMessageIds.add(String(msg.message_id))
+            }
+            return {
+              message_id: String(msg.message_id || ''),
+              sender_type: msg.sender_type || 'system',
+              sender_name: msg.sender_name || '',
+              content: msg.content || '',
+              content_es: msg.content_es || '',
+              content_zh: msg.content_zh || '',
+              created_at: msg.created_at || ''
+            }
+          })
         }
         if (data.claim) {
           this.applyClaimState(data.claim)
@@ -368,9 +384,15 @@ export default {
     },
     appendMessage (message) {
       if (!message || !message.message_id) return
-      if (this.messages.some(item => String(item.message_id) === String(message.message_id))) {
+      // 使用 Set 来跟踪已显示的消息 ID，避免数组遍历
+      const msgId = String(message.message_id)
+      if (this._displayedMessageIds && this._displayedMessageIds.has(msgId)) {
         return
       }
+      if (!this._displayedMessageIds) {
+        this._displayedMessageIds = new Set()
+      }
+      this._displayedMessageIds.add(msgId)
       this.messages.push(message)
       this.$nextTick(() => this.scrollToBottom())
     },
@@ -750,8 +772,10 @@ export default {
     },
     scheduleReconnect () {
       this.clearReconnectTimer()
-      const delays = [1000, 2000, 5000, 10000, 30000]
-      const delay = delays[Math.min(this.reconnectAttempts, delays.length - 1)]
+      // 指数退避策略：1s, 2s, 4s, 8s, 16s, 32s (最大 30s)
+      const baseDelay = 1000
+      const maxDelay = 30000
+      const delay = Math.min(baseDelay * Math.pow(2, this.reconnectAttempts), maxDelay)
       this.reconnectAttempts += 1
       this.reconnectTimer = setTimeout(() => {
         this.connectSocket()
@@ -769,8 +793,17 @@ export default {
       this.clearSocketPing()
       this.resetSocketReadyState()
       if (this.socket) {
+        this.socket.onopen = null
+        this.socket.onmessage = null
+        this.socket.onerror = null
         this.socket.onclose = null
-        this.socket.close()
+        try {
+          if (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING) {
+            this.socket.close()
+          }
+        } catch (e) {
+          console.warn('WebSocket close error:', e)
+        }
         this.socket = null
       }
     },
@@ -799,9 +832,15 @@ export default {
       window.location.href = '/'
     },
     logoutAdmin () {
-      this.closeSocket()
-      this.$store.commit('SET_IS_ADMIN_SESSION', false)
-      window.location.href = '/'
+      this.$confirm(this.$t('confirmExitAdminChat'), this.$t('prompt'), {
+        confirmButtonText: this.$t('confirm'),
+        cancelButtonText: this.$t('cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.closeSocket()
+        this.$store.commit('SET_IS_ADMIN_SESSION', false)
+        window.location.href = '/'
+      }).catch(() => {})
     }
   }
 }
