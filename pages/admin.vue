@@ -1,5 +1,21 @@
 <template>
   <div class="admin-page">
+    <div v-if="verifying" class="page-loading">
+      <div class="loading-spinner"></div>
+      <p>{{ $t('loading') }}</p>
+    </div>
+    <div v-else-if="verifyError" class="page-error">
+      <div class="error-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#EF4444" stroke-width="2"/>
+          <path d="M15 9l-6 6M9 9l6 6" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>{{ $t('tokenInvalid') }}</h3>
+      <p>{{ verifyError }}</p>
+      <button class="btn-home" @click="goHome">{{ $t('redirectHomepage') }}</button>
+    </div>
+    <template v-else>
     <!-- 顶部导航 -->
     <div class="admin-nav">
       <div class="admin-nav-inner">
@@ -111,7 +127,7 @@
           <!-- 表格行 -->
           <div
             v-for="item in paginatedList"
-            :key="item.application_id"
+            :key="item.conversation_id || item.application_id"
             class="table-row"
             :class="{ 'row-new': item.isNew }"
           >
@@ -121,7 +137,7 @@
                   {{ item.uname ? item.uname.charAt(0).toUpperCase() : '?' }}
                 </div>
                 <div class="applicant-detail">
-                  <span class="applicant-name">{{ item.uname }} {{ item.last_name }}</span>
+                  <span class="applicant-name">{{ item.type === 'team' ? (item.team_name || item.uname) : (item.uname + ' ' + item.last_name) }}</span>
                   <span class="applicant-mobile">{{ item.mobile }}</span>
                 </div>
               </div>
@@ -153,7 +169,6 @@
             <div class="td td-action">
               <div class="action-btns">
                 <button
-                  v-if="item.type === 'individual'"
                   class="action-btn chat-btn"
                   @click="openChat(item)"
                   :title="$t('openChat')"
@@ -227,19 +242,24 @@
         </div>
       </div>
     </div>
+    </template>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex';
 import { getVehicleLabel } from '@/utils/rider';
 import { debounce } from '@/utils/utils';
+import { unwrapData } from '@/utils/api';
 
 export default {
   name: 'admin-page',
   layout: 'default',
   data() {
     return {
+      adminId: '',
+      token: '',
+      verifying: true,
+      verifyError: '',
       loading: false,
       list: [],
       activeFilter: 'all',
@@ -280,8 +300,6 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['getUserInfo']),
-    ...mapState({ isAdminSession: state => state.isAdminSession }),
     filteredList() {
       let result = this.list;
       if (this.activeFilter === 'individual') {
@@ -293,6 +311,7 @@ export default {
         const kw = this.searchKeyword.trim().toLowerCase();
         result = result.filter(i =>
           (i.uname + ' ' + i.last_name).toLowerCase().includes(kw) ||
+          (i.team_name || '').toLowerCase().includes(kw) ||
           (i.mobile || '').includes(kw) ||
           (i.city_name || '').toLowerCase().includes(kw)
         );
@@ -338,18 +357,7 @@ export default {
       this.currentPage = 1;
     }, 300);
 
-    const adminId = this.$route.query.admin_id;
-    const token = this.$route.query.token;
-    if (adminId && token) {
-      this.$store.commit('SET_IS_ADMIN_SESSION', true);
-      this.loadList();
-      return;
-    }
-    if (this.isAdminSession || this.getUserInfo.staff_id) {
-      this.loadList();
-      return;
-    }
-    this.$router.replace('/');
+    this.initAccess();
   },
   beforeDestroy() {
     if (this.debouncedSearch && this.debouncedSearch.cancel) {
@@ -357,23 +365,89 @@ export default {
     }
   },
   methods: {
-    /**
+    adminParams(extra = {}) {
+      return { admin_id: this.adminId, ...extra };
+    },
+    adminHeaders() {
+      return { Api: 'ADMIN', TOKEN: this.token };
+    },
+    adminRequestConfig(extra = {}) {
+      return {
+        params: this.adminParams(extra),
+        headers: this.adminHeaders()
+      };
+    },
+    saveAdminSession() {
+      if (!process.client || !this.adminId || !this.token) return;
+      sessionStorage.setItem('pandadelivero_admin_session', JSON.stringify({
+        admin_id: this.adminId,
+        token: this.token
+      }));
+    },
+    restoreAdminSession() {
+      if (!process.client) return null;
+      try {
+        const raw = sessionStorage.getItem('pandadelivero_admin_session');
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed.admin_id && parsed.token) {
+          return parsed;
+        }
+      } catch (e) {}
+      return null;
+    },
+    initAccess() {
+      this.adminId = this.$route.query.admin_id || '';
+      this.token = this.$route.query.token || '';
+      if (!this.adminId || !this.token) {
+        const stored = this.restoreAdminSession();
+        if (stored) {
+          this.adminId = stored.admin_id;
+          this.token = stored.token;
+          if (!this.$route.query.admin_id || !this.$route.query.token) {
+            this.$router.replace({
+              path: '/admin',
+              query: { admin_id: this.adminId, token: this.token }
+            });
+            return;
+          }
+        }
+      }
+      if (!this.adminId || !this.token) {
+        this.verifying = false;
+        this.$router.replace('/');
+        return;
+      }
+      this.saveAdminSession();
+      this.verifyAndLoad();
+    },
+    async verifyAndLoad() {
+      this.verifying = true;
+      this.verifyError = '';
+      try {
+        await this.$axios.get('/admin/chat/verify', this.adminRequestConfig());
+        this.$store.commit('SET_IS_ADMIN_SESSION', true);
+        await this.loadList();
+      } catch (err) {
+        this.verifyError = err.message || this.$t('tokenInvalid');
+      } finally {
+        this.verifying = false;
+      }
+    },
+    goHome() {
+      window.location.href = '/';
+    },
+     /**
      * 加载申请列表数据
      */
     async loadList() {
       this.loading = true;
       try {
-        const res = await this.$axios.get('/staff/applications', {
-          params: { page: 1, page_size: 100 }
-        });
-        let items = [];
-        if (res && res.data && Array.isArray(res.data.list)) {
-          items = res.data.list;
-          if (res.data.stats) {
-            this.stats = { ...this.stats, ...res.data.stats };
-          }
-        } else if (Array.isArray(res)) {
-          items = res;
+        const res = await this.$axios.get('/admin/chat/applications', this.adminRequestConfig({ page: 1, page_size: 100 }));
+        const data = unwrapData(res);
+        const items = Array.isArray(data.list) ? data.list : [];
+        if (data.stats) {
+          this.stats = { ...this.stats, ...data.stats };
         }
         this.list = items.map(item => {
           const isNew = item.status === 'new';
@@ -382,7 +456,9 @@ export default {
             : (item.vehicle_type ? this.$t(getVehicleLabel(item.vehicle_type)) : '—');
           return {
             ...item,
+            id: parseInt(item.id, 10) || 0,
             type: item.type || 'individual',
+            conversation_id: String(item.conversation_id || item.application_id || ''),
             isNew,
             vehicle_or_count: vehicleOrCount,
             availability_arr: item.availability ? item.availability.split(',') : []
@@ -422,21 +498,13 @@ export default {
      * 打开聊天窗口
      * @param {Object} item - 申请项
      */
-    async openChat(item) {
-      if (!item || !item.application_id) {
+    openChat(item) {
+      if (!item || !item.conversation_id) {
         this.$message.error(this.$t('applicationFailed'));
         return;
       }
-      try {
-        const data = await this.$axios.post('/staff/chat/generate-token', {
-          application_id: item.application_id
-        });
-        const token = data && data.token;
-        if (!token) throw new Error('no token');
-        window.open(`/admin-chat?token=${encodeURIComponent(token)}&application_id=${item.application_id}`, '_blank');
-      } catch {
-        this.$message.error(this.$t('generateTokenFailed'));
-      }
+      const url = `/admin-chat?token=${encodeURIComponent(this.token)}&admin_id=${encodeURIComponent(this.adminId)}&application_id=${encodeURIComponent(item.application_id)}&conversation_id=${encodeURIComponent(item.conversation_id)}`;
+      window.open(url, '_blank');
     },
     /**
      * 打开状态选择弹窗
@@ -448,22 +516,46 @@ export default {
       this.showStatusPicker = true;
     },
     /**
+     * 同步列表中某项的状态，并更新统计
+     */
+    applyStatusToList(applicationId, status) {
+      const idx = this.list.findIndex(i => parseInt(i.id, 10) === applicationId);
+      if (idx === -1) return;
+      const prev = this.list[idx];
+      const oldStatus = prev.status;
+      this.$set(this.list, idx, {
+        ...prev,
+        status,
+        isNew: status === 'new'
+      });
+      if (oldStatus === 'new' && status !== 'new') {
+        this.stats.notContacted = Math.max(0, (this.stats.notContacted || 0) - 1);
+      } else if (oldStatus !== 'new' && status === 'new') {
+        this.stats.notContacted = (this.stats.notContacted || 0) + 1;
+      }
+    },
+    /**
      * 确认更新申请状态
      */
     async confirmStatusUpdate() {
       if (!this.newStatus || !this.statusPickerItem) return;
+      const applicationId = parseInt(this.statusPickerItem.id, 10);
+      if (!applicationId) {
+        this.$message.error(this.$t('statusUpdateFailed'));
+        return;
+      }
       this.updating = true;
       try {
         await this.$axios.put(
-          `/staff/applications/${this.statusPickerItem.application_id}/status`,
-          { status: this.newStatus }
+          `/admin/chat/applications-status-${applicationId}`,
+          { application_id: applicationId, status: this.newStatus },
+          this.adminRequestConfig({ application_id: applicationId })
         );
-        const idx = this.list.findIndex(i => i.application_id === this.statusPickerItem.application_id);
-        if (idx > -1) {
-          this.list[idx] = { ...this.list[idx], status: this.newStatus };
-        }
+        this.applyStatusToList(applicationId, this.newStatus);
         this.$message.success(this.$t('statusUpdated'));
         this.showStatusPicker = false;
+        this.statusPickerItem = null;
+        this.newStatus = '';
       } catch (err) {
         this.$message.error(this.$t('statusUpdateFailed'));
       } finally {
@@ -475,18 +567,23 @@ export default {
      */
     handleExport() {
       const rows = this.filteredList.map(item => [
-        item.uname + ' ' + item.last_name,
+        item.type === 'team' ? (item.team_name || item.uname) : (item.uname + ' ' + item.last_name),
         item.type === 'individual' ? this.$t('individual') : this.$t('team'),
         item.city_name || '',
         item.vehicle_or_count,
-        item.availability_arr.map(a => this.$t(availKeyMap[a] || 'avail_' + a)).join(', '),
-        this.$t(statusKeyMap[item.status] || 'status_' + item.status),
-        this.formatDate(item.created_at)
+        item.availability_arr.map(a => this.$t(this.availKeyMap[a] || 'avail_' + a)).join(', '),
+        this.$t(this.statusKeyMap[item.status] || 'status_' + item.status),
+        this.formatDate(item.created_at),
+        item.email || '',
+        item.contact_type || '',
+        item.can_invoice || '',
+        item.comments || ''
       ]);
       const headers = [
         this.$t('name'), this.$t('type'), this.$t('city'),
         this.$t('vehicleOrCount'), this.$t('availability'),
-        this.$t('status'), this.$t('appliedAt')
+        this.$t('status'), this.$t('appliedAt'),
+        this.$t('email'), this.$t('contactType'), this.$t('canInvoice'), this.$t('comments')
       ];
       const csvContent = [headers, ...rows]
         .map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))
@@ -510,6 +607,57 @@ export default {
   background: #F5F5F5;
   display: flex;
   flex-direction: column;
+}
+
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+
+  p {
+    color: #9E9E9E;
+    font-size: 14px;
+  }
+}
+
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  gap: 16px;
+  background: #F5F5F5;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1A1A1A;
+  }
+
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+.btn-home {
+  background: #FABE1D;
+  color: #1A1A1A;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #e5ab0a;
+  }
 }
 
 /* 导航栏 */

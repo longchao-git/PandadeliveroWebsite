@@ -478,5 +478,6 @@
   "chatSessionCleared": "聊天会话已清除",
   "exitChat": "退出聊天",
   "confirmExitChat": "确定要退出聊天吗？您可以稍后返回继续聊天。",
-  "confirmExitAdminChat": "确定要退出管理员聊天吗？"
+  "confirmExitAdminChat": "确定要退出管理员聊天吗？",
+  "unreadMessages": "{count} 条未读"
 }

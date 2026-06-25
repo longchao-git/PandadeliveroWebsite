@@ -395,6 +395,10 @@ export default {
           this.$message.error(this.$t('pleaseReadAndUnderstandPrivacyPolicy'));
           return;
         }
+        if (this.form.city_id === 4 && !this.form.city_other.trim()) {
+          this.$message.error(this.$t('pleaseEnterOtherCity'));
+          return;
+        }
 
         this.submitting = true;
         try {
@@ -408,7 +412,8 @@ export default {
             is_autonomo: this.form.is_autonomo,
             availability: this.form.availability.join(','),
             share_code: this.form.share_code || '',
-            comments: this.form.comments || ''
+            comments: this.form.comments || '',
+            privacy_agreed: this.form.privacy_agreed ? 1 : 0
           };
           if (this.form.city_id === 4 && this.form.city_other) {
             params.city_other = this.form.city_other;
@@ -419,12 +424,16 @@ export default {
           const appId = String(
             resData.application_id || resData.staff_id || resData.app_id || resData.id || ''
           ).trim();
+          const conversationId = String(resData.conversation_id || appId || '').trim();
 
-          if (!appId) {
+          if (!appId || !conversationId) {
             this.$message.error(this.$t('applicationFailed'));
             return;
           }
 
+          sessionStorage.setItem('application_id', appId);
+          sessionStorage.setItem('conversation_id', conversationId);
+          sessionStorage.setItem('application_type', 'individual');
           sessionStorage.setItem('rider_application_id', appId);
           sessionStorage.setItem('rider_form_summary', JSON.stringify({
             uname: this.form.uname,
@@ -432,10 +441,12 @@ export default {
             mobile: this.form.mobile,
             city_id: this.form.city_id,
             vehicle_type: this.form.vehicle_type,
+            type: 'individual',
+            conversation_id: conversationId,
             created_at: resData.created_at || new Date().toLocaleString()
           }));
 
-          await this.$router.push({ path: '/success', query: { app_id: appId } });
+          await this.$router.push({ path: '/success', query: { app_id: appId, conversation_id: conversationId, type: 'individual' } });
         } catch (err) {
           this.$message.error(err.message || this.$t('applicationFailed'));
         } finally {

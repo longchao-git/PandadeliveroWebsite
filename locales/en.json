@@ -479,5 +479,6 @@
   "chatSessionCleared": "Chat session cleared",
   "exitChat": "Exit Chat",
   "confirmExitChat": "Are you sure you want to exit the chat? You can return to continue chatting later.",
-  "confirmExitAdminChat": "Are you sure you want to exit the admin chat?"
+  "confirmExitAdminChat": "Are you sure you want to exit the admin chat?",
+  "unreadMessages": "{count} unread"
 }

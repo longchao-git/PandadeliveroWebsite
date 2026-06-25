@@ -115,8 +115,8 @@ export default {
   ],
 
   axios: {
-    withCredentials: true,
-    credentials: true,
+    withCredentials: false,
+    credentials: false,
     proxy: true
   },
 

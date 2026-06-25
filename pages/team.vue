@@ -252,11 +252,30 @@ export default {
       if (idx > -1) this.form.availability.splice(idx, 1);
       else this.form.availability.push(val);
     },
+    unwrapRegisterResponse(res) {
+      if (!res) return {};
+      if (res.application_id || res.conversation_id || res.app_id || res.id) {
+        return res;
+      }
+      if (res.data && typeof res.data === 'object') {
+        if (res.data.application_id || res.data.conversation_id || res.data.app_id || res.data.id) {
+          return res.data;
+        }
+        if (res.data.data && typeof res.data.data === 'object') {
+          return res.data.data;
+        }
+      }
+      return res;
+    },
     handleSubmit() {
       this.$refs.teamForm.validate(async (valid) => {
         if (!valid) return;
         if (!this.form.privacy_agreed) {
           this.$message.error(this.$t('pleaseReadAndUnderstandPrivacyPolicy'));
+          return;
+        }
+        if (this.form.city_id === 4 && !this.form.city_other.trim()) {
+          this.$message.error(this.$t('pleaseEnterOtherCity'));
           return;
         }
         this.submitting = true;
@@ -270,16 +289,40 @@ export default {
             rider_count: this.form.rider_count,
             can_invoice: this.form.can_invoice,
             availability: this.form.availability.join(','),
-            comments: this.form.comments || ''
+            comments: this.form.comments || '',
+            privacy_agreed: this.form.privacy_agreed ? 1 : 0
           };
           if (this.form.city_id === 4 && this.form.city_other) {
             params.city_other = this.form.city_other;
           }
-          await this.$axios.post('/staff/team/register', params);
+          const res = await this.$axios.post('/staff/team/register', params);
+          const resData = this.unwrapRegisterResponse(res);
+          const appId = String(resData.application_id || resData.app_id || resData.id || '').trim();
+          const conversationId = String(resData.conversation_id || appId || '').trim();
+          if (!appId || !conversationId) {
+            this.$message.error(this.$t('applicationFailed'));
+            return;
+          }
+          sessionStorage.setItem('application_id', appId);
+          sessionStorage.setItem('conversation_id', conversationId);
+          sessionStorage.setItem('application_type', 'team');
+          sessionStorage.setItem('rider_application_id', appId);
+          sessionStorage.setItem('rider_form_summary', JSON.stringify({
+            uname: this.form.uname,
+            last_name: '',
+            team_name: this.form.team_name,
+            mobile: this.form.mobile,
+            city_id: this.form.city_id,
+            rider_count: this.form.rider_count,
+            type: 'team',
+            conversation_id: conversationId,
+            created_at: resData.created_at || new Date().toLocaleString()
+          }));
           this.$message.success(this.$t('submittedSuccessfullyDataUnderReview'));
           this.$refs.teamForm.resetFields();
           this.form.availability = [];
           this.form.privacy_agreed = false;
+          await this.$router.push({ path: '/success', query: { app_id: appId, conversation_id: conversationId, type: 'team' } });
         } catch (err) {
           this.$message.error(err.message || this.$t('applicationFailed'));
         } finally {

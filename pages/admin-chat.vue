@@ -41,7 +41,7 @@
                 v-for="conv in conversationList"
                 :key="conv.conversation_id"
                 class="conv-item"
-                :class="{ active: String(conv.conversation_id) === String(applicationId), disabled: !socketReady }"
+                :class="{ active: String(conv.conversation_id) === String(conversationId), disabled: !socketReady }"
                 @click="switchConversation(conv.conversation_id)"
               >
                 <div class="conv-avatar">{{ (conv.rider_name || conv.uname || '?').charAt(0).toUpperCase() }}</div>
@@ -54,9 +54,16 @@
                     </span>
                   </div>
                 </div>
-                <span class="conv-badge" :class="conv.latest_status || 'new'">
-                  {{ $t(conv.latest_status || 'new') }}
-                </span>
+                <div class="conv-right">
+                  <span
+                    v-if="unreadCount(conv) > 0"
+                    class="conv-unread"
+                    :title="$t('unreadMessages', { count: unreadCount(conv) })"
+                  >{{ formatUnreadCount(conv) }}</span>
+                  <span class="conv-badge" :class="conv.latest_status || 'new'">
+                    {{ $t(conv.latest_status || 'new') }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -65,10 +72,10 @@
           <div class="panel-center">
             <div class="panel-center-header">
               <div class="chat-with">
-                <span class="chat-with-name">{{ applicationDetail ? (applicationDetail.uname + ' ' + applicationDetail.last_name) : '' }}</span>
+                <span class="chat-with-name">{{ applicationDetail ? (applicationDetail.type === 'team' ? (applicationDetail.team_name || applicationDetail.uname) : (applicationDetail.uname + ' ' + applicationDetail.last_name)) : '' }}</span>
                 <span class="chat-with-city">{{ applicationDetail ? applicationDetail.city_name : '' }}</span>
               </div>
-              <div v-if="applicationId" class="handler-bar">
+              <div v-if="conversationId" class="handler-bar">
                 <span class="handler-text">
                   <template v-if="chatMode === 'active'">{{ $t('handlingByYou') }}</template>
                   <template v-else-if="handlerAdminName">{{ $t('handlingByOther', { name: handlerAdminName }) }}</template>
@@ -171,13 +178,17 @@
               <div class="detail-list">
                 <div class="detail-item">
                   <span class="d-label">{{ $t('name') }}</span>
-                  <span class="d-value">{{ applicationDetail.uname }} {{ applicationDetail.last_name }}</span>
+                  <span class="d-value">{{ applicationDetail.type === 'team' ? (applicationDetail.team_name || applicationDetail.uname) : (applicationDetail.uname + ' ' + applicationDetail.last_name) }}</span>
                 </div>
                 <div class="detail-item">
                   <span class="d-label">{{ $t('mobileNumber') }}</span>
                   <span class="d-value">{{ applicationDetail.mobile }}</span>
                 </div>
-                <div class="detail-item">
+                <div v-if="applicationDetail.email" class="detail-item">
+                  <span class="d-label">{{ $t('email') }}</span>
+                  <span class="d-value">{{ applicationDetail.email }}</span>
+                </div>
+                <div v-if="applicationDetail.type !== 'team'" class="detail-item">
                   <span class="d-label">{{ $t('contactType') }}</span>
                   <span class="d-value">{{ applicationDetail.contact_type === 'whatsapp' ? $t('whatsapp') : $t('smsShort') }}</span>
                 </div>
@@ -185,13 +196,21 @@
                   <span class="d-label">{{ $t('city') }}</span>
                   <span class="d-value">{{ applicationDetail.city_name }}</span>
                 </div>
-                <div class="detail-item">
+                <div v-if="applicationDetail.type !== 'team'" class="detail-item">
                   <span class="d-label">{{ $t('vehicleType') }}</span>
                   <span class="d-value">{{ $t(getVehicleLabel(applicationDetail.vehicle_type)) }}</span>
                 </div>
-                <div class="detail-item">
+                <div v-if="applicationDetail.type !== 'team'" class="detail-item">
                   <span class="d-label">{{ $t('autonomoStatus') }}</span>
                   <span class="d-value">{{ $t(getAutonomoLabel(applicationDetail.is_autonomo)) }}</span>
+                </div>
+                <div v-if="applicationDetail.type === 'team'" class="detail-item">
+                  <span class="d-label">{{ $t('riderCount') }}</span>
+                  <span class="d-value">{{ applicationDetail.rider_count }}</span>
+                </div>
+                <div v-if="applicationDetail.type === 'team'" class="detail-item">
+                  <span class="d-label">{{ $t('canInvoice') }}</span>
+                  <span class="d-value">{{ applicationDetail.can_invoice }}</span>
                 </div>
                 <div class="detail-item">
                   <span class="d-label">{{ $t('availability') }}</span>
@@ -238,6 +257,7 @@ export default {
       adminId: '',
       token: '',
       applicationId: '',
+      conversationId: '',
       verifying: true,
       verifyError: '',
       recruiterName: '',
@@ -251,6 +271,7 @@ export default {
       translating: false,
       sending: false,
       socket: null,
+      socketConnecting: false,
       reconnectTimer: null,
       reconnectAttempts: 0,
       socketManuallyClosed: false,
@@ -269,7 +290,7 @@ export default {
   },
   computed: {
     canSend () {
-      return this.socketReady && this.chatMode === 'active' && !!this.applicationId
+      return this.socketReady && this.chatMode === 'active' && !!this.conversationId
     }
   },
   mounted () {
@@ -279,12 +300,19 @@ export default {
     this.adminId = this.$route.query.admin_id || ''
     this.token = this.$route.query.token || ''
     this.applicationId = this.$route.query.application_id || ''
+    this.conversationId = this.$route.query.conversation_id || ''
     if (!this.adminId || !this.token) {
       this.verifyError = this.$t('missingAdminChatParams')
       this.verifying = false
       return
     }
-    this.pendingInitialClaim = !!this.applicationId
+    if (process.client) {
+      sessionStorage.setItem('pandadelivero_admin_session', JSON.stringify({
+        admin_id: this.adminId,
+        token: this.token
+      }))
+    }
+    this.pendingInitialClaim = !!this.conversationId
     this.verifyAndLoad()
 
     this.$once('hook:destroyed', () => {
@@ -309,24 +337,77 @@ export default {
     },
     mapConversationItem (item) {
       return {
-        conversation_id: String(item.application_id),
-        rider_name: item.rider_name || `${item.uname || ''} ${item.last_name || ''}`.trim(),
+        conversation_id: String(item.conversation_id || item.application_id),
+        application_id: item.application_id,
+        type: item.type || 'individual',
+        rider_name: item.rider_name || item.team_name || `${item.uname || ''} ${item.last_name || ''}`.trim(),
         uname: item.uname,
         last_name: item.last_name,
+        team_name: item.team_name || '',
+        mobile: item.mobile || '',
+        email: item.email || '',
+        contact_type: item.contact_type || '',
         city_name: item.city_name,
         vehicle_type: item.vehicle_type,
+        is_autonomo: item.is_autonomo,
+        availability: item.availability || '',
+        rider_count: item.rider_count || 0,
+        can_invoice: item.can_invoice || '',
         latest_status: item.status || item.latest_status,
         handler_admin_id: Number(item.handler_admin_id || 0),
         handler_admin_name: item.handler_admin_name || '',
-        last_message_at: item.last_message_at || ''
+        last_message_at: item.last_message_at || '',
+        recruiter_unread: item.recruiter_unread != null ? Number(item.recruiter_unread) : undefined
       }
+    },
+    unreadCount (conv) {
+      return Number(conv && conv.recruiter_unread ? conv.recruiter_unread : 0)
+    },
+    formatUnreadCount (conv) {
+      const count = this.unreadCount(conv)
+      return count > 99 ? '99+' : String(count)
+    },
+    clearConversationUnread (conversationId) {
+      const idx = this.conversationList.findIndex(c => String(c.conversation_id) === String(conversationId))
+      if (idx < 0) return
+      this.$set(this.conversationList, idx, {
+        ...this.conversationList[idx],
+        recruiter_unread: 0
+      })
+    },
+    syncConversationFromMessagePush (conversationId, data = {}) {
+      const incomingId = String(conversationId || '')
+      if (!incomingId) return
+
+      const idx = this.conversationList.findIndex(c => String(c.conversation_id) === incomingId)
+      if (idx < 0) {
+        this.loadConversationList()
+        return
+      }
+
+      const conv = this.conversationList[idx]
+      const isActive = incomingId === String(this.conversationId)
+      const next = {
+        ...conv,
+        last_message_at: (data.message && data.message.created_at) || new Date().toISOString()
+      }
+
+      if (isActive) {
+        next.recruiter_unread = 0
+      } else if (typeof data.recruiter_unread !== 'undefined') {
+        next.recruiter_unread = Number(data.recruiter_unread || 0)
+      } else if (data.message && data.message.sender_type === 'rider') {
+        next.recruiter_unread = this.unreadCount(conv) + 1
+      }
+
+      this.$set(this.conversationList, idx, next)
     },
     async verifyAndLoad () {
       this.verifying = true
       this.verifyError = ''
       try {
         const res = await this.$axios.get('/admin/chat/verify', this.adminRequestConfig(
-          this.applicationId ? { application_id: this.applicationId } : {}
+          this.conversationId ? { conversation_id: this.conversationId, application_id: this.applicationId } : {}
         ))
         const d = unwrapData(res)
         this.recruiterName = (d.recruiter_name || this.$t('recruiter'))
@@ -335,6 +416,8 @@ export default {
         this.recruiterAvatar = (d.recruiter_name || this.$t('recruiter')).charAt(0).toUpperCase()
         if (d.application) {
           this.applicationDetail = d.application
+          this.conversationId = this.conversationId || String(d.application.conversation_id || '')
+          this.applicationId = this.applicationId || String(d.application.application_id || '')
         }
         await this.loadConversationList()
         this.resetSocketReadyState()
@@ -346,12 +429,12 @@ export default {
       }
     },
     async loadMessages () {
-      if (!this.applicationId) return
+      if (!this.conversationId) return
       this.loadingMessages = true
       // 重置已显示消息 ID 集合
       this._displayedMessageIds = new Set()
       try {
-        const res = await this.$axios.get(`/admin/chat/conversations-messages-${this.applicationId}`, this.adminRequestConfig())
+        const res = await this.$axios.get(`/admin/chat/conversations-messages-${this.conversationId}`, this.adminRequestConfig())
         const data = unwrapData(res)
         if (Array.isArray(data.messages)) {
           this.messages = data.messages.map(msg => {
@@ -373,6 +456,7 @@ export default {
         if (data.claim) {
           this.applyClaimState(data.claim)
         }
+        this.clearConversationUnread(this.conversationId)
         this.$nextTick(() => {
           this.$nextTick(() => this.scrollToBottom())
         })
@@ -402,7 +486,7 @@ export default {
         const res = await this.$axios.get('/admin/chat/conversations', this.adminRequestConfig({ page: 1, page_size: 50 }))
         const list = unwrapList(res)
         this.conversationList = list
-          .filter(item => item.application_id)
+          .filter(item => item.conversation_id || item.application_id)
           .map(item => this.mapConversationItem(item))
       } catch (err) {
         console.error('loadConversationList error:', err)
@@ -414,11 +498,21 @@ export default {
       const conv = this.conversationList.find(c => String(c.conversation_id) === String(convId))
       if (!conv) return
       this.applicationDetail = {
-        application_id: convId,
+        application_id: conv.application_id,
+        conversation_id: convId,
+        type: conv.type,
         uname: conv.uname,
         last_name: conv.last_name,
+        team_name: conv.team_name,
+        mobile: conv.mobile,
+        email: conv.email,
+        contact_type: conv.contact_type,
         city_name: conv.city_name,
         vehicle_type: conv.vehicle_type,
+        is_autonomo: conv.is_autonomo,
+        availability: conv.availability,
+        rider_count: conv.rider_count,
+        can_invoice: conv.can_invoice,
         status: conv.latest_status
       }
     },
@@ -427,37 +521,39 @@ export default {
       const conv = this.conversationList.find(c => String(c.conversation_id) === String(convId))
       if (conv && this.applicationDetail && this.applicationDetail.mobile) return
       try {
-        const res = await this.$axios.get(`/admin/chat/applications-detail-${convId}`, this.adminRequestConfig())
+        const res = await this.$axios.get(`/admin/chat/applications-detail-${convId}`, this.adminRequestConfig({ conversation_id: convId }))
         this.applicationDetail = unwrapData(res)
       } catch (err) {
         console.error('loadApplicationDetail error:', err)
       }
     },
     async switchConversation (convId) {
-      if (String(convId) === String(this.applicationId)) return
+      if (String(convId) === String(this.conversationId)) return
       if (!(await this.ensureSocketReady())) {
         this.$message.warning(this.$t('socketNotReady'))
         return
       }
 
-      const previousApplicationId = this.chatMode === 'active' ? this.applicationId : ''
-      this.applicationId = String(convId)
+      const previousConversationId = this.chatMode === 'active' ? this.conversationId : ''
+      this.conversationId = String(convId)
+      const conv = this.conversationList.find(c => String(c.conversation_id) === String(convId))
+      this.applicationId = conv ? (conv.application_id || '') : ''
       this.setApplicationPreview(convId)
       this.messages = []
-      await this.claimAndLoad(convId, previousApplicationId)
+      await this.claimAndLoad(convId, previousConversationId)
     },
-    async claimAndLoad (applicationId, previousApplicationId = '') {
-      await this.claimConversation(applicationId, previousApplicationId)
+    async claimAndLoad (conversationId, previousConversationId = '') {
+      await this.claimConversation(conversationId, previousConversationId)
       await this.loadMessages()
-      await this.loadApplicationDetail(applicationId)
+      await this.loadApplicationDetail(conversationId)
     },
-    async claimConversation (applicationId, previousApplicationId = '') {
-      if (!applicationId || !this.socketReady) {
+    async claimConversation (conversationId, previousConversationId = '') {
+      if (!conversationId || !this.socketReady) {
         return false
       }
       try {
-        const res = await this.$axios.post(`/admin/chat/conversations-claim-${applicationId}`, {
-          previous_application_id: previousApplicationId
+        const res = await this.$axios.post(`/admin/chat/conversations-claim-${conversationId}`, {
+          previous_conversation_id: previousConversationId
         }, {
           headers: this.adminHeaders()
         })
@@ -472,6 +568,10 @@ export default {
     resetSocketReadyState () {
       this.socketReady = false
       this.clearSocketPing()
+      if (this.socketReadyResolve) {
+        this.socketReadyResolve(false)
+        this.socketReadyResolve = null
+      }
       this.socketReadyPromise = new Promise((resolve) => {
         this.socketReadyResolve = resolve
       })
@@ -493,7 +593,7 @@ export default {
       if (this.socketReady) {
         return true
       }
-      if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+      if (!this.socket || this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
         await this.connectSocket()
       }
       try {
@@ -514,12 +614,19 @@ export default {
       }
     },
     upsertConversationItem (item) {
-      if (!item || !item.application_id) return
+      if (!item || (!item.conversation_id && !item.application_id)) return
       const mapped = this.mapConversationItem(item)
       const idx = this.conversationList.findIndex(c => String(c.conversation_id) === mapped.conversation_id)
       if (idx >= 0) {
-        this.conversationList[idx] = { ...this.conversationList[idx], ...mapped }
+        const prev = this.conversationList[idx]
+        if (mapped.recruiter_unread == null) {
+          mapped.recruiter_unread = prev.recruiter_unread
+        }
+        this.$set(this.conversationList, idx, { ...prev, ...mapped })
       } else {
+        if (mapped.recruiter_unread == null) {
+          mapped.recruiter_unread = 0
+        }
         this.conversationList.unshift(mapped)
       }
     },
@@ -551,13 +658,13 @@ export default {
       }
     },
     async handleTransfer (targetAdminId, targetAdminName = '') {
-      if (!this.applicationId) return
+      if (!this.conversationId) return
       if (!(await this.ensureSocketReady())) {
         this.$message.warning(this.$t('socketNotReady'))
         return
       }
       try {
-        await this.$axios.post(`/admin/chat/conversations-transfer-${this.applicationId}`, {
+        await this.$axios.post(`/admin/chat/conversations-transfer-${this.conversationId}`, {
           target_admin_id: targetAdminId,
           target_admin_name: targetAdminName
         }, {
@@ -591,7 +698,7 @@ export default {
         })
         this.translatedPreview = unwrapData(res).translated_text || res.translated_text || ''
       } catch (err) {
-        this.$message.error(this.$t('translationFailed'))
+        this.$message.error(err.message || this.$t('translationFailed'))
       } finally {
         this.translating = false
       }
@@ -608,7 +715,7 @@ export default {
       this.translatedPreview = ''
       this.sending = true
       try {
-        const message = unwrapData(await this.$axios.post(`/admin/chat/conversations-messages-${this.applicationId}`, {
+        const message = unwrapData(await this.$axios.post(`/admin/chat/conversations-messages-${this.conversationId}`, {
           content: text,
           content_es: translated,
           source_lang: 'zh',
@@ -628,12 +735,8 @@ export default {
       }
     },
     async socketUrl () {
-      const params = new URLSearchParams({ admin_id: this.adminId })
-      const res = await fetch(`https://demo.pandadelivero.com/api/v1/admin/chat/socket-address?${params}`, {
-        headers: { Api: 'ADMIN', TOKEN: this.token }
-      })
-      const json = await res.json()
-      const data = json.data || {}
+      const res = await this.$axios.get('/admin/chat/socket-address', this.adminRequestConfig())
+      const data = unwrapData(res)
       if (!data.url) {
         throw new Error('socket address unavailable')
       }
@@ -641,14 +744,17 @@ export default {
     },
     async connectSocket () {
       if (!process.client) return
-      if (this.socket && this.socket.readyState === WebSocket.OPEN && this.socketReady) {
+      if (this.socketManuallyClosed) return
+      if (this.socketConnecting) return
+      if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
         return
       }
-      this.socketManuallyClosed = false
+      this.socketConnecting = true
       this.clearReconnectTimer()
       if (this.socket) {
         this.socket.onclose = null
         this.socket.close()
+        this.socket = null
       }
       this.resetSocketReadyState()
 
@@ -657,23 +763,31 @@ export default {
         url = await this.socketUrl()
       } catch (err) {
         console.error('socketUrl error:', err)
+        this.socketConnecting = false
         this.scheduleReconnect()
         return
       }
       const socket = new WebSocket(url)
       this.socket = socket
       socket.onopen = () => {
+        if (this.socket !== socket) return
         this.reconnectAttempts = 0
       }
       socket.onmessage = (event) => {
+        if (this.socket !== socket) return
         this.handleSocketMessage(event.data)
       }
       socket.onerror = () => {
         // Reconnect is scheduled by onclose.
       }
-      socket.onclose = () => {
+      socket.onclose = (event) => {
+        if (this.socket !== socket) return
+        this.socketConnecting = false
         this.clearSocketPing()
         this.resetSocketReadyState()
+        if (event.code !== 1000 && event.code !== 1001) {
+          console.warn('[admin-chat] socket closed', event.code, event.reason || '')
+        }
         if (!this.socketManuallyClosed) {
           this.scheduleReconnect()
         }
@@ -702,13 +816,13 @@ export default {
       }
     },
     async onSocketReady () {
-      if (!this.socketReady || !this.applicationId) return
+      if (!this.socketReady || !this.conversationId) return
       if (this.pendingInitialClaim) {
         this.pendingInitialClaim = false
-        await this.claimAndLoad(this.applicationId)
+        await this.claimAndLoad(this.conversationId)
         return
       }
-      await this.claimConversation(this.applicationId)
+      await this.claimConversation(this.conversationId)
     },
     handleSocketMessage (raw) {
       let payload = null
@@ -726,6 +840,7 @@ export default {
       }
 
       if (event === 'socket.connected') {
+        this.socketConnecting = false
         this.markSocketReady()
         this.startSocketPing()
         this.onSocketReady()
@@ -740,7 +855,7 @@ export default {
       if (event === 'chat.conversation.claimed' || event === 'chat.conversation.transferred') {
         const conversation = data.conversation || data
         this.upsertConversationItem(conversation)
-        if (String(conversation.application_id) !== String(this.applicationId)) {
+        if (String(conversation.conversation_id) !== String(this.conversationId)) {
           return
         }
         this.applyClaimState({
@@ -755,20 +870,11 @@ export default {
         return
       }
 
-      const incomingId = String(data.application_id || data.conversation_id || '')
-      if (incomingId === String(this.applicationId)) {
-        if (data.message) {
-          this.appendMessage(data.message)
-        }
-        return
+      const incomingId = String(data.conversation_id || '')
+      if (incomingId === String(this.conversationId) && data.message) {
+        this.appendMessage(data.message)
       }
-
-      const conv = this.conversationList.find(c => String(c.conversation_id) === incomingId)
-      if (conv) {
-        conv.last_message_at = new Date().toISOString()
-      } else {
-        this.loadConversationList()
-      }
+      this.syncConversationFromMessagePush(incomingId, data)
     },
     scheduleReconnect () {
       this.clearReconnectTimer()
@@ -789,6 +895,7 @@ export default {
     },
     closeSocket () {
       this.socketManuallyClosed = true
+      this.socketConnecting = false
       this.clearReconnectTimer()
       this.clearSocketPing()
       this.resetSocketReadyState()
@@ -839,6 +946,9 @@ export default {
       }).then(() => {
         this.closeSocket()
         this.$store.commit('SET_IS_ADMIN_SESSION', false)
+        if (process.client) {
+          sessionStorage.removeItem('pandadelivero_admin_session')
+        }
         window.location.href = '/'
       }).catch(() => {})
     }
@@ -1034,7 +1144,29 @@ $bg-card: #FFFFFF;
   box-shadow: 0 2px 6px rgba(250,190,29,0.35);
 }
 
-.conv-info { flex: 1; overflow: hidden; }
+.conv-info { flex: 1; overflow: hidden; min-width: 0; }
+
+.conv-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.conv-unread {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.35);
+}
 
 .conv-name {
   font-size: 13px;

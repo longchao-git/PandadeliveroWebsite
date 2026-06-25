@@ -479,5 +479,6 @@
   "chatSessionCleared": "Sesión de chat limpiada",
   "exitChat": "Salir del chat",
   "confirmExitChat": "¿Está seguro de que desea salir del chat? Puede volver más tarde para continuar chateando.",
-  "confirmExitAdminChat": "¿Está seguro de que desea salir del chat de administración?"
+  "confirmExitAdminChat": "¿Está seguro de que desea salir del chat de administración?",
+  "unreadMessages": "{count} sin leer"
 }

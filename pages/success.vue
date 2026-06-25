@@ -24,15 +24,19 @@
       <div v-if="formSummary" class="summary-card">
         <div class="summary-row">
           <span class="summary-label">{{ $t('name') }}</span>
-          <span class="summary-value">{{ formSummary.uname }} {{ formSummary.last_name }}</span>
+          <span class="summary-value">{{ formSummary.type === 'team' ? (formSummary.team_name || formSummary.uname) : (formSummary.uname + ' ' + formSummary.last_name) }}</span>
         </div>
         <div class="summary-row">
           <span class="summary-label">{{ $t('city') }}</span>
           <span class="summary-value">{{ getCityName(formSummary.city_id) }}</span>
         </div>
-        <div class="summary-row">
+        <div v-if="formSummary.type !== 'team'" class="summary-row">
           <span class="summary-label">{{ $t('vehicleType') }}</span>
           <span class="summary-value">{{ $t(getVehicleLabel(formSummary.vehicle_type)) }}</span>
+        </div>
+        <div v-else class="summary-row">
+          <span class="summary-label">{{ $t('riderCount') }}</span>
+          <span class="summary-value">{{ formSummary.rider_count }}</span>
         </div>
       </div>
 
@@ -68,6 +72,8 @@ export default {
   data() {
     return {
       applicationId: '',
+      conversationId: '',
+      applicationType: '',
       formSummary: null
     };
   },
@@ -75,7 +81,9 @@ export default {
     if (!process.client) return;
 
     const urlParams = new URLSearchParams(window.location.search);
-    this.applicationId = urlParams.get('app_id') || sessionStorage.getItem('rider_application_id') || '';
+    this.applicationId = urlParams.get('app_id') || sessionStorage.getItem('application_id') || sessionStorage.getItem('rider_application_id') || '';
+    this.conversationId = urlParams.get('conversation_id') || sessionStorage.getItem('conversation_id') || '';
+    this.applicationType = urlParams.get('type') || sessionStorage.getItem('application_type') || '';
     try {
       const summary = sessionStorage.getItem('rider_form_summary');
       this.formSummary = summary ? JSON.parse(summary) : null;
@@ -84,7 +92,14 @@ export default {
     }
 
     if (this.applicationId) {
+      sessionStorage.setItem('application_id', this.applicationId);
       sessionStorage.setItem('rider_application_id', this.applicationId);
+    }
+    if (this.conversationId) {
+      sessionStorage.setItem('conversation_id', this.conversationId);
+    }
+    if (this.applicationType) {
+      sessionStorage.setItem('application_type', this.applicationType);
     }
 
     if (!this.applicationId && !this.formSummary) {
@@ -122,7 +137,10 @@ export default {
         created_at: Date.now()
       };
       localStorage.setItem('rider_pending_chat', JSON.stringify(chatData));
-      window.open(`/chat?app_id=${encodeURIComponent(this.applicationId)}`, '_blank');
+      const params = new URLSearchParams({ app_id: this.applicationId });
+      if (this.conversationId) params.set('conversation_id', this.conversationId);
+      if (this.applicationType) params.set('type', this.applicationType);
+      window.open(`/chat?${params.toString()}`, '_blank');
     },
     /**
      * 返回首页

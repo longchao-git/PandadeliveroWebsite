@@ -131,6 +131,8 @@ export default {
   data() {
     return {
       applicationId: '',
+      conversationId: '',
+      applicationType: '',
       formSummary: null,
       inputText: '',
       messages: [],
@@ -146,7 +148,7 @@ export default {
   mounted() {
     // 优先级：URL参数 > sessionStorage > localStorage
     const urlParams = new URLSearchParams(window.location.search);
-    let appId = urlParams.get('app_id') || sessionStorage.getItem('rider_application_id') || '';
+    let appId = urlParams.get('app_id') || sessionStorage.getItem('application_id') || sessionStorage.getItem('rider_application_id') || '';
 
     // 如果 URL 和 sessionStorage 都没有，从 localStorage 读取
     if (!appId) {
@@ -164,8 +166,10 @@ export default {
     }
 
     this.applicationId = appId;
+    this.conversationId = urlParams.get('conversation_id') || sessionStorage.getItem('conversation_id') || this.applicationId || '';
+    this.applicationType = urlParams.get('type') || sessionStorage.getItem('application_type') || '';
 
-    if (!this.applicationId) {
+    if (!this.applicationId || !this.conversationId) {
       this.$message.error(this.$t('noApplicationIdRedirect'));
       setTimeout(() => { window.location.href = '/rider'; }, 1500);
       return;
@@ -173,6 +177,13 @@ export default {
 
     // 保存到 sessionStorage
     sessionStorage.setItem('rider_application_id', this.applicationId);
+    sessionStorage.setItem('application_id', this.applicationId);
+    if (this.conversationId) {
+      sessionStorage.setItem('conversation_id', this.conversationId);
+    }
+    if (this.applicationType) {
+      sessionStorage.setItem('application_type', this.applicationType);
+    }
 
     // JSON schema校验，防止XSS注入
     try {
@@ -194,7 +205,11 @@ export default {
           last_name: { type: 'string', max: 50, pattern: /^[\u4e00-\u9fa5a-zA-Z\s·'.-]*$/ },
           city_id: { type: 'number', range: [1, 99] },
           vehicle_type: { type: 'string', max: 30 },
-          mobile: { type: 'string', max: 20 }
+          mobile: { type: 'string', max: 20 },
+          team_name: { type: 'string', max: 100 },
+          type: { type: 'string', max: 20 },
+          conversation_id: { type: 'string', max: 32 },
+          rider_count: { type: 'number', range: [0, 99] }
         };
         const validated = {};
         let valid = true;
@@ -202,7 +217,7 @@ export default {
           const val = raw[key];
           if (val === undefined || val === null) continue;
           if (typeof val !== rule.type) { valid = false; break; }
-          if (typeof val === 'string' && (val.length > rule.max || !rule.pattern.test(val))) { valid = false; break; }
+          if (typeof val === 'string' && (val.length > rule.max || (rule.pattern && !rule.pattern.test(val)))) { valid = false; break; }
           if (typeof val === 'number' && (val < rule.range[0] || val > rule.range[1])) { valid = false; break; }
           validated[key] = val;
         }
@@ -242,12 +257,12 @@ export default {
       return msg.client_content || msg.content_es || msg.content || '';
     },
     async loadMessages() {
-      if (!this.applicationId) return;
+      if (!this.conversationId) return;
       this.loading = true;
       // 重置已显示消息 ID 集合
       this._displayedMessageIds = new Set();
       try {
-        const res = await this.$axios.get(`/chat/conversations-messages-${this.applicationId}`);
+        const res = await this.$axios.get(`/chat/conversations-messages-${this.conversationId}`);
         const data = unwrapData(res);
         if (Array.isArray(data.messages)) {
           this.messages = data.messages.map(item => this.normalizeMessage(item)).filter(Boolean);
@@ -271,10 +286,10 @@ export default {
       this.inputText = '';
       this.sending = true;
       try {
-        await this.$axios.post(`/chat/conversations-messages-${this.applicationId}`, {
+        await this.$axios.post(`/chat/conversations-messages-${this.conversationId}`, {
           content: text,
           sender_type: 'rider',
-          sender_id: this.applicationId
+          sender_id: this.conversationId
         });
       } catch (err) {
         this.$message.error(this.$t('messageSendError'));
@@ -316,12 +331,12 @@ export default {
     },
     async getSocketUrl() {
       const res = await this.$axios.get('/chat/socket-address', {
-        params: { application_id: this.applicationId }
+        params: { conversation_id: this.conversationId, application_id: this.applicationId }
       });
       return unwrapData(res).url;
     },
     async connectSocket() {
-      if (!process.client || !this.applicationId) return;
+      if (!process.client || !this.conversationId) return;
       this.socketManuallyClosed = false;
       this.clearReconnectTimer();
       this.clearSocketPing();
@@ -371,7 +386,7 @@ export default {
       }
       if (event === 'chat.conversation.claimed' || event === 'chat.conversation.transferred') return;
       if (event !== 'chat.message') return;
-      if (String(data.application_id || data.conversation_id || '') !== String(this.applicationId)) return;
+      if (String(data.conversation_id || '') !== String(this.conversationId)) return;
       if (data.message) this.appendMessage(data.message);
     },
     scheduleReconnect() {

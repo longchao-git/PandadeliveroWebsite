@@ -82,7 +82,7 @@
               </v-list-item>
               <v-divider v-if="userNewInfo.staff_id && !isAdminSession" />
 
-              <v-list-item target='_blank' href='/admin' v-if='isAdminSession'>
+              <v-list-item target='_blank' :href='adminLeadUrl' v-if='isAdminSession'>
                 <v-list-item-title>{{ $t('leadManagement') }}</v-list-item-title>
               </v-list-item>
               <v-divider v-if='isAdminSession' />
@@ -358,9 +358,38 @@ export default {
         ['/admin-chat'] // 8: admin chat
       ];
       return activeMenus.findIndex(item => item.includes(this.getUrlPath));
+    },
+    adminLeadUrl() {
+      const creds = this.getAdminCredentials();
+      if (!creds) return '/admin';
+      return `/admin?admin_id=${encodeURIComponent(creds.adminId)}&token=${encodeURIComponent(creds.token)}`;
     }
   },
   methods: {
+    getAdminCredentials() {
+      const adminId = this.$route.query.admin_id;
+      const token = this.$route.query.token;
+      if (adminId && token) {
+        return { adminId, token };
+      }
+      if (process.client) {
+        try {
+          const raw = sessionStorage.getItem('pandadelivero_admin_session');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed.admin_id && parsed.token) {
+              return { adminId: parsed.admin_id, token: parsed.token };
+            }
+          }
+        } catch (e) {}
+      }
+      return null;
+    },
+    buildAdminUrl(path) {
+      const creds = this.getAdminCredentials();
+      if (!creds) return path;
+      return `${path}?admin_id=${encodeURIComponent(creds.adminId)}&token=${encodeURIComponent(creds.token)}`;
+    },
     accountProfile() {
       this.$axios.post('/staff/account/profile', {}).then(res => {
         this.userNewInfo = res;
@@ -383,12 +412,7 @@ export default {
     },
     handleHome() {
       if (this.isAdminSession) {
-        const adminId = this.$route.query.admin_id || this.getUserInfo.staff_id;
-        const token = this.$route.query.token || this.getUserInfo.token;
-        const params = [];
-        if (adminId) params.push(`admin_id=${encodeURIComponent(adminId)}`);
-        if (token) params.push(`token=${encodeURIComponent(token)}`);
-        window.location.href = '/admin' + (params.length ? '?' + params.join('&') : '');
+        window.location.href = this.buildAdminUrl('/admin');
         return;
       }
       window.location.href = '/';
@@ -406,35 +430,25 @@ export default {
       if (this.$route.path === '/admin-chat') {
         return;
       }
-      if (this.isAdminSession) {
-        const adminId = this.$route.query.admin_id || this.getUserInfo.staff_id;
-        const token = this.$route.query.token || this.getUserInfo.token;
-        if (adminId && token) {
-          window.location.href = `/admin-chat?admin_id=${adminId}&token=${encodeURIComponent(token)}`;
-        }
+      if (!this.isAdminSession) {
         return;
       }
-      const userInfo = this.getUserInfo;
-      if (!userInfo.staff_id || !userInfo.token) {
-        this.$message.error(this.$t('pleaseLoginFirst'));
-        return;
+      const url = this.buildAdminUrl('/admin-chat');
+      if (url.includes('admin_id=')) {
+        window.location.href = url;
       }
-      window.location.href = `/admin-chat?admin_id=${userInfo.staff_id}&token=${encodeURIComponent(userInfo.token)}`;
     },
     goToAdminLead() {
       if (this.$route.path === '/admin') {
         return;
       }
-      if (this.isAdminSession) {
-        const adminId = this.$route.query.admin_id || this.getUserInfo.staff_id;
-        const token = this.$route.query.token || this.getUserInfo.token;
-        const params = [];
-        if (adminId) params.push(`admin_id=${encodeURIComponent(adminId)}`);
-        if (token) params.push(`token=${encodeURIComponent(token)}`);
-        window.location.href = '/admin' + (params.length ? '?' + params.join('&') : '');
+      if (!this.isAdminSession) {
         return;
       }
-      this.$router.push('/admin');
+      const url = this.buildAdminUrl('/admin');
+      if (url.includes('admin_id=')) {
+        window.location.href = url;
+      }
     },
     handleClick(type) {
       if (this.isAdminSession) {

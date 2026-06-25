@@ -5,9 +5,9 @@ export default {
 	// BASE_URL: 'http://kuaizi.test.tmimi.cc/api/v1/', // 测试
 	//
 	// URl:'https://demo.pandadelivero.com/',
-	URl: 'https://Pandadelivero.com/',
+	URl: 'http://panda.spain.local/',
 	// 状态码错误信息
-	ERROR_CODE: {
+	ERROR_CODE: {	
 		4: '请求超时',
 		200: '服务器成功返回请求的数据。',
 		201: '新建或修改数据成功。',
