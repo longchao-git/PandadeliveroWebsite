@@ -43,7 +43,7 @@ export default {
     ],
     script: [
       // { src: 'https://js.stripe.com/v3/', ssr: false },
-      { src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyA9n5SsiQAqFiKYB9nlepEEinsJEhumOFE&libraries=places&v=weekly', ssr: false }
+      // { src: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyA9n5SsiQAqFiKYB9nlepEEinsJEhumOFE&libraries=places&v=weekly', ssr: false }
     ]
   },
 
@@ -120,6 +120,33 @@ export default {
     proxy: true
   },
 
+  proxy: {
+    '/api/v1/': {
+      target: 'https://demo.pandadelivero.com',
+      changeOrigin: true
+    },
+    '/staff/': {
+      target: 'https://demo.pandadelivero.com/api/v1',
+      changeOrigin: true
+    },
+    '/client/': {
+      target: 'https://demo.pandadelivero.com/api/v1',
+      changeOrigin: true
+    },
+    '/www/': {
+      target: 'https://demo.pandadelivero.com/api/v1',
+      changeOrigin: true
+    },
+    '/magic/': {
+      target: 'https://demo.pandadelivero.com/api/v1',
+      changeOrigin: true
+    },
+    '/biz/': {
+      target: 'https://demo.pandadelivero.com/api/v1',
+      changeOrigin: true
+    }
+  },
+
 
   render: {
     resourceHints: false
@@ -128,6 +155,7 @@ export default {
     prefetch: false
   },
   router: {
+    base: '/pandadelivero_web/',
     prefetchPayloads: false,
     prefetchLinks: false
   },

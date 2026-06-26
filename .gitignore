@@ -88,3 +88,5 @@ sw.*
 *.swp
 
 pandadelivero_ui_with_chat/
+dist/
+.dist/

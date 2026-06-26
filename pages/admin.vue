@@ -1,5 +1,7 @@
 <template>
   <div class="admin-page">
+
+    <!-- 验证状态 -->
     <div v-if="verifying" class="page-loading">
       <div class="loading-spinner"></div>
       <p>{{ $t('loading') }}</p>
@@ -16,233 +18,267 @@
       <button class="btn-home" @click="goHome">{{ $t('redirectHomepage') }}</button>
     </div>
     <template v-else>
-    <!-- 顶部导航 -->
-    <div class="admin-nav">
-      <div class="admin-nav-inner">
-        <div class="nav-left">
-          <img src="@/assets/images/cloudSales/header2-logo.png" alt="Pandadelivero" class="nav-logo" />
-          <div class="nav-title-group">
-            <span class="nav-title">{{ $t('leadManagement') }}</span>
-            <span class="nav-sub">{{ $t('leadManagementSub') }}</span>
-          </div>
-        </div>
-        <div class="nav-right">
-          <div class="recruiter-badge">
-            <div class="recruiter-avatar">R</div>
-            <span>{{ $t('recruiter') }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 统计卡片 -->
-    <div class="stats-section">
-      <div class="stats-inner">
-        <div class="stat-card stat-new">
-          <div class="stat-label">{{ $t('newApplicationsToday') }}</div>
-          <div class="stat-number">{{ stats.newToday }}</div>
-          <div class="stat-detail">{{ $t('individualCount', { individual: stats.individual, team: stats.teams }) }}</div>
-        </div>
-        <div class="stat-card stat-pending">
-          <div class="stat-label">{{ $t('notContacted') }}</div>
-          <div class="stat-number">{{ stats.notContacted }}</div>
-          <div class="stat-detail">{{ $t('autoReminderAfter24h') }}</div>
-        </div>
-        <div class="stat-card stat-peak">
-          <div class="stat-label">{{ $t('dinnerPeakAvailable') }}</div>
-          <div class="stat-number">{{ stats.dinnerPeak }}</div>
-          <div class="stat-detail">{{ $t('forMealPeriodCapacity') }}</div>
-        </div>
-        <div class="stat-card stat-all">
-          <div class="stat-label">{{ $t('totalApplications') }}</div>
-          <div class="stat-number">{{ stats.total }}</div>
-          <div class="stat-detail">{{ $t('totalDesc') }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 筛选栏 -->
-    <div class="filter-section">
-      <div class="filter-inner">
-        <div class="filter-tabs">
-          <button
-            v-for="tab in filterTabs"
-            :key="tab.value"
-            class="filter-tab"
-            :class="{ active: activeFilter === tab.value }"
-            @click="activeFilter = tab.value"
-          >
-            {{ $t(tab.labelKey) }}
-            <span v-if="tab.count !== undefined" class="tab-count">{{ tab.count }}</span>
-          </button>
-        </div>
-        <div class="filter-actions">
-          <input
-            v-model="searchKeyword"
-            class="search-input"
-            :placeholder="$t('searchPlaceholder')"
-            @input="handleSearch"
-          />
-          <button class="btn-export" @click="handleExport">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            {{ $t('exportExcel') }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 申请列表 -->
-    <div class="list-section">
-      <div class="list-inner">
-        <div v-if="loading" class="list-loading">
-          <div class="loading-spinner"></div>
-          <span>{{ $t('loading') }}</span>
-        </div>
-
-        <div v-else-if="filteredList.length === 0" class="list-empty">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="8" stroke="#E0E0E0" stroke-width="2"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#E0E0E0" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <p>{{ $t('noApplications') }}</p>
-        </div>
-
-        <div v-else class="list-table">
-          <!-- 表头 -->
-          <div class="table-head">
-            <div class="th th-applicant">{{ $t('applicant') }}</div>
-            <div class="th th-type">{{ $t('type') }}</div>
-            <div class="th th-city">{{ $t('city') }}</div>
-            <div class="th th-vehicle">{{ $t('vehicleOrCount') }}</div>
-            <div class="th th-avail">{{ $t('availability') }}</div>
-            <div class="th th-status">{{ $t('status') }}</div>
-            <div class="th th-date">{{ $t('appliedAt') }}</div>
-            <div class="th th-action">{{ $t('action') }}</div>
-          </div>
-
-          <!-- 表格行 -->
-          <div
-            v-for="item in paginatedList"
-            :key="item.conversation_id || item.application_id"
-            class="table-row"
-            :class="{ 'row-new': item.isNew }"
-          >
-            <div class="td td-applicant">
-              <div class="applicant-info">
-                <div class="applicant-avatar" :class="item.type">
-                  {{ item.uname ? item.uname.charAt(0).toUpperCase() : '?' }}
-                </div>
-                <div class="applicant-detail">
-                  <span class="applicant-name">{{ item.type === 'team' ? (item.team_name || item.uname) : (item.uname + ' ' + item.last_name) }}</span>
-                  <span class="applicant-mobile">{{ item.mobile }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="td td-type">
-              <span class="type-badge" :class="item.type">
-                {{ item.type === 'individual' ? $t('individual') : $t('team') }}
+      <!-- Hero 顶部区域 -->
+      <div class="admin-hero">
+        <div class="admin-hero-inner">
+          <div class="admin-hero-left">
+            <h1 class="admin-hero-title">{{ $t('leadManagement') }}</h1>
+            <p class="admin-hero-sub">{{ $t('leadManagementSub') }}</p>
+            <div class="admin-hero-badges">
+              <span class="admin-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FABE1D"/></svg>
+                {{ $t('noExclusivity') }}
+              </span>
+              <span class="admin-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#2DC15C"/></svg>
+                {{ $t('qualityPriority') }}
               </span>
             </div>
-            <div class="td td-city">{{ item.city_name }}</div>
-            <div class="td td-vehicle">{{ item.vehicle_or_count }}</div>
-            <div class="td td-avail">
-              <div class="avail-chips">
-                <span
-                  v-for="av in item.availability_arr"
-                  :key="av"
-                  class="avail-chip"
-                >
-                  {{ $t(availKeyMap[av] || 'avail_' + av) }}
-                </span>
-              </div>
+          </div>
+          <div class="admin-hero-right">
+            <img src="@/assets/images/cloudSales/home/header2-img1.png" alt="" class="admin-hero-img" />
+          </div>
+        </div>
+      </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-section">
+          <div class="stat-card stat-new">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="7" r="4" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </div>
-            <div class="td td-status">
-              <span class="status-badge" :class="item.status">
-                {{ $t(statusKeyMap[item.status] || 'status_' + item.status) }}
-              </span>
+            <div class="stat-body">
+              <div class="stat-number">{{ stats.newToday }}</div>
+              <div class="stat-label">{{ $t('newApplicationsToday') }}</div>
+              <div class="stat-detail">{{ $t('individualCount', { individual: stats.individual, team: stats.teams }) }}</div>
             </div>
-            <div class="td td-date">{{ formatDate(item.created_at) }}</div>
-            <div class="td td-action">
-              <div class="action-btns">
-                <button
-                  class="action-btn chat-btn"
-                  @click="openChat(item)"
-                  :title="$t('openChat')"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="currentColor"/>
-                  </svg>
-                  {{ $t('contact') }}
-                </button>
-                <button class="action-btn status-btn" @click="openStatusPicker(item)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <polyline points="17 1 21 5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M3 11V9a4 4 0 0 1 4-4h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <polyline points="7 23 3 19 7 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M21 13v2a4 4 0 0 1-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  {{ $t('updateStatus') }}
-                </button>
-              </div>
+          </div>
+          <div class="stat-card stat-pending">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#F59E0B" stroke-width="2"/>
+                <polyline points="12 6 12 12 16 14" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-number">{{ stats.notContacted }}</div>
+              <div class="stat-label">{{ $t('notContacted') }}</div>
+              <div class="stat-detail">{{ $t('autoReminderAfter24h') }}</div>
+            </div>
+          </div>
+          <div class="stat-card stat-peak">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="6" y1="1" x2="6" y2="4" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="10" y1="1" x2="10" y2="4" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="14" y1="1" x2="14" y2="4" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-number">{{ stats.dinnerPeak }}</div>
+              <div class="stat-label">{{ $t('dinnerPeakAvailable') }}</div>
+              <div class="stat-detail">{{ $t('forMealPeriodCapacity') }}</div>
+            </div>
+          </div>
+          <div class="stat-card stat-all">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <line x1="8" y1="6" x2="21" y2="6" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="8" y1="12" x2="21" y2="12" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="8" y1="18" x2="21" y2="18" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="3" y1="6" x2="3.01" y2="6" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="3" y1="12" x2="3.01" y2="12" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="3" y1="18" x2="3.01" y2="18" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-number">{{ stats.total }}</div>
+              <div class="stat-label">{{ $t('totalApplications') }}</div>
+              <div class="stat-detail">{{ $t('totalDesc') }}</div>
             </div>
           </div>
         </div>
 
-        <!-- 分页 -->
-        <div v-if="filteredList.length > pageSize" class="pagination">
-          <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <span class="page-info">{{ $t('pageInfo', { page: currentPage, total: totalPages }) }}</span>
-          <button class="page-btn" :disabled="currentPage >= totalPages" @click="currentPage++">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 状态选择弹窗 -->
-    <div v-if="showStatusPicker" class="modal-overlay" @click.self="showStatusPicker = false">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3>{{ $t('updateStatus') }} — {{ statusPickerItem ? statusPickerItem.uname : '' }}</h3>
-          <button class="modal-close" @click="showStatusPicker = false">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="status-options">
+        <!-- 筛选栏 -->
+        <div class="filter-section">
+          <div class="filter-tabs">
             <button
-              v-for="s in statusOptions"
-              :key="s.value"
-              class="status-option"
-              :class="[s.value, { active: newStatus === s.value }]"
-              @click="newStatus = s.value"
+              v-for="tab in filterTabs"
+              :key="tab.value"
+              class="filter-tab"
+              :class="{ active: activeFilter === tab.value }"
+              @click="activeFilter = tab.value"
             >
-              <span class="option-dot"></span>
-              {{ $t(s.labelKey) }}
+              {{ $t(tab.labelKey) }}
+              <span v-if="tab.count !== undefined" class="tab-count">{{ tab.count }}</span>
+            </button>
+          </div>
+          <div class="filter-actions">
+            <div class="search-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="8" stroke="#9E9E9E" stroke-width="2"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#9E9E9E" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <input
+                v-model="searchKeyword"
+                class="search-input"
+                :placeholder="$t('searchPlaceholder')"
+                @input="handleSearch"
+              />
+            </div>
+            <button class="btn-export" @click="handleExport">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ $t('exportExcel') }}
             </button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" @click="showStatusPicker = false">{{ $t('cancel') }}</button>
-          <button class="btn-confirm" :disabled="!newStatus || updating" @click="confirmStatusUpdate">
-            {{ updating ? $t('sending') : $t('confirm') }}
-          </button>
+
+        <!-- 申请列表 -->
+        <div class="list-section">
+          <div v-if="loading" class="list-loading">
+            <div class="loading-spinner"></div>
+            <span>{{ $t('loading') }}</span>
+          </div>
+          <div v-else-if="filteredList.length === 0" class="list-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="#E0E0E0" stroke-width="2"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#E0E0E0" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p>{{ $t('noApplications') }}</p>
+          </div>
+          <div v-else class="list-table">
+            <!-- 表头 -->
+            <div class="table-head">
+              <div class="th th-applicant">{{ $t('applicant') }}</div>
+              <div class="th th-type">{{ $t('type') }}</div>
+              <div class="th th-city">{{ $t('city') }}</div>
+              <div class="th th-vehicle">{{ $t('vehicleOrCount') }}</div>
+              <div class="th th-avail">{{ $t('availability') }}</div>
+              <div class="th th-status">{{ $t('status') }}</div>
+              <div class="th th-date">{{ $t('appliedAt') }}</div>
+              <div class="th th-action">{{ $t('action') }}</div>
+            </div>
+            <!-- 表格行 -->
+            <div
+              v-for="item in paginatedList"
+              :key="item.conversation_id || item.application_id"
+              class="table-row"
+              :class="{ 'row-new': item.isNew }"
+            >
+              <div class="td td-applicant">
+                <div class="applicant-info">
+                  <div class="applicant-avatar" :class="item.type">
+                    {{ item.uname ? item.uname.charAt(0).toUpperCase() : '?' }}
+                  </div>
+                  <div class="applicant-detail">
+                    <span class="applicant-name">{{ item.type === 'team' ? (item.team_name || item.uname) : (item.uname + ' ' + item.last_name) }}</span>
+                    <span class="applicant-mobile">{{ item.mobile }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="td td-type">
+                <span class="type-badge" :class="item.type">
+                  {{ item.type === 'individual' ? $t('individual') : $t('team') }}
+                </span>
+              </div>
+              <div class="td td-city">{{ item.city_name }}</div>
+              <div class="td td-vehicle">{{ item.vehicle_or_count }}</div>
+              <div class="td td-avail">
+                <div class="avail-chips">
+                  <span
+                    v-for="av in item.availability_arr"
+                    :key="av"
+                    class="avail-chip"
+                  >
+                    {{ $t(availKeyMap[av] || 'avail_' + av) }}
+                  </span>
+                </div>
+              </div>
+              <div class="td td-status">
+                <span class="status-badge" :class="item.status">
+                  {{ $t(statusKeyMap[item.status] || 'status_' + item.status) }}
+                </span>
+              </div>
+              <div class="td td-date">{{ formatDate(item.created_at) }}</div>
+              <div class="td td-action">
+                <div class="action-btns">
+                  <button class="action-btn chat-btn" @click="openChat(item)" :title="$t('openChat')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="currentColor"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn status-btn" @click="openStatusPicker(item)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <polyline points="17 1 21 5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M3 11V9a4 4 0 0 1 4-4h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <polyline points="7 23 3 19 7 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M21 13v2a4 4 0 0 1-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 分页 -->
+          <div class="pagination">
+            <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="page-info">{{ $t('pageInfo', { page: currentPage, total: totalPages }) }}</span>
+            <button class="page-btn" :disabled="currentPage >= totalPages" @click="currentPage++">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
-    </template>
+
+        <!-- 状态选择弹窗 -->
+        <div v-if="showStatusPicker" class="modal-overlay" @click.self="showStatusPicker = false">
+          <div class="modal-card">
+            <div class="modal-header">
+              <h3>{{ $t('updateStatus') }} — {{ statusPickerItem ? statusPickerItem.uname : '' }}</h3>
+              <button class="modal-close" @click="showStatusPicker = false">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="status-options">
+                <button
+                  v-for="s in statusOptions"
+                  :key="s.value"
+                  class="status-option"
+                  :class="[s.value, { active: newStatus === s.value }]"
+                  @click="newStatus = s.value"
+                >
+                  <span class="option-dot"></span>
+                  {{ $t(s.labelKey) }}
+                </button>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-cancel" @click="showStatusPicker = false">{{ $t('cancel') }}</button>
+              <button class="btn-confirm" :disabled="!newStatus || updating" @click="confirmStatusUpdate">
+                {{ updating ? $t('sending') : $t('confirm') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
   </div>
 </template>
 
@@ -425,7 +461,7 @@ export default {
       this.verifying = true;
       this.verifyError = '';
       try {
-        await this.$axios.get('/admin/chat/verify', this.adminRequestConfig());
+        await this.$axios.get('/api/v1/admin/chat/verify', this.adminRequestConfig());
         this.$store.commit('SET_IS_ADMIN_SESSION', true);
         await this.loadList();
       } catch (err) {
@@ -443,7 +479,7 @@ export default {
     async loadList() {
       this.loading = true;
       try {
-        const res = await this.$axios.get('/admin/chat/applications', this.adminRequestConfig({ page: 1, page_size: 100 }));
+        const res = await this.$axios.get('/api/v1/admin/chat/applications', this.adminRequestConfig({ page: 1, page_size: 100 }));
         const data = unwrapData(res);
         const items = Array.isArray(data.list) ? data.list : [];
         if (data.stats) {
@@ -547,7 +583,7 @@ export default {
       this.updating = true;
       try {
         await this.$axios.put(
-          `/admin/chat/applications-status-${applicationId}`,
+          `/api/v1/admin/chat/applications-status-${applicationId}`,
           { application_id: applicationId, status: this.newStatus },
           this.adminRequestConfig({ application_id: applicationId })
         );
@@ -602,25 +638,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* === 主布局 === */
 .admin-page {
-  min-height: 100vh;
-  background: #F5F5F5;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  background: #F0F2F5;
 }
 
+/* === 加载/错误状态 === */
 .page-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 100vh;
   gap: 16px;
 
-  p {
-    color: #9E9E9E;
-    font-size: 14px;
-  }
+  p { color: #9E9E9E; font-size: 14px; }
 }
 
 .page-error {
@@ -628,21 +663,12 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
   gap: 16px;
-  background: #F5F5F5;
+  background: #F0F2F5;
 
-  h3 {
-    margin: 0;
-    font-size: 18px;
-    color: #1A1A1A;
-  }
-
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-  }
+  h3 { margin: 0; font-size: 18px; color: #1A1A1A; }
+  p { margin: 0; color: #666; font-size: 14px; }
 }
 
 .btn-home {
@@ -655,126 +681,150 @@ export default {
   font-weight: 600;
   cursor: pointer;
 
-  &:hover {
-    background: #e5ab0a;
-  }
+  &:hover { background: #e5ab0a; }
 }
 
-/* 导航栏 */
-.admin-nav {
-  background: #FFFFFF;
-  border-bottom: 1px solid #EEEEEE;
-  height: 70px;
-  flex-shrink: 0;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #F0E8C0;
+  border-top-color: #FABE1D;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.admin-nav-inner {
-  max-width: 1400px;
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* === Hero 顶部区域 === */
+.admin-hero {
+  background: linear-gradient(135deg, #FFF8E2 0%, #FEF3C7 50%, #FDE68A 100%);
+  padding: 32px 0 32px;
+  border-bottom: 1px solid #F3E8C0;
+}
+
+.admin-hero-inner {
+  max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
+  padding: 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 40px;
 }
 
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.admin-hero-left {
+  flex: 1;
+  max-width: 560px;
 }
 
-.nav-logo {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
+.admin-hero-eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8A6A10;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding: 6px 14px;
+  background: rgba(250, 190, 29, 0.15);
+  border-radius: 20px;
 }
 
-.nav-title-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-title {
-  font-size: 18px;
+.admin-hero-title {
+  font-size: 42px;
   font-weight: 700;
   color: #1A1A1A;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
 }
 
-.nav-sub {
-  font-size: 12px;
-  color: #9E9E9E;
+.admin-hero-sub {
+  font-size: 18px;
+  color: #6B5B3E;
+  line-height: 1.6;
+  margin-bottom: 24px;
 }
 
-.recruiter-badge {
+.admin-hero-badges {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  background: #F5F5F5;
+  gap: 6px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #E8D48A;
   border-radius: 20px;
+  padding: 6px 14px;
   font-size: 13px;
-  color: #616161;
-  font-weight: 500;
+  color: #5A4520;
 }
 
-.recruiter-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #2DC15C;
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-}
-
-/* 统计卡片 */
-.stats-section {
-  background: #FFFFFF;
-  border-bottom: 1px solid #EEEEEE;
-  padding: 20px 0;
+.admin-hero-right {
   flex-shrink: 0;
 }
 
-.stats-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
+.admin-hero-img {
+  width: 210px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+/* === 统计卡片 === */
+.stats-section {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 20px;
+  padding: 24px 56px;
+  background: #F0F2F5;
 }
 
 .stat-card {
-  background: #FAFAFA;
-  border-radius: 16px;
-  padding: 20px 24px;
-  border: 1px solid #EEEEEE;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid #EAEAEA;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #F8F8F8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-body { flex: 1; }
+
+.stat-number {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 3px;
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #757575;
-  margin-bottom: 8px;
-}
-
-.stat-number {
-  font-size: 36px;
-  font-weight: 900;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .stat-detail {
-  font-size: 12px;
+  font-size: 11px;
   color: #9E9E9E;
 }
 
@@ -783,21 +833,16 @@ export default {
 .stat-peak .stat-number { color: #8B5CF6; }
 .stat-all .stat-number { color: #1A1A1A; }
 
-/* 筛选栏 */
+/* === 筛选栏 === */
 .filter-section {
-  background: #FFFFFF;
-  border-bottom: 1px solid #EEEEEE;
-  padding: 14px 0;
-  flex-shrink: 0;
-}
-
-.filter-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 14px 48px;
+  margin: 0 56px;
+  background: #FFFFFF;
+  border-top: 1px solid #E8E8E8;
+  border-bottom: 1px solid #E8E8E8;
   gap: 16px;
 }
 
@@ -810,8 +855,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 18px;
-  border-radius: 20px;
+  padding: 7px 16px;
+  border-radius: 8px;
   border: 1.5px solid transparent;
   background: transparent;
   font-size: 13px;
@@ -848,18 +893,31 @@ export default {
   align-items: center;
 }
 
-.search-input {
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   height: 38px;
-  border: 1.5px solid #EEEEEE;
-  border-radius: 19px;
-  padding: 0 16px;
+  border: 1.5px solid #E8E8E8;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #FAFAFA;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: #FABE1D;
+    background: #FFFFFF;
+  }
+}
+
+.search-input {
+  border: none;
+  background: transparent;
   font-size: 13px;
   color: #1A1A1A;
   outline: none;
-  width: 240px;
-  transition: border-color 0.2s;
+  width: 220px;
 
-  &:focus { border-color: #FABE1D; }
   &::placeholder { color: #BDBDBD; }
 }
 
@@ -868,15 +926,16 @@ export default {
   align-items: center;
   gap: 6px;
   height: 38px;
-  padding: 0 18px;
-  border: 1.5px solid #EEEEEE;
-  border-radius: 19px;
+  padding: 0 16px;
+  border: 1.5px solid #E8E8E8;
+  border-radius: 8px;
   background: #FFFFFF;
   font-size: 13px;
   font-weight: 600;
   color: #616161;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 
   &:hover {
     border-color: #FABE1D;
@@ -885,16 +944,10 @@ export default {
   }
 }
 
-/* 列表 */
+/* === 列表 === */
 .list-section {
   flex: 1;
-  padding: 20px 0;
-}
-
-.list-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
+  padding: 24px 56px;
 }
 
 .list-loading,
@@ -909,32 +962,21 @@ export default {
   font-size: 14px;
 }
 
-.loading-spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid #F0E8C0;
-  border-top-color: #FABE1D;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* 表格 */
+/* === 表格 === */
 .list-table {
   background: #FFFFFF;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #EEEEEE;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid #EAEAEA;
 }
 
 .table-head {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr 1fr 1.5fr;
-  gap: 0;
-  padding: 12px 20px;
+  padding: 10px 20px;
   background: #FAFAFA;
-  border-bottom: 1px solid #EEEEEE;
+  border-bottom: 1px solid #E8E8E8;
 }
 
 .th {
@@ -948,8 +990,7 @@ export default {
 .table-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr 1fr 1.5fr;
-  gap: 0;
-  padding: 14px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid #F5F5F5;
   align-items: center;
   transition: background 0.15s;
@@ -971,6 +1012,7 @@ export default {
   white-space: nowrap;
 }
 
+/* 申请人 */
 .applicant-info {
   display: flex;
   align-items: center;
@@ -978,14 +1020,14 @@ export default {
 }
 
 .applicant-avatar {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   color: #FFFFFF;
   flex-shrink: 0;
 
@@ -1017,7 +1059,7 @@ export default {
 .type-badge {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
 
@@ -1029,13 +1071,13 @@ export default {
 .avail-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 3px;
 }
 
 .avail-chip {
   font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 8px;
+  padding: 2px 7px;
+  border-radius: 6px;
   background: #F5F5F5;
   color: #757575;
 }
@@ -1043,8 +1085,8 @@ export default {
 /* 状态标签 */
 .status-badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 10px;
+  padding: 3px 10px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
 
@@ -1058,21 +1100,20 @@ export default {
 .action-btns {
   display: flex;
   gap: 6px;
-  flex-wrap: nowrap;
 }
 
 .action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  border-radius: 8px;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid;
-  white-space: nowrap;
 }
 
 .chat-btn {
@@ -1080,9 +1121,7 @@ export default {
   border-color: #FABE1D;
   color: #8A6A10;
 
-  &:hover {
-    background: #FFFBEB;
-  }
+  &:hover { background: #FFFBEB; }
 }
 
 .status-btn {
@@ -1106,10 +1145,10 @@ export default {
 }
 
 .page-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 1.5px solid #EEEEEE;
+  border: 1.5px solid #E8E8E8;
   background: #FFFFFF;
   display: flex;
   align-items: center;
@@ -1148,7 +1187,7 @@ export default {
 
 .modal-card {
   background: #FFFFFF;
-  border-radius: 20px;
+  border-radius: 16px;
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
@@ -1159,15 +1198,15 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 18px 22px;
   border-bottom: 1px solid #EEEEEE;
 
-  h3 { font-size: 16px; font-weight: 700; color: #1A1A1A; }
+  h3 { font-size: 15px; font-weight: 700; color: #1A1A1A; }
 }
 
 .modal-close {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
   background: #F5F5F5;
@@ -1181,9 +1220,7 @@ export default {
   &:hover { background: #EEEEEE; color: #1A1A1A; }
 }
 
-.modal-body {
-  padding: 20px 24px;
-}
+.modal-body { padding: 18px 22px; }
 
 .status-options {
   display: flex;
@@ -1195,20 +1232,20 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
   border: 1.5px solid #EEEEEE;
   background: #FAFAFA;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #424242;
   transition: all 0.2s;
   text-align: left;
 
   .option-dot {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     flex-shrink: 0;
   }
@@ -1229,16 +1266,16 @@ export default {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 16px 24px;
+  padding: 14px 22px;
   border-top: 1px solid #EEEEEE;
 }
 
 .btn-cancel,
 .btn-confirm {
-  height: 40px;
-  padding: 0 24px;
-  border-radius: 20px;
-  font-size: 14px;
+  height: 38px;
+  padding: 0 22px;
+  border-radius: 19px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -1253,29 +1290,36 @@ export default {
 
 .btn-confirm {
   background: #FABE1D;
-  color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(250,190,29,0.4);
+  color: #1A1A1A;
 
   &:hover:not(:disabled) { background: #E5A60C; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
+/* === 响应式 === */
+@media screen and (max-width: 1100px) {
+  .stats-section { grid-template-columns: 1fr 1fr; }
+}
+
 @media screen and (max-width: $pad-max-width) {
-  .stats-inner {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .filter-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .search-input { width: 100%; }
-  .filter-actions { width: 100%; }
+  .stats-section { padding: 16px 24px; gap: 14px; }
+  .filter-section { padding: 10px 24px; flex-wrap: wrap; }
+  .filter-tabs { flex-wrap: wrap; }
+  .search-input { width: 160px; }
+  .list-section { padding: 16px 24px; }
+  .admin-hero-inner { padding: 0 24px; gap: 20px; }
+  .admin-hero-title { font-size: 32px; }
+  .admin-hero-img { width: 300px; height: 220px; }
 }
 
 @media screen and (max-width: $phone-max-width) {
-  .stats-inner { grid-template-columns: 1fr; }
+  .admin-hero { padding: 32px 0; }
+  .admin-hero-inner { flex-direction: column; padding: 0 16px; }
+  .admin-hero-title { font-size: 26px; }
+  .admin-hero-right { display: none; }
+  .stats-section { grid-template-columns: 1fr 1fr; padding: 12px 20px; }
+  .filter-section { padding: 10px 20px; }
+  .list-section { padding: 12px 20px; }
   .table-head { display: none; }
   .table-row {
     display: flex;
@@ -1283,6 +1327,5 @@ export default {
     gap: 8px;
     padding: 16px;
   }
-  .th-action { display: flex !important; }
 }
 </style>

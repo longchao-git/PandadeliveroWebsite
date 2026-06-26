@@ -7,9 +7,6 @@ export default ({redirect, $axios,$cookies}) => {
   // 请求拦截器
   $axios.interceptors.request.use(config => {
 
-    // 如果当前配置的客客请求
-    config.baseURL = config1.BASE_URL
-
     /* 如果是上传，则设置超时为 1小时， 请求超时10分钟 */
     config.timeout = 1000 * 60
     config.data = objToFormData(config.data)
