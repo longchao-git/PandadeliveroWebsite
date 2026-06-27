@@ -70,7 +70,7 @@ export default {
 
     bingtapCilck(type) {
       if (type === 1) {
-        window.location.href = '/rider';
+        this.$router.push('/rider');
       } else if (type === 2) {
         window.location.href = 'https://apps.apple.com/es/app/pandadelivero-rapartidor/id6505077190';
       } else if (type === 3) {

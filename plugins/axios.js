@@ -4,6 +4,11 @@ import config1 from '../config/index'
 
 // 初始化请求插件
 export default ({redirect, $axios,$cookies}) => {
+  // 生产环境直接使用 BASE_URL，不再走 proxy 转发
+  if (process.env.NODE_ENV === 'production') {
+    $axios.defaults.baseURL = config1.BASE_URL
+  }
+
   // 请求拦截器
   $axios.interceptors.request.use(config => {
 

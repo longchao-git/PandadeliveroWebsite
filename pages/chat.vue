@@ -171,7 +171,7 @@ export default {
 
     if (!this.applicationId || !this.conversationId) {
       this.$message.error(this.$t('noApplicationIdRedirect'));
-      setTimeout(() => { window.location.href = '/rider'; }, 1500);
+      setTimeout(() => { this.$router.push('/rider'); }, 1500);
       return;
     }
 
@@ -262,7 +262,7 @@ export default {
       // 重置已显示消息 ID 集合
       this._displayedMessageIds = new Set();
       try {
-        const res = await this.$axios.get(`/api/v1/chat/conversations-messages-${this.conversationId}`);
+        const res = await this.$axios.get(`/chat/conversations-messages-${this.conversationId}`);
         const data = unwrapData(res);
         if (Array.isArray(data.messages)) {
           this.messages = data.messages.map(item => this.normalizeMessage(item)).filter(Boolean);
@@ -286,7 +286,7 @@ export default {
       this.inputText = '';
       this.sending = true;
       try {
-        await this.$axios.post(`/api/v1/chat/conversations-messages-${this.conversationId}`, {
+        await this.$axios.post(`/chat/conversations-messages-${this.conversationId}`, {
           content: text,
           sender_type: 'rider',
           sender_id: this.conversationId
@@ -330,7 +330,7 @@ export default {
       this.$nextTick(() => this.scrollToBottom());
     },
     async getSocketUrl() {
-      const res = await this.$axios.get('/api/v1/chat/socket-address', {
+      const res = await this.$axios.get('/chat/socket-address', {
         params: { conversation_id: this.conversationId, application_id: this.applicationId }
       });
       return unwrapData(res).url;
@@ -432,7 +432,7 @@ export default {
       el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     },
     goBack() {
-      window.location.href = '/';
+      this.$router.push('/');
     },
     handleExitChat() {
       this.$confirm(this.$t('confirmExitChat'), this.$t('prompt'), {
@@ -441,7 +441,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.clearChatData();
-        window.location.href = '/';
+        this.$router.push('/');
       }).catch(() => {});
     },
     clearChatData() {

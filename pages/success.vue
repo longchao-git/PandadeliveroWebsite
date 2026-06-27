@@ -103,7 +103,7 @@ export default {
     }
 
     if (!this.applicationId && !this.formSummary) {
-      window.location.href = '/';
+      this.$router.push('/');
     }
   },
   methods: {
@@ -140,13 +140,13 @@ export default {
       const params = new URLSearchParams({ app_id: this.applicationId });
       if (this.conversationId) params.set('conversation_id', this.conversationId);
       if (this.applicationType) params.set('type', this.applicationType);
-      window.open(`/chat?${params.toString()}`, '_blank');
+      this.$router.push(`/chat?${params.toString()}`);
     },
     /**
      * 返回首页
      */
     goHome() {
-      window.location.href = '/';
+      this.$router.push('/');
     }
   }
 };

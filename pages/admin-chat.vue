@@ -406,7 +406,7 @@ export default {
       this.verifying = true
       this.verifyError = ''
       try {
-        const res = await this.$axios.get('/api/v1/admin/chat/verify', this.adminRequestConfig(
+        const res = await this.$axios.get('/admin/chat/verify', this.adminRequestConfig(
           this.conversationId ? { conversation_id: this.conversationId, application_id: this.applicationId } : {}
         ))
         const d = unwrapData(res)
@@ -434,7 +434,7 @@ export default {
       // 重置已显示消息 ID 集合
       this._displayedMessageIds = new Set()
       try {
-        const res = await this.$axios.get(`/api/v1/admin/chat/conversations-messages-${this.conversationId}`, this.adminRequestConfig())
+        const res = await this.$axios.get(`/admin/chat/conversations-messages-${this.conversationId}`, this.adminRequestConfig())
         const data = unwrapData(res)
         if (Array.isArray(data.messages)) {
           this.messages = data.messages.map(msg => {
@@ -483,7 +483,7 @@ export default {
     async loadConversationList () {
       this.loadingConversations = true
       try {
-        const res = await this.$axios.get('/api/v1/admin/chat/conversations', this.adminRequestConfig({ page: 1, page_size: 50 }))
+        const res = await this.$axios.get('/admin/chat/conversations', this.adminRequestConfig({ page: 1, page_size: 50 }))
         const list = unwrapList(res)
         this.conversationList = list
           .filter(item => item.conversation_id || item.application_id)
@@ -521,7 +521,7 @@ export default {
       const conv = this.conversationList.find(c => String(c.conversation_id) === String(convId))
       if (conv && this.applicationDetail && this.applicationDetail.mobile) return
       try {
-        const res = await this.$axios.get(`/api/v1/admin/chat/applications-detail-${convId}`, this.adminRequestConfig({ conversation_id: convId }))
+        const res = await this.$axios.get(`/admin/chat/applications-detail-${convId}`, this.adminRequestConfig({ conversation_id: convId }))
         this.applicationDetail = unwrapData(res)
       } catch (err) {
         console.error('loadApplicationDetail error:', err)
@@ -552,7 +552,7 @@ export default {
         return false
       }
       try {
-        const res = await this.$axios.post(`/api/v1/admin/chat/conversations-claim-${conversationId}`, {
+        const res = await this.$axios.post(`/admin/chat/conversations-claim-${conversationId}`, {
           previous_conversation_id: previousConversationId
         }, {
           headers: this.adminHeaders()
@@ -650,7 +650,7 @@ export default {
       this.showTransferModal = true
       if (this.adminList.length) return
       try {
-        const res = await this.$axios.get('/api/v1/admin/chat/admins', this.adminRequestConfig())
+        const res = await this.$axios.get('/admin/chat/admins', this.adminRequestConfig())
         const data = unwrapData(res)
         this.adminList = Array.isArray(data.list) ? data.list : []
       } catch (err) {
@@ -664,7 +664,7 @@ export default {
         return
       }
       try {
-        await this.$axios.post(`/api/v1/admin/chat/conversations-transfer-${this.conversationId}`, {
+        await this.$axios.post(`/admin/chat/conversations-transfer-${this.conversationId}`, {
           target_admin_id: targetAdminId,
           target_admin_name: targetAdminName
         }, {
@@ -688,7 +688,7 @@ export default {
       if (!this.canSend || !this.cnInput.trim() || this.translating) return
       this.translating = true
       try {
-        const res = await this.$axios.post('/api/v1/admin/chat/translate', {
+        const res = await this.$axios.post('/admin/chat/translate', {
           text: this.cnInput.trim(),
           source_lang: 'zh',
           target_lang: 'es',
@@ -715,7 +715,7 @@ export default {
       this.translatedPreview = ''
       this.sending = true
       try {
-        const message = unwrapData(await this.$axios.post(`/api/v1/admin/chat/conversations-messages-${this.conversationId}`, {
+        const message = unwrapData(await this.$axios.post(`/admin/chat/conversations-messages-${this.conversationId}`, {
           content: text,
           content_es: translated,
           source_lang: 'zh',
@@ -735,7 +735,7 @@ export default {
       }
     },
     async socketUrl () {
-      const res = await this.$axios.get('/api/v1/admin/chat/socket-address', this.adminRequestConfig())
+      const res = await this.$axios.get('/admin/chat/socket-address', this.adminRequestConfig())
       const data = unwrapData(res)
       if (!data.url) {
         throw new Error('socket address unavailable')
@@ -936,7 +936,7 @@ export default {
       return av.split(',').map(a => this.$t(AVAILABILITY_MAP[a] || a)).join(', ')
     },
     goHome () {
-      window.location.href = '/'
+      this.$router.push('/')
     },
     logoutAdmin () {
       this.$confirm(this.$t('confirmExitAdminChat'), this.$t('prompt'), {
@@ -949,7 +949,7 @@ export default {
         if (process.client) {
           sessionStorage.removeItem('pandadelivero_admin_session')
         }
-        window.location.href = '/'
+        this.$router.push('/')
       }).catch(() => {})
     }
   }

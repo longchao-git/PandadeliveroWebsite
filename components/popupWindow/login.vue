@@ -167,7 +167,7 @@ export default {
               this.$store.commit('SET_USERINFO', res);
               this.$message.success(this.$t('loginSuccessful'));
               setTimeout(()=>{
-                window.location.href = '/';
+                this.$router.push('/');
               },1500)
               this.$emit('handleCloseLoginDialog', -2);
             }).catch(err => {
@@ -202,7 +202,7 @@ export default {
                 localStorage.setItem('userInfo', JSON.stringify(profile));
               });
               setTimeout(()=>{
-                window.location.href = '/';
+                this.$router.push('/');
               },1500)
               this.$emit('handleCloseLoginDialog', -2);
 
@@ -218,7 +218,7 @@ export default {
               this.$store.commit('SET_USERINFO', res);
               this.$message.success(this.$t('loginSuccessful'));
               setTimeout(()=>{
-                window.location.href = '/';
+                this.$router.push('/');
               },1500)
               this.$emit('handleCloseLoginDialog', -2);
 

@@ -461,7 +461,7 @@ export default {
       this.verifying = true;
       this.verifyError = '';
       try {
-        await this.$axios.get('/api/v1/admin/chat/verify', this.adminRequestConfig());
+        await this.$axios.get('/admin/chat/verify', this.adminRequestConfig());
         this.$store.commit('SET_IS_ADMIN_SESSION', true);
         await this.loadList();
       } catch (err) {
@@ -471,7 +471,7 @@ export default {
       }
     },
     goHome() {
-      window.location.href = '/';
+      this.$router.push('/');
     },
      /**
      * 加载申请列表数据
@@ -479,7 +479,7 @@ export default {
     async loadList() {
       this.loading = true;
       try {
-        const res = await this.$axios.get('/api/v1/admin/chat/applications', this.adminRequestConfig({ page: 1, page_size: 100 }));
+        const res = await this.$axios.get('/admin/chat/applications', this.adminRequestConfig({ page: 1, page_size: 100 }));
         const data = unwrapData(res);
         const items = Array.isArray(data.list) ? data.list : [];
         if (data.stats) {
@@ -540,7 +540,7 @@ export default {
         return;
       }
       const url = `/admin-chat?token=${encodeURIComponent(this.token)}&admin_id=${encodeURIComponent(this.adminId)}&application_id=${encodeURIComponent(item.application_id)}&conversation_id=${encodeURIComponent(item.conversation_id)}`;
-      window.open(url, '_blank');
+      this.$router.push(url);
     },
     /**
      * 打开状态选择弹窗
@@ -583,7 +583,7 @@ export default {
       this.updating = true;
       try {
         await this.$axios.put(
-          `/api/v1/admin/chat/applications-status-${applicationId}`,
+          `/admin/chat/applications-status-${applicationId}`,
           { application_id: applicationId, status: this.newStatus },
           this.adminRequestConfig({ application_id: applicationId })
         );

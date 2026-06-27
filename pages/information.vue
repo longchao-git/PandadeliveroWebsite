@@ -90,7 +90,7 @@ export default {
           this.$store.commit('SET_USERINFO', res);
           this.$message.success(this.$t('saveSuccess'));
           setTimeout(()=>{
-            window.location.href = '/';
+            this.$router.push('/');
           },1500)
         }).catch(err => {
           this.$message.info(err.message);

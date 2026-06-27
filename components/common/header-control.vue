@@ -407,24 +407,25 @@ export default {
         localStorage.removeItem('userInfo');
         this.$store.commit('SET_USERINFO', {});
         this.$store.commit('SET_IS_ADMIN_SESSION', false);
-        window.location.href = '/';
+        this.userNewInfo = {};
+        this.$router.push('/');
       });
     },
     handleHome() {
       if (this.isAdminSession) {
-        window.location.href = this.buildAdminUrl('/admin');
+        this.$router.push('/admin');
         return;
       }
-      window.location.href = '/';
+      this.$router.push('/');
     },
     bingCart(){
-      window.location.href = '/cart';
+      this.$router.push('/cart');
     },
     bingOrders(){
-      window.location.href = '/my-orders';
+      this.$router.push('/my-orders');
     },
     bingAddresses(){
-      window.location.href = '/my-addresses';
+      this.$router.push('/my-addresses');
     },
     goToAdminChat() {
       if (this.$route.path === '/admin-chat') {
@@ -435,7 +436,7 @@ export default {
       }
       const url = this.buildAdminUrl('/admin-chat');
       if (url.includes('admin_id=')) {
-        window.location.href = url;
+        this.$router.push(url);
       }
     },
     goToAdminLead() {
@@ -447,7 +448,7 @@ export default {
       }
       const url = this.buildAdminUrl('/admin');
       if (url.includes('admin_id=')) {
-        window.location.href = url;
+        this.$router.push(url);
       }
     },
     handleClick(type) {
@@ -501,7 +502,7 @@ export default {
         try {
           const chatData = JSON.parse(pendingChat);
           if (chatData.application_id) {
-            window.location.href = `/chat?app_id=${encodeURIComponent(chatData.application_id)}`;
+            this.$router.push(`/chat?app_id=${encodeURIComponent(chatData.application_id)}`);
             return;
           }
         } catch (e) {
@@ -510,7 +511,7 @@ export default {
       }
       // 如果没有待处理聊天，跳转到首页
       this.$message.warning(this.$t('noPendingChat'));
-      window.location.href = '/';
+      this.$router.push('/');
     }
   }
 };

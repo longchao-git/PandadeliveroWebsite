@@ -151,10 +151,10 @@ export default {
   layout: 'default',
   methods: {
     goRider() {
-      window.location.href = '/rider';
+      this.$router.push('/rider');
     },
     goTeam() {
-      window.location.href = '/team';
+      this.$router.push('/team');
     }
   }
 };
