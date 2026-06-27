@@ -65,6 +65,7 @@
                 <v-list-item-title>{{ $t('aboutUs') }}</v-list-item-title>
               </v-list-item>
               <v-divider v-if='!isAdminSession' />
+              <!-- 暂时隐藏手机端菜单
               <v-list-item target='_blank' href='/points-mall' v-if="userNewInfo.staff_id && !isAdminSession">
                 <v-list-item-title>{{ $t('pointsMall') }}</v-list-item-title>
               </v-list-item>
@@ -81,6 +82,7 @@
                 <v-list-item-title>{{ $t('myAddresses') }}</v-list-item-title>
               </v-list-item>
               <v-divider v-if="userNewInfo.staff_id && !isAdminSession" />
+              -->
 
               <v-list-item target='_blank' :href='adminLeadUrl' v-if='isAdminSession'>
                 <v-list-item-title>{{ $t('leadManagement') }}</v-list-item-title>
@@ -139,6 +141,7 @@
             @click.prevent="$router.push('/about')"
           >{{ $t('aboutUs') }}
           </v-tab>
+          <!-- 暂时隐藏积分商城 tab
           <v-tab  v-if="userNewInfo.staff_id && !isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 2,
@@ -147,6 +150,7 @@
             @click.prevent="$router.push('/points-mall')"
           >{{ $t('pointsMall') }}
           </v-tab>
+          -->
           <v-tab v-if="!isAdminSession"
             :class="{
                             'v-tab--active': getActiveMenuInx === 3,
@@ -242,6 +246,7 @@
                   <v-list-item-title>{{ $t('personalInformation') }}</v-list-item-title>
                 </v-list-item>
 
+                <!-- 暂时隐藏以下功能
                 <v-list-item @click='bingCart' v-if="userNewInfo.staff_id">
                   <v-list-item-title>{{ $t('shoppingCart') }}</v-list-item-title>
                 </v-list-item>
@@ -253,6 +258,7 @@
                 <v-list-item @click='bingAddresses' v-if="userNewInfo.staff_id">
                   <v-list-item-title>{{ $t('myAddresses') }}</v-list-item-title>
                 </v-list-item>
+                -->
 
                 <v-list-item @click='bingOutLogin'>
                   <v-list-item-title>{{ $t('logOut') }}</v-list-item-title>
