@@ -592,8 +592,9 @@ export default {
       background: #f9c13e;
       border-radius: 35px;
       height: 49px;
-      padding: 0 20px;
+      padding: 0 14px;
       line-height: 49px;
+      flex-shrink: 0;
       text-align: center;
       font-weight: 700;
       font-size: 16px;
